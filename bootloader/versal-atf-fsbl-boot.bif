@@ -1,0 +1,28 @@
+/*
+ * Copyright 2024 Contemporary Software
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ */
+
+the_ROM_image:
+{
+image {
+    id = 0x73400000, name=BOOT_PDI
+    { type=bootimage, file=/home/aaron/bootbin_build/2021.2/static/top_wrapper.pdi }
+}
+image {
+    id = 0x1c000000, name=apu_subsystem
+    { core=a72-0,  exception_level = el-3, trustzone, file=/home/aaron/bootbin_build/2021.2/arm-trusted-firmware/build/versal/release/bl31/bl31.elf }
+    { core=a72-0,  exception_level = el-2, file=fsbl.elf }
+}
+}
