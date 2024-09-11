@@ -14,20 +14,18 @@
  *     limitations under the License.
  */
 
-#if !defined(BOARD_H)
-#define BOARD_H
-
-#ifdef FLARE_VERSAL
-  #include "versal.h"
-#elif FLARE_ZYNQMP
-  #include "zynqmp.h"
-#else
-  #include "zynq7000.h"
-#endif
-
 /*
- * Board set up.
+ * Xilinx Versal SLCR Control.
  */
-void board_hardware_setup(void);
 
-#endif
+#include "board-slcr.h"
+
+void
+board_slcr_unlock(void)
+{
+}
+
+void
+board_slcr_lock(void)
+{
+}

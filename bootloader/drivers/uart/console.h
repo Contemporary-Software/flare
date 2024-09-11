@@ -14,20 +14,30 @@
  *     limitations under the License.
  */
 
-#if !defined(BOARD_H)
-#define BOARD_H
+/*
+ * Console support.
+ */
 
-#ifdef FLARE_VERSAL
-  #include "versal.h"
+#if !defined(CONSOLE_H)
+#define CONSOLE_H
+
+#define ZYNQ_UART_0        0xe0001000
+#define ZYNQMP_UART_0      0xff000000
+#define VERSAL_UART_0      0xff000000
+#ifdef FLARE_ZYNQ7000
+  #define STDOUT_BASEADDRESS ZYNQ_UART_0
+  #define STDIN_BASEADDRESS  ZYNQ_UART_0
 #elif FLARE_ZYNQMP
-  #include "zynqmp.h"
+  #define STDOUT_BASEADDRESS ZYNQMP_UART_0
+  #define STDIN_BASEADDRESS  ZYNQMP_UART_0
 #else
-  #include "zynq7000.h"
+  #define STDOUT_BASEADDRESS VERSAL_UART_0
+  #define STDIN_BASEADDRESS  VERSAL_UART_0
 #endif
 
-/*
- * Board set up.
- */
-void board_hardware_setup(void);
+char inbyte(void);
+int  inbyte_available(void);
+void outbyte(char c);
+void out_flush(void);
 
 #endif

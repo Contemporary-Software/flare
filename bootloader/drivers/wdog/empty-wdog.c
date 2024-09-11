@@ -14,20 +14,23 @@
  *     limitations under the License.
  */
 
-#if !defined(BOARD_H)
-#define BOARD_H
-
-#ifdef FLARE_VERSAL
-  #include "versal.h"
-#elif FLARE_ZYNQMP
-  #include "zynqmp.h"
-#else
-  #include "zynq7000.h"
-#endif
-
 /*
- * Board set up.
+ * Place holder for watchdog
  */
-void board_hardware_setup(void);
 
-#endif
+#include "wdog.h"
+
+void
+wdog_init(void)
+{
+}
+
+void
+wdog_control(bool enable)
+{
+}
+
+void
+wdog_toggle (void)
+{
+}

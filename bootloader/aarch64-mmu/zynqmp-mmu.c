@@ -54,7 +54,9 @@
 #include <aarch64-mmu/aarch64-mmu.h>
 #include <aarch64-mmu/aarch64-mmu-vmsav8-64.h>
 
-uintptr_t bsp_translation_table_base[];
+uintptr_t bsp_translation_table_base[1];
+
+void zynqmp_setup_mmu_and_cache(void);
 
 static const aarch64_mmu_config_entry
 zynqmp_mmu_config_table[] = {
