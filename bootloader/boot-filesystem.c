@@ -26,7 +26,7 @@
 #include "datasafe.h"
 #include "flash-map.h"
 #include "flash.h"
-#include "jffs2-boot/jffs2-boot.h"
+#include "jffs2-boot.h"
 #include "md5.h"
 
 /*

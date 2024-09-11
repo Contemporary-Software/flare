@@ -1,0 +1,94 @@
+#! /usr/bin/env python
+# encoding: utf-8
+#
+# Flare Bootloader
+#
+
+import buildcontrol
+import builditems
+
+directories = [
+        'drivers',
+        'aarch64-mmu',
+        ]
+
+sources = {
+    'default': [
+        'boot-buffer.c',
+        'boot-factory-config.c',
+        'boot-filesystem.c',
+        'boot-load.c',
+        'boot-script.c',
+        'datasafe.c',
+        'factory-boot.c',
+        'reset.c',
+        ],
+    'versal': [],
+    'zynqmp': [
+        '_exit.c',
+        'aarch64-cache.c',
+        'aarch64-error.c',
+        'aarch64-fsbl-boot-start.S',
+        'aarch64-handoff.S',
+        'aarch64-handoff.c',
+        'zynqmp-atf-return.S',
+        'zynqmp-atf.c',
+        'zynqmp-factory-boot.c',
+        'zynqmp-pre-main.c',
+        'zynqmp-vectors.S',
+        ],
+    'zynq7000': []
+}
+
+includes = {
+    'default': [
+        '.',
+        'drivers/io',
+        'drivers/timer',
+        'drivers/flash',
+        'drivers/wdog',
+        'drivers/slcr',
+        'drivers/md5',
+        'drivers/zlib',
+        'drivers/jffs2',
+        'drivers/uart',
+        ],
+    'versal': [],
+    'zynqmp': [
+        '../build/xsa/',
+      ],
+    'zynq7000': []
+}
+
+defines = {
+    'default': [],
+    'versal': [],
+    'zynqmp': [],
+    'zynq7000': []
+}
+
+cflags = {
+    'default': [],
+    'versal': [],
+    'zynqmp': [],
+    'zynq7000': []
+}
+
+def init(ctx):
+    buildcontrol.recurse(ctx, directories)
+
+def options(opt):
+    buildcontrol.recurse(opt, directories)
+
+def configure(conf):
+    buildcontrol.recurse(conf, directories)
+
+def build(bld):
+    buildcontrol.recurse(bld, directories)
+    bld.stlib(target='flare',
+              features='c',
+              source=builditems.get_items(bld, sources),
+              includes=builditems.get_includes(bld, includes),
+              cflags=builditems.get_cflags(bld, cflags),
+              defines=builditems.get_defines(bld, defines),
+              use=['flare_aarch64_mmu'])

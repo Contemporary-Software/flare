@@ -18,6 +18,8 @@
  * FSBL factory configruation.
  */
 
+#include <stdio.h>
+
 #include "boot-buffer.h"
 #include "boot-filesystem.h"
 #include "datasafe.h"

@@ -34,9 +34,9 @@
 #include "board-handoff.h"
 #include "board.h"
 
-#ifdef FLARE_AARCH64_ZYNQMP
+#ifdef FLARE_ZYNQMP
   #include "zynqmp-factory-boot.h"
-#elif FLARE_AARCH64_VERSAL
+#elif FLARE_VERSAL
   #include "versal-factory-boot.h"
 #else
   #include "zynq7000-factory-boot.h"
