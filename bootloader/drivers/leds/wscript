@@ -20,7 +20,9 @@ sources = {
 }
 
 includes = {
-  'default': [],
+  'default': [
+      '../gpio'
+      ],
   'versal': [],
   'zynqmp': [],
   'zynq7000': []

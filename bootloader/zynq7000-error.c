@@ -25,7 +25,7 @@
 #include <console.h>
 #include <wdog.h>
 #include <board-slcr.h>
-#include <zynq.h>
+#include <zynq7000.h>
 #include <board.h>
 
 #include "ps7_init.h"

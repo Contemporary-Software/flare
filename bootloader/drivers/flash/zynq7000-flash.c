@@ -14,7 +14,7 @@
  *     limitations under the License.
  */
 
-#include "flash-zynq.h"
+#include "zynq7000-flash.h"
 
 #define GPIO_FLASH_WD_PIN  (4)
 #define GPIO_FLASH_WD_BANK (0)

@@ -20,6 +20,7 @@ directories = [
     'gpio',
     'power-switch',
     'slcr',
+    'wdog'
     ]
 
 def init(ctx):

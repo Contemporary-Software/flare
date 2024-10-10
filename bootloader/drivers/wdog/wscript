@@ -12,15 +12,21 @@ sources = {
     'zynqmp': [
         'empty-wdog.c',
         'wdog-empty.c',
-    ],
-    'zynq7000': []
+        ],
+    'zynq7000': [
+        'zynq7000-wdog.c',
+        'wdog-flare_1.c'
+        ]
 }
 
 includes = {
     'default': [],
     'versal': [],
     'zynqmp': [],
-    'zynq7000': []
+    'zynq7000': [
+        '../io',
+        '../gpio'
+        ]
 }
 
 defines = {

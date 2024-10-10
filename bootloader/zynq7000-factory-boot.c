@@ -1,4 +1,20 @@
+#include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+
 #include "factory-boot.h"
+#include "board-handoff.h"
+#include "flare-boot.h"
+#include "cache.h"
+#include "wdog.h"
+#include "flash.h"
+#include "flash-map.h"
+
+#define EXECUTABLE_LOAD_BASE FLARE_EXECUTABLE_BASE
+#define EXECUTABLE_LOAD_SIZE FLARE_EXECUTABLE_SIZE
+#define FLASH_SLOT_BASE      FLARE_FLASH_EXE_BASE
+
+static const char* const factory_boot_label = "EXE";
 
 void
 platform_factory_booter(uint8_t* header, size_t header_size)
@@ -32,13 +48,13 @@ platform_factory_booter(uint8_t* header, size_t header_size)
 
     load_size = EXECUTABLE_LOAD_SIZE;
 
-    rc = FactoryLoadImage(factory_boot_label,
-                          flash_offset,
-                          size,
-                          (uint8_t*) EXECUTABLE_LOAD_BASE,
-                          &load_size,
-                          IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_MD5),
-                          false);
+    rc = factory_load_image(factory_boot_label,
+                            flash_offset,
+                            size,
+                            (uint8_t*) EXECUTABLE_LOAD_BASE,
+                            &load_size,
+                            IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_MD5),
+                            true);
     if (!rc)
         return;
     /*

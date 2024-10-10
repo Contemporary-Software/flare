@@ -60,5 +60,5 @@ def configure(conf):
     if conf.options.flare_xsa:
         conf.env.FLARE_XSA = conf.options.flare_xsa
     else:
-        if board == 'zynqmp':
+        if board == 'zynqmp' or board == 'zynq7000':
             conf.fatal("XSA is required for this board")

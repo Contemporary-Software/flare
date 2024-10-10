@@ -21,14 +21,25 @@ includes = {
 }
 
 cflags = {
-  'default': ['-ffreestanding', '-g', '-DEL3=1 -DEL1_NONSECURE=0'],
+  'default': ['-ffreestanding', '-g'],
   'versal': [],
-  'zynqmp': ['-mcpu=cortex-a53',
-             '-mfix-cortex-a53-835769',
-             '-mfix-cortex-a53-843419',
-             '-mlittle-endian', 
-             '-mabi=lp64'],
-  'zynq7000': []
+  'zynqmp': [
+        '-mcpu=cortex-a53',
+        '-mfix-cortex-a53-835769',
+        '-mfix-cortex-a53-843419',
+        '-mlittle-endian',
+        '-DEL3=1',
+        '-DEL1_NONSECURE=0'
+        '-mabi=lp64'
+        ],
+  'zynq7000': [
+        '-march=armv7-a',
+        '-mthumb',
+        '-mfpu=neon',
+        '-mfloat-abi=hard',
+        '-mtune=cortex-a9',
+        '-mlittle-endian',
+        ]
 }
 
 def get_items(bld, items):
