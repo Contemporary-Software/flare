@@ -23,7 +23,13 @@ includes = {
   'default': [],
   'versal': [],
   'zynqmp': [],
-  'zynq7000': []
+  'zynq7000': [
+      '../uart',
+      '../gpio',
+      '../leds',
+      '../io',
+      '../slcr'
+      ]
 }
 
 defines = {

@@ -18,13 +18,14 @@ sources = {
     'zynqmp': [
         'build/xsa/psu_init.c',
         ],
-    'zynq7000': []
+    'zynq7000': [
+        'build/xsa/ps7_init.c',
+        'bootloader/zynq7000_vectors.S'
+        ]
 }
 
 includes = {
-    'default': [],
-    'versal': [],
-    'zynqmp': [
+    'default': [
         'bootloader',
         'bootloader/drivers/io',
         'bootloader/drivers/timer',
@@ -35,7 +36,9 @@ includes = {
         'bootloader/drivers/power-switch',
         'bootloader/drivers/wdog',
         'bootloader/drivers/slcr',
-    ],
+        ],
+    'versal': [],
+    'zynqmp': [],
     'zynq7000': []
 }
 
@@ -51,6 +54,13 @@ cflags = {
     'versal': [],
     'zynqmp': [],
     'zynq7000': []
+}
+
+linkflags = {
+    'default': [],
+    'versal': [],
+    'zynqmp': ['-T../bootloader/zynqmp-lscript.ld'],
+    'zynq7000': ['-T../bootloader/zynq7000-lscript.ld']
 }
 
 def init(ctx):
@@ -70,7 +80,9 @@ def build(bld):
     buildcontrol.recurse(bld, directories)
     bld.program(target='flare_fsbl',
                 features='c cprogram',
-                linkflags='-T ../bootloader/zynqmp-lscript.ld',
+                linkflags=builditems.get_cflags(bld, linkflags),
+                cflags=builditems.get_cflags(bld, cflags),
+                asflags=builditems.get_cflags(bld, cflags),
                 includes=builditems.get_includes(bld, includes),
                 defines=builditems.get_defines(bld, defines),
                 source=builditems.get_items(bld, sources),
