@@ -178,8 +178,8 @@ main(void)
     board_hardware_setup();
     board_timer_reset();
 
-    usleep(500000);
-    printf("Welcome to Flare!!");
+    usleep(1000000);
+    printf("\nWelcome to Flare!!\n");
 
     cache_enable_dcache();
     cache_enable_icache();
@@ -195,7 +195,7 @@ main(void)
     if (flash_Check())
     {
         FactoryConfigLoad();
-        flare_JtagBoot(bootMode);
+        //flare_JtagBoot(bootMode);
         FlareBootBoardRequests();
 
         rc = flare_FilesystemMount(true);

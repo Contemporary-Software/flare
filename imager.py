@@ -3,17 +3,20 @@ import sys
 import hashlib
 import gzip
 
-RECORDS_OFFSET = 0x300000
+RECORDS_OFFSET_ZYNQMP = 0x300000
+RECORDS_OFFSET_ZYNQ7000 = 0x100000
 
 if __name__ == "__main__":
     if '-h' in sys.argv or '--help' in sys.argv or len(sys.argv) <= 1:
-        print("imager.py (BOOT.BIN) (config) [output]")
+        print("imager.py (Board) (BOOT.BIN) (config) [output]")
+        print("Supported boards: zynqmp, zynq7000")
         exit(0)
-    bootbin = sys.argv[1]
-    config_name = sys.argv[2]
+    board = sys.argv[1]
+    bootbin = sys.argv[2]
+    config_name = sys.argv[3]
     output = "flash.bin"
-    if len(sys.argv) > 3:
-        output = sys.argv[3]
+    if len(sys.argv) > 4:
+        output = sys.argv[4]
 
     config_file = open(config_name)
 
@@ -25,7 +28,16 @@ if __name__ == "__main__":
 
     bootbin_file.close()
 
-    output_file.seek(RECORDS_OFFSET)
+    record_offset = 0;
+    if board == "zynqmp":
+        record_offset = RECORDS_OFFSET_ZYNQMP
+    elif board == "zynq7000":
+        record_offset = RECORDS_OFFSET_ZYNQ7000
+    else:
+        print("Board not supported: supported boards: zynqmp, zynq7000")
+        exit(1)
+
+    output_file.seek(record_offset)
 
     records = []
     records_data = []
@@ -35,10 +47,11 @@ if __name__ == "__main__":
         print(record_data)
         file_name = items[0]
         file = items[1]
-        addr = int(items[2], 16)
+        base_addr = int(items[2], 16)
+        start_addr = int(items[3], 16)
 
         file = open(file, "rb")
-        data = gzip.compress(file.read())
+        data = gzip.compress(file.read(), compresslevel=9, mtime=0)
         data_md5 = hashlib.md5(data)
 
         record = bytearray(file_name, 'ascii');
@@ -48,16 +61,22 @@ if __name__ == "__main__":
             while (len(record) < 32):
                 record.append(0)
         record.extend(len(data).to_bytes(4, 'little'))
-        record.extend(addr.to_bytes(4, 'little'))
+        record.extend(base_addr.to_bytes(4, 'little'))
+        record.extend(start_addr.to_bytes(4, 'little'))
         record.extend(data_md5.digest())
         records.append(record)
         records_data.append(data);
 
-    length = 20 + 56 * len(records)
+    if len(records) > 2:
+        print("Too many records. Only 2 supported:")
+
+    length = 20 + 60 * 2
 
     header = bytearray(length.to_bytes(4, 'little'))
     for record in records:
         header.extend(record)
+    while len(header) < (length - 16):
+        header.append(0)
     records_md5 = hashlib.md5(header)
 
     output_file.write(records_md5.digest())

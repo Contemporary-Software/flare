@@ -226,7 +226,7 @@ flash_TransferBuffer_Set8(flash_transfer_buffer* transfer, const uint8_t data)
 flash_error
 flash_TransferBuffer_Skip(flash_transfer_buffer* transfer, const size_t size)
 {
-#ifdef FLARE_ARM_ZYNQ7000
+#ifdef FLARE_ZYNQ7000
     if ((transfer->length - (transfer->out - transfer->padding)) < size)
         return FLASH_BUFFER_UNDERFLOW;
 
@@ -324,7 +324,7 @@ static void flash_TransferBuffer_SetCommMethod(flash_transfer_buffer* transfer,
 
 static flash_error flash_SetRegions(void)
 {
-#ifdef FLARE_ARM_ZYNQ7000
+#ifdef FLARE_ZYNQ7000
   return flash_ReadCFI();
 #else
   uint32_t tmp;
@@ -971,7 +971,7 @@ flash_ReadId(uint32_t* manufactureCode,
     flash_TransferBuffer_SetCommMethod(flash_buf, FLASH_COMM_METHOD_SINGLE);
 
 
-  fe = flash_Transfer(flash_buf, initialised);
+    fe = flash_Transfer(flash_buf, initialised);
     if (fe != FLASH_NO_ERROR)
         return fe;
 
