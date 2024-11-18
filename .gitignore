@@ -1,6 +1,5 @@
 build
 .waf*
 .lock*
-waf
 *.swp
 __pycache__
