@@ -27,6 +27,7 @@ sources = {
 includes = {
     'default': [
         'bootloader',
+        'bootloader/drivers/crc',
         'bootloader/drivers/io',
         'bootloader/drivers/timer',
         'bootloader/drivers/uart',

@@ -7,6 +7,7 @@
 import buildcontrol
 
 directories = [
+    'crc',
     'flash',
     'jffs2',
     'zlib',
@@ -42,6 +43,7 @@ def build(bld):
                    'flare_zlib_driver',
                    'flare_leds_driver',
                    'flare_md5_driver',
+                   'flare_crc_driver',
                    'flare_libc_driver',
                    'flare_uart_driver',
                    'flare_timer_driver',
