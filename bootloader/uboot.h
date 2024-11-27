@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2024 Contemporary Software
  *
@@ -13,26 +14,28 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
+#if !defined(UBOOT_H)
+#define UBOOT_H
 
-/*
- * Boot Load.
- *
- * Load the image into memory and checkum it is required.
- */
+#define UBOOT_MAGIC_NUM_OFF  0x00
+#define UBOOT_CRC_OFF        0x04
+#define UBOOT_TIME_STAMP_OFF 0x08
+#define UBOOT_DATA_SIZE_OFF  0x0C
+#define UBOOT_LOAD_ADDR_OFF  0x10
+#define UBOOT_ENTRY_PT_OFF   0x14
+#define UBOOT_IMAGE_CRC_OFF  0x18
+#define UBOOT_OS_OFF         0x1C
+#define UBOOT_ARCH_OFF       0x1D
+#define UBOOT_TYPE_OFF       0x1E
+#define UBOOT_COMP_OFF       0x1F
+#define UBOOT_IMAGE_NAME_OFF 0x20
+#define UBOOT_DATA_OFF       0x40
 
-#if !defined(BOOT_LOAD_H)
-#define BOOT_LOAD_H
+#define UBOOT_COMPRESSION_NONE 0
+#define UBOOT_COMPRESSION_GZIP 1
 
-#include <stdbool.h>
-#include <stdint.h>
+#define UBOOT_MAGIC_NUMBER 0x27051956
 
-#include "boot-script.h"
-
-/* Loads a u-boot legacy image */
-bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point);
-/*
- * Load the image into the memory at base until the length.
- */
-bool load_exe(const boot_Script* const script, uint32_t* entry_point);
+#define UBOOT_NAME_LEN 32
 
 #endif

@@ -67,12 +67,12 @@ flash_Check(void)
     {
         if ((memIfaceType == 0x20) && (density == 0x18))
         {
-            label = "S25FL128P_64K (16M)";
+            label = "S25FL128P_64K (16MiB)";
             flash_size = 16 * 1024 * 1024;
         }
         else if ((memIfaceType == 0x02) && (density == 0x20))
         {
-            label = "S25FL512S_256K (64M)";
+            label = "S25FL512S_256K (64MiB)";
             flash_size = 64 * 1024 * 1024;
         }
     }
@@ -114,7 +114,7 @@ static void
 FlareBootBoardRequests(void)
 {
     if (flare_DataSafe_FactoryBootRequested())
-        FactoryBoot("Requested");
+        factory_boot("Requested");
 }
 
 static void
@@ -174,12 +174,12 @@ main(void)
     bool        rc;
     int         i;
     uint8_t     header[IMAGE_HEADER_TOTAL(3)];
+    uint32_t    entry_point = 0;
 
     board_hardware_setup();
     board_timer_reset();
 
-    usleep(1000000);
-    printf("\nWelcome to Flare!!\n");
+    printf("\nFlare Apache 2.0 Licensed FSBL\n");
 
     cache_enable_dcache();
     cache_enable_icache();
@@ -202,20 +202,19 @@ main(void)
         if (rc == 0)
         {
             if (flare_PowerOnPressed())
-                FactoryBoot("Power button");
+                factory_boot("Power button");
 
-            rc = BootScriptLoad("/flare-bs", &script);
+            rc = BootScriptLoad("/flare-0", &script);
             if (rc)
             {
-                rc = BootLoad(&script, FLARE_HANDOFF_ADDRESS, FLARE_EXECUTABLE_SIZE);
+                rc = load_exe(&script, &entry_point);
                 if (rc)
                 {
                     flare_DataSafe_FsblSet(script.path, script.executable);
-                    led_execute();
                     wdog_control(true);
                     cache_flush_invalidate();
                     out_flush();
-                    board_handoff_exit(FLARE_HANDOFF_ADDRESS);
+                    board_handoff_exit(entry_point);
                 }
                 else
                 {
@@ -238,7 +237,7 @@ main(void)
     }
 
     led_failure();
-    FactoryBoot(fb_reason);
+    factory_boot(fb_reason);
     printf("Reset ..... ");
     out_flush();
     reset();

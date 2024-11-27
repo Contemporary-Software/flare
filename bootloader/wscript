@@ -33,7 +33,6 @@ sources = {
         'aarch64-handoff.c',
         'zynqmp-atf-return.S',
         'zynqmp-atf.c',
-        'zynqmp-factory-boot.c',
         'zynqmp-pre-main.c',
         'zynqmp-vectors.S',
         ],
@@ -45,13 +44,13 @@ sources = {
         'cpu_init.S',
         'zynq7000-mmu.c',
         'crt0.S',
-        'zynq7000-factory-boot.c'
         ]
 }
 
 includes = {
     'default': [
         '.',
+        'drivers/crc',
         'drivers/io',
         'drivers/timer',
         'drivers/flash',

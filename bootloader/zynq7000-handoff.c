@@ -18,6 +18,8 @@
  * Xilinx Zynq Handoff.
  */
 
+#include <stdio.h>
+
 #include <wdog.h>
 #include <board-handoff.h>
 #include <board-slcr.h>
@@ -78,6 +80,7 @@ zynq_dispatch(uint32_t address)
 void
 board_handoff_exit(uint32_t address)
 {
+  printf("Flare handing off to 0x%08x\n", address);
   board_slcr_lock();
   zynq_clear_caches();
   zynq_reset_mmu();
@@ -89,6 +92,7 @@ board_handoff_exit(uint32_t address)
 void
 board_handoff_exit_no_mmu_reset(uint32_t address)
 {
+  printf("Flare handing off to 0x%08x\n", address);
   board_slcr_lock();
   zynq_clear_caches();
   zynq_dispatch(address);

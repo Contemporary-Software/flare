@@ -362,3 +362,151 @@ int printf( const char *ctrl1, ...)
 }
 
 /*---------------------------------------------------*/
+/* void esp_printf( const func_ptr f_ptr,
+   const charptr ctrl1, ...) */
+int sprintf( char * restrict str, const char *ctrl1, ...)
+{
+
+    int long_flag;
+    int size_t_flag;
+    int dot_flag;
+    int count = 0;
+
+    params_t par;
+
+    char ch;
+    va_list argp;
+    char *ctrl = (char *)ctrl1;
+
+    va_start( argp, ctrl1);
+
+    for ( ; *ctrl; ctrl++) {
+
+        /* move format string chars to buffer until a  */
+        /* format control is found.                    */
+        if (*ctrl != '%') {
+            str[count] = *ctrl;
+            ++count;
+            continue;
+        }
+
+        /* initialize all the flags for this format.   */
+        dot_flag   = long_flag = par.left_flag = par.do_padding = 0;
+        par.pad_character = ' ';
+        par.num2=32767;
+
+ try_next:
+        ch = *(++ctrl);
+
+        if (isdigit((int)ch)) {
+            if (dot_flag)
+                par.num2 = getnum(&ctrl);
+            else {
+                if (ch == '0')
+                    par.pad_character = '0';
+
+                par.num1 = getnum(&ctrl);
+                par.do_padding = 1;
+            }
+            ctrl--;
+            goto try_next;
+        }
+
+        switch (tolower((int)ch)) {
+            case '%':
+                str[count] = '%';
+                ++count;
+                continue;
+
+            case '-':
+                par.left_flag = 1;
+                break;
+
+            case '.':
+                dot_flag = 1;
+                break;
+
+            case 'l':
+                long_flag = 1;
+                break;
+
+            case 'z':
+                size_t_flag = 1;
+                break;
+
+            case 'd':
+                if (long_flag || ch == 'D') {
+                    outnum( va_arg(argp, long), 10L, &par);
+                    continue;
+                }
+                else if (size_t_flag) {
+                    outnum( va_arg(argp, ssize_t), 10L, &par);
+                    continue;
+                }
+                else {
+                    outnum( va_arg(argp, int), 10L, &par);
+                    continue;
+                }
+            case 'u':
+                if (long_flag || ch == 'U') {
+                    outnum( va_arg(argp, unsigned long), 10L, &par);
+                    continue;
+                }
+                else if (size_t_flag) {
+                    outnum( va_arg(argp, size_t), 10L, &par);
+                    continue;
+                }
+                else {
+                    outnum( va_arg(argp, unsigned int), 10L, &par);
+                    continue;
+                }
+            case 'x':
+                outnum((long)va_arg(argp, int), 16L, &par);
+                continue;
+
+            case 's':
+                outs( va_arg( argp, char *), &par);
+                continue;
+
+            case 'c':
+                str[count] = va_arg( argp, int);
+                ++count;
+                continue;
+
+            case '\\':
+                switch (*ctrl) {
+                    case 'a':
+                        str[count] = 0x07;
+                        ++count;
+                        break;
+                    case 'h':
+                        str[count] = 0x08;
+                        ++count;
+                        break;
+                    case 'r':
+                        str[count] = 0x0D;
+                        ++count;
+                        break;
+                    case 'n':
+                        str[count] = 0x0D;
+                        ++count;
+                        str[count] = 0x0A;
+                        ++count;
+                        break;
+                    default:
+                        str[count] = 0x0A;
+                        ++count;
+                        break;
+                }
+                ctrl++;
+                break;
+
+            default:
+                continue;
+        }
+        goto try_next;
+    }
+    va_end( argp);
+
+    return count;
+}

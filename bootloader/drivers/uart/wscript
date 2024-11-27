@@ -10,7 +10,6 @@ sources = {
   'default': [
     'outbyte.c',
     'inbyte.c',
-    'printf.c',
   ],
   'versal': [
     'versal-uart.c',

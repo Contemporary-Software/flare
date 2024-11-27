@@ -19,19 +19,154 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
+#include "flare-boot.h"
 #include "boot-filesystem.h"
 #include "boot-load.h"
-#include "md5.h"
+#include "crc.h"
+#include "uboot.h"
+#include "tzlib.h"
+#include "flash-map.h"
+
+#define MASK_N_DIV(x, n) ((x) & ~((n) - 1))
+#define MASK_N_MOD(x, n) ((x) & ((n) - 1))
+#define PAD_n(x, n)      (MASK_N_MOD(x, n) == 0 ? (x) : MASK_N_DIV((x) + ((n) - 1), n))
+#define PAD_4(x)         PAD_n(x, 4)
+
+static inline uint32_t swap_end_32(uint32_t val) {
+    return (((0xFF000000 & val) >> 24) |
+            ((0x00FF0000 & val) >> 8) |
+            ((0x0000FF00 & val) << 8) |
+            ((0x000000FF & val) << 24));
+}
+
+bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point)
+{
+    int i;
+    CRC32             crc;
+    uint8_t*          loadTo;
+    uint8_t           compression;
+    char              name[UBOOT_NAME_LEN + 1] = {0};
+    uint32_t          magic_num;
+    uint8_t           checksum[CRC_CHECKSUM_SIZE];
+
+    loadTo = (uint8_t*)swap_end_32(*(uint32_t*)(image + UBOOT_LOAD_ADDR_OFF));
+    size = (size_t)swap_end_32(*(uint32_t*)(image + UBOOT_DATA_SIZE_OFF));
+    *entry_point = swap_end_32(*(uint32_t*)(image + UBOOT_ENTRY_PT_OFF));
+    compression = *(image + UBOOT_COMP_OFF);
+    magic_num = swap_end_32(*(uint32_t*)(image + UBOOT_MAGIC_NUM_OFF));
+
+    memcpy(name, image + UBOOT_IMAGE_NAME_OFF, UBOOT_NAME_LEN);
+
+    if (magic_num != UBOOT_MAGIC_NUMBER) {
+        printf("Bad magic number\nExpected: %08x\nFound: %08x\n",
+            UBOOT_MAGIC_NUMBER, magic_num);
+        return false;
+    }
+
+    if (compression != UBOOT_COMPRESSION_NONE &&
+          compression != UBOOT_COMPRESSION_GZIP)
+    {
+        printf("Invalid compression format (%d)\n", compression);
+        return false;
+    }
+
+    printf("       Loading: U-Boot Image: %s\n", name);
+    printf("            To: 0x%08x\n", loadTo);
+    printf("          Size: 0x%08x\n", size);
+    printf("    Compressed: %d\n", compression);
+    printf("   Entry point: 0x%08x\n", *entry_point);
+
+    image = image + UBOOT_DATA_OFF;
+
+    if (compression == UBOOT_COMPRESSION_GZIP)
+    {
+        size_t offset;
+        uint32_t dsize;
+        int    ze;
+
+        /*
+         * We only support a gzip format file:
+         *
+         *    http://www.gzip.org/zlib/rfc-gzip.html
+         *
+         * Check the header.
+         */
+
+        if ((image[0] != 0x1f) || (image[1] != 0x8b) || (image[2] != 0x08))
+        {
+            printf("error: invalid %s header\n", name);
+            return false;
+        }
+
+        offset = 10;
+
+        /* FLG.FEXTRA */
+        if ((image[3] & (1 << 2)) != 0)
+            offset += ((image[offset] << 8) | image[offset + 1]) + 2;
+        /* FLG.FNAME */
+        if ((image[3] & (1 << 3)) != 0)
+        {
+            while (image[offset] != 0)
+            {
+                if (offset >= size)
+                {
+                    printf("error: invalid %s header: fname\n", name);
+                    return false;
+                }
+                ++offset;
+            }
+            ++offset;
+        }
+        /* FLG.FCOMMENT */
+        if ((image[3] & (1 << 4)) != 0)
+        {
+            while (image[offset] != 0)
+            {
+                if (offset >= size)
+                {
+                    printf("error: invalid %s header: fcomment\n", name);
+                    return false;
+                }
+                ++offset;
+            }
+            ++offset;
+        }
+        /* FLG.FHCRC */
+        if ((image[3] & (1 << 1)) != 0)
+            offset += 2;
+
+        dsize = FLARE_EXECUTABLE_SIZE - PAD_4(size);
+
+        ze = raw_uncompress(loadTo + PAD_4(size),
+                            &dsize,
+                            image + offset,
+                            size - offset - 8);
+        if (ze != Z_OK)
+        {
+            printf("error: %s uncompress failure: %d\n", name, ze);
+            return false;
+        }
+
+        memmove(loadTo, loadTo + PAD_4(size), dsize);
+    } else {
+        memmove(loadTo, (const void*)image, size);
+    }
+
+    return true;
+}
 
 bool
-BootLoad(const boot_Script* const script, uintptr_t base, uint32_t length)
+load_exe(const boot_Script* const script, uint32_t* entry_point)
 {
-    uint8_t           checksum[sizeof(script->checksum)];
     bool              csum_valid = BootScriptChecksumValid(script);
     const char* const error = "\b: error:";
     size_t            i;
+    CRC32             crc;
     int               rc;
+    uint32_t          length = FLARE_EXECUTABLE_SIZE;
+    uint8_t           checksum[IMAGE_HEADER_HEADER_CRC_SIZE];
 
     printf("  Executable: %s/%s ", script->path, script->executable);
 
@@ -42,33 +177,34 @@ BootLoad(const boot_Script* const script, uintptr_t base, uint32_t length)
         return false;
     }
 
-    rc = flare_ReadFile(script->executable, (char*) base, &length);
+    rc = flare_ReadFile(script->executable, (char*) FLARE_IMAGE_STAGE_ADDR, &length);
     if (rc != 0)
     {
         printf("%s read: %d\n", error, rc);
         return false;
     }
 
-    md5((const void*) base, length, checksum);
+    crc32_clear(&crc);
+    crc32_update(&crc, (const void*)FLARE_IMAGE_STAGE_ADDR, length);
+    crc32_str(&crc, checksum);
 
-    printf("%s(", csum_valid ? "" : "[NOT CHECKED] ");
-    for (i = 0; i < sizeof(script->checksum); ++i)
-        printf("%02x", checksum[i]);
-    printf(") ");
+    printf("%s(CRC32: ", csum_valid ? "" : "[NOT CHECKED] ");
+    for (i = 0; i < CRC_CHECKSUM_SIZE; ++i)
+        printf("%c", checksum[i]);
+    printf(")\n");
 
     if (csum_valid)
     {
-        for (i = 0; i < sizeof(script->checksum); ++i)
+        for (i = 0; i < CRC_CHECKSUM_SIZE; ++i)
         {
             if (script->checksum[i] != checksum[i])
             {
-                printf("%s invalid checksum\n", error);
+                printf("error: invalid checksum\n");
                 return false;
             }
         }
     }
 
-    printf("\n");
-
-    return true;
+    return load_uboot_image((uint8_t*) FLARE_IMAGE_STAGE_ADDR, length,
+                                     entry_point);
 }

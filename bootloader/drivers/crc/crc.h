@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 
+#define CRC_CHECKSUM_SIZE   8
 /**
  * @brief Defines a function for a CRC32 checksum
  *
@@ -38,5 +39,7 @@ typedef uint32_t CRC32;
 void crc32_clear(CRC32* crc);
 
 void crc32_update(CRC32* crc, const unsigned char* data, int len);
+
+void crc32_str(CRC32* crc, unsigned char* data);
 
 #endif  //PIXIESDK_UTIL_CRC_HPP

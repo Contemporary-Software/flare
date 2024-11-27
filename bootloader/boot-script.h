@@ -40,9 +40,9 @@
 #define BOOT_SCRIPT_MAX_PATH (64)
 
 /*
- * Checksum size (MD5)
+ * Checksum size (CRC32)
  */
-#define BOOT_SCRIPT_CSUM_SIZE (16)
+#define BOOT_SCRIPT_CSUM_SIZE (8)
 
 /*
  * The results of reading the boot script.

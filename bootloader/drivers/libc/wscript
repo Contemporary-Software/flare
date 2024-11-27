@@ -9,6 +9,7 @@ import builditems
 sources = {
   'default': [
     'libc.c',
+    'printf.c',
   ],
   'versal': [],
   'zynqmp': [],

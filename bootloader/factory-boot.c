@@ -21,7 +21,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "boot-load.h"
 #include "cache.h"
+#include "crc.h"
 #include "datasafe.h"
 #include "factory-boot.h"
 #include "flash-map.h"
@@ -33,19 +35,6 @@
 #include "wdog.h"
 #include "board-handoff.h"
 #include "board.h"
-
-#ifdef FLARE_ZYNQMP
-  #include "zynqmp-factory-boot.h"
-#elif FLARE_VERSAL
-  #include "versal-factory-boot.h"
-#else
-  #include "zynq7000-factory-boot.h"
-#endif
-
-/*
- * A common label.
- */
-static const char* const factory_boot_label = "EXE";
 
 /*
  * The factory boot base and the number of file slots.
@@ -62,8 +51,6 @@ static const char* const factory_boot_label = "EXE";
 #define FLASH_SLOT_SIZE      FLARE_FLASH_EXE_SIZE
 #define EXECUTABLE_LOAD_BASE FLARE_EXECUTABLE_BASE
 #define EXECUTABLE_LOAD_SIZE FLARE_EXECUTABLE_SIZE
-
-#define MD5_CHECKSUM_SIZE   16
 
 #define MASK_N_DIV(x, n) ((x) & ~((n) - 1))
 #define MASK_N_MOD(x, n) ((x) & ((n) - 1))
@@ -84,150 +71,117 @@ FactoryLoadImage_Get8(uint8_t* table, uint32_t index, uint32_t offset)
     return *((uint8_t*) IMAGE_HEADER_RECORD(table, index, offset));
 }
 
-bool
-factory_load_image(const char* label,
-                 uint32_t    base,
-                 size_t      size,
-                 uint8_t*    loadTo,
-                 size_t*     loadSize,
-                 uint8_t*    cs,
-                 bool        compressed)
+void
+platform_factory_booter(uint8_t* header, size_t header_size)
 {
-    uint8_t     checksum[MD5_CHECKSUM_SIZE];
-    flash_error fe;
-    int         i;
+    uint32_t        flash_offset;
+    uint32_t        entry_point;
+    size_t          size;
+    flash_error     fe;
+    bool            rc;
+    CRC32           crc;
+    int             i;
+    uint8_t         checksum[CRC_CHECKSUM_SIZE];
+    const uint8_t*  cs = IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_CRC);
 
-    fe = flash_Read(base, loadTo, size);
+    //flare_DataSafe_SetFactoryBoot();
+
+    size = FactoryLoadImage_Get32(header, 0, IMAGE_HEADER_SIZE);
+    if (size > EXECUTABLE_LOAD_SIZE)
+    {
+        printf("error: factory image too big: 0x%08x\n", size);
+        return;
+    }
+
+    flash_offset = FLASH_SLOT_BASE + header_size;
+
+    size = FactoryLoadImage_Get32(header, 0, IMAGE_HEADER_SIZE);
+    if (size > EXECUTABLE_LOAD_SIZE)
+    {
+        printf("error: factory image too big\n");
+        return;
+    }
+
+    fe = flash_Read(flash_offset, (uint8_t*) FLARE_IMAGE_STAGE_ADDR, size);
     if (fe != FLASH_NO_ERROR)
     {
-        printf("error: load %s factory image: %d\n", label, fe);
-        return false;
+        printf("error: load factory image: %d\n", fe);
+        return;
     }
 
-    md5(loadTo, size, checksum);
+    crc32_clear(&crc);
+    crc32_update(&crc, (const void*)FLARE_IMAGE_STAGE_ADDR, size);
+    crc32_str(&crc, checksum);
 
-    for (i = 0; i < MD5_CHECKSUM_SIZE; ++i, ++cs)
+    printf("(CRC32: ");
+    for (i = 0; i < CRC_CHECKSUM_SIZE; ++i)
+        printf("%c", checksum[i]);
+    printf(")\n");
+
+    for (i = 0; i < CRC_CHECKSUM_SIZE; ++i)
     {
-        if (*cs != checksum[i])
+        if (cs[i] != checksum[i])
         {
-            printf("error: invalid %s checksum\n", label);
-            return false;
+            printf("error: invalid checksum\n");
+            return;
         }
     }
 
-    if (compressed)
-    {
-        size_t offset;
-        uLongf dsize;
-        int    ze;
-
-        /*
-         * We only support a gzip format file:
-         *
-         *    http://www.gzip.org/zlib/rfc-gzip.html
-         *
-         * Check the header.
-         */
-
-        if ((loadTo[0] != 0x1f) || (loadTo[1] != 0x8b) || (loadTo[2] != 0x08))
-        {
-            printf("error: invalid %s header\n", label);
-            return false;
-        }
-
-        offset = 10;
-
-        /* FLG.FEXTRA */
-        if ((loadTo[3] & (1 << 2)) != 0)
-            offset += ((loadTo[offset] << 8) | loadTo[offset + 1]) + 2;
-        /* FLG.FNAME */
-        if ((loadTo[3] & (1 << 3)) != 0)
-        {
-            while (loadTo[offset] != 0)
-            {
-                if (offset >= size)
-                {
-                    printf("error: invalid %s header: fname\n", label);
-                    return false;
-                }
-                ++offset;
-            }
-            ++offset;
-        }
-        /* FLG.FCOMMENT */
-        if ((loadTo[3] & (1 << 4)) != 0)
-        {
-            while (loadTo[offset] != 0)
-            {
-                if (offset >= size)
-                {
-                    printf("error: invalid %s header: fcomment\n", label);
-                    return false;
-                }
-                ++offset;
-            }
-            ++offset;
-        }
-        /* FLG.FHCRC */
-        if ((loadTo[3] & (1 << 1)) != 0)
-            offset += 2;
-
-        dsize = *loadSize - PAD_4(size);
-
-        ze = raw_uncompress(loadTo + PAD_4(size),
-                            &dsize,
-                            loadTo + offset,
-                            size - offset - 8);
-        if (ze != Z_OK)
-        {
-            printf("error: %s uncompress failure: %d\n", label, ze);
-            return false;
-        }
-
-        *loadSize = dsize;
-
-        memmove(loadTo, loadTo + PAD_4(size), dsize);
+    if(!load_uboot_image((uint8_t*) FLARE_IMAGE_STAGE_ADDR, size, &entry_point)) {
+        return;
     }
+    /*
+    flare_DataSafe_FlareSet(QSPI_MODE,
+                            (const char*) IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_NAME),
+                            (const char*) IMAGE_HEADER_RECORD(header, 1, IMAGE_HEADER_NAME),
+                            0);
 
-    return true;
+    flare_DataSafe_ClearFactoryBootRequest();
+    */
+    wdog_control(true);
+    cache_disable();
+    board_handoff_exit(entry_point);
 }
 
 void
-FactoryBoot(const char* why)
+factory_boot(const char* why)
 {
     uint8_t     *header = factory_header;
     size_t      header_size = sizeof(factory_header);
-    uint8_t     checksum[IMAGE_HEADER_HEADER_MD5_SIZE];
+    uint8_t     checksum[IMAGE_HEADER_HEADER_CRC_SIZE];
     flash_error fe;
     bool        ok = true;
     int         i;
+    CRC32       crc;
 
-    printf("Factory Boot: %s/%s (%s)\n", factory_boot_label, "HASH", why);
+    printf("Factory Boot: %s\n", why);
 
     fe = flash_Read(FACTORY_BOOT_BASE, header, header_size);
 
     if (fe != FLASH_NO_ERROR)
     {
-        printf("error: reading %s factory header: %d\n", factory_boot_label, fe);
+        printf("error: reading factory header: %d\n", fe);
         return;
     }
 
-    md5(header + IMAGE_HEADER_HEADER_REC,
-        header_size - IMAGE_HEADER_HEADER_MD5_SIZE,
-        checksum);
+    crc32_clear(&crc);
+    crc32_update(&crc, (const void*)header + IMAGE_HEADER_HEADER_REC,
+        header_size - IMAGE_HEADER_HEADER_CRC_SIZE);
+    crc32_str(&crc, checksum);
 
-    for (i = 0; i < IMAGE_HEADER_HEADER_MD5_SIZE; ++i)
+    for (i = 0; i < IMAGE_HEADER_HEADER_CRC_SIZE; ++i)
     {
-        if (header[IMAGE_HEADER_HEADER_MD5 + i] != checksum[i])
+        if (header[IMAGE_HEADER_HEADER_CRC + i] != checksum[i])
         {
-            printf("error: invalid %s header checksum\n", factory_boot_label);
+            printf("error: invalid header checksum\n");
             ok = false;
             break;
         }
     }
 
-    if (ok)
+    if (ok) {
         platform_factory_booter(header, header_size);
+    }
 
     reset();
 }

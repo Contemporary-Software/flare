@@ -23,10 +23,12 @@
 
 #include <stdbool.h>
 
+#define FLASH_SLOT_FILES     (2)
+
 /*
  * Factory boot.
  */
-void FactoryBoot(const char* why);
+void factory_boot(const char* why);
 
 /*
  * Platform specific factory boot
@@ -36,13 +38,7 @@ void platform_factory_booter(uint8_t* header, size_t header_size);
 /*
  * Load factory image
  */
-bool factory_load_image(const char* label,
-                 uint32_t    base,
-                 size_t      size,
-                 uint8_t*    loadTo,
-                 size_t*     loadSize,
-                 uint8_t*    cs,
-                 bool        compressed);
+bool factory_load_image(uint32_t base, size_t size, uint8_t* cs);
 
 uint32_t
 FactoryLoadImage_Get32(uint8_t* table, uint32_t index, uint32_t offset);

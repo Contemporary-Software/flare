@@ -44,7 +44,7 @@ flare_DataSafe_FsblInit(uint32_t resetReason)
     memset(&flare_datasafe->boot.bootFirmware[0], 0, sizeof(flare_datasafe->boot.bootFirmware));
     memset(&flare_datasafe->boot.bootExe[0], 0, sizeof(flare_datasafe->boot.bootExe));
     md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
-    printf(" Reset Count: %d\n  Reset Code: %08" PRIx32 "\n   Boot Mode: %08" PRIx32 "\n",
+    printf(" Reset Count: %d\n  Reset Code: 0x%08" PRIx32 "\n   Boot Mode: 0x%08" PRIx32 "\n",
            flare_datasafe->count, resetReason, flare_datasafe->boot.bootMode);
 }
 

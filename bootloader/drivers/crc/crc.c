@@ -73,3 +73,13 @@ void crc32_update(CRC32* crc, const unsigned char* data, int len) {
     }
     *crc = ~value;
 }
+
+void crc32_str(CRC32* crc, unsigned char* data) {
+    const char digits[] = "0123456789abcdef";
+    CRC32 tmp = *crc;
+
+    for (int i = 0; i < 8; i++) {
+        data[7 - i] = digits[tmp & 0xF];
+        tmp = tmp >> 4;
+    }
+}

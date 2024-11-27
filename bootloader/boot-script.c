@@ -27,7 +27,7 @@
 #include "boot-buffer.h"
 #include "boot-filesystem.h"
 #include "boot-script.h"
-#include "md5.h"
+#include "crc.h"
 
 static uint8_t
 Hex2Byte(const char* hex)
@@ -77,7 +77,7 @@ BootScriptLoad(const char* name, boot_Script* bs)
     uint32_t    l1_length;
     uint32_t    l2_length;
     uint32_t    l3_length;
-    MD5_CTX     md5;
+    CRC32       crc;
     uint8_t     checksum[BOOT_SCRIPT_CSUM_SIZE];
     size_t      i;
     int         rc;
@@ -93,6 +93,7 @@ BootScriptLoad(const char* name, boot_Script* bs)
         return false;
     }
 
+    printf("Length: %" PRIu32 "\n", length);
     path = (const char*) buffer;
     l1_length = 0;
     while (length && (path[l1_length] != '\n') && (path[l1_length] != '\r'))
@@ -162,23 +163,21 @@ BootScriptLoad(const char* name, boot_Script* bs)
     }
 
     /*
-     * The file has the checksum as hex characters, ie 2 chars per byte.
+     * The file has the checksum as hex characters, ie 1 chars per byte.
      */
-    if (l3_length != (sizeof(checksum) * 2))
+    if (l3_length != sizeof(checksum))
     {
         printf("%s bad checksum length: %" PRIu32 " (%s)\n", error, l3_length, csum);
         return false;
     }
 
-    MD5Init(&md5);
-    MD5Update(&md5, (uint8_t*) path, path_end);
-    MD5Update(&md5, (uint8_t*) executable, l2_length);
-    MD5Final(checksum, &md5);
+    crc32_clear(&crc);
+    crc32_update(&crc, path, path_end + l2_length + 1);
+    crc32_str(&crc, checksum);
 
-    for (i = 0; i < BOOT_SCRIPT_CSUM_SIZE; ++i, csum += 2)
+    for (i = 0; i < BOOT_SCRIPT_CSUM_SIZE; ++i)
     {
-        uint8_t cs = Hex2Byte(csum);
-        if (cs != checksum[i])
+        if (csum[i] != checksum[i])
         {
             printf("%s checksum failure\n", error);
             return false;
@@ -199,16 +198,16 @@ BootScriptLoad(const char* name, boot_Script* bs)
     memcpy(&bs->path[0], &path[0], path_end);
 
     /*
-     * See if the executable has a checksum. This is a ',' the MD5 checksum
+     * See if the executable has a checksum. This is a ',' the CRC32 checksum
      * length as hex characters from the end of the string. Set the checksum
      * to 0 is none is found.
      */
-    if (buffer[l1_length + executable_end - (BOOT_SCRIPT_CSUM_SIZE * 2) - 1] == ',')
+    if (buffer[l1_length + executable_end - (BOOT_SCRIPT_CSUM_SIZE) - 1] == ',')
     {
-        csum = &buffer[l1_length + executable_end - (BOOT_SCRIPT_CSUM_SIZE * 2)];
-        for (i = 0; i < BOOT_SCRIPT_CSUM_SIZE; ++i, csum += 2)
-            bs->checksum[i] = Hex2Byte(csum);
-        executable_end -= (BOOT_SCRIPT_CSUM_SIZE * 2) + 1;
+        csum = &buffer[l1_length + executable_end - (BOOT_SCRIPT_CSUM_SIZE)];
+        for (i = 0; i < BOOT_SCRIPT_CSUM_SIZE; ++i)
+            bs->checksum[i] = csum[i];
+        executable_end -= (BOOT_SCRIPT_CSUM_SIZE) + 1;
     }
     else
     {
@@ -226,6 +225,5 @@ BootScriptLoad(const char* name, boot_Script* bs)
 
     memcpy(&bs->executable[0], &executable[0], executable_end);
 
-    printf("\n");
     return true;
 }
