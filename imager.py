@@ -41,7 +41,7 @@ if __name__ == "__main__":
     data_crc = zlib.crc32(data)
 
     record = bytearray(len(data).to_bytes(4, 'little'))
-    record.extend(format(data_crc, 'x').encode('ascii'))
+    record.extend(format(data_crc, '08x').encode('ascii'))
 
     length = 12 + 12 * 2
 
