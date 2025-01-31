@@ -60,6 +60,7 @@ includes = {
         'drivers/zlib',
         'drivers/jffs2',
         'drivers/uart',
+        'drivers',
         ],
     'versal': [],
     'zynqmp': [

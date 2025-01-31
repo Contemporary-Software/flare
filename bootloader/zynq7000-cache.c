@@ -425,8 +425,9 @@ cache_disable_dcache(void)
 }
 
 void
-cache_diable(void)
+cache_disable(void)
 {
+  cache_flush();
   cache_disable_dcache();
   cache_disable_icache();
 }
@@ -450,12 +451,4 @@ cache_enable(void)
 {
   cache_enable_dcache();
   cache_enable_icache();
-}
-
-void
-cache_disable(void)
-{
-  cache_flush();
-  cache_disable_dcache();
-  cache_disable_icache();
 }

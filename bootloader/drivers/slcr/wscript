@@ -21,6 +21,7 @@ sources = {
 
 includes = {
   'default': [
+      '..',
       '../io',
     ],
   'versal': [],

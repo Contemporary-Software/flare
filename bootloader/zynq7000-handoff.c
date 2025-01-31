@@ -21,6 +21,7 @@
 #include <stdio.h>
 
 #include <wdog.h>
+#include <cache.h>
 #include <board-handoff.h>
 #include <board-slcr.h>
 
@@ -83,6 +84,7 @@ board_handoff_exit(uint32_t address)
   printf("Flare handing off to 0x%08x\n", address);
   board_slcr_lock();
   zynq_clear_caches();
+  cache_disable();
   zynq_reset_mmu();
   zynq_dispatch(address);
   wdog_control(true);
@@ -95,6 +97,7 @@ board_handoff_exit_no_mmu_reset(uint32_t address)
   printf("Flare handing off to 0x%08x\n", address);
   board_slcr_lock();
   zynq_clear_caches();
+  cache_disable();
   zynq_dispatch(address);
   wdog_control(true);
   while (true);
@@ -105,6 +108,7 @@ board_handoff_jtag_exit(void)
 {
   board_slcr_lock();
   zynq_clear_caches();
+  cache_disable();
   zynq_reset_mmu();
   while (true)
     asm volatile("wfe");

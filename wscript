@@ -37,6 +37,7 @@ includes = {
         'bootloader/drivers/power-switch',
         'bootloader/drivers/wdog',
         'bootloader/drivers/slcr',
+        'bootloader/drivers',
         ],
     'versal': [],
     'zynqmp': [],

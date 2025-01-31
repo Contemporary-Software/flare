@@ -22,7 +22,7 @@
 #define BOARD_SLCR_H
 
 #include <stdint.h>
-#include <board-io.h>
+#include <io/board-io.h>
 
 /*
  * Unlock and lock the SLCR.
