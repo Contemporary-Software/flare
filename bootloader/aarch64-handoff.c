@@ -28,6 +28,8 @@ board_handoff_exit(uint32_t address)
 {
   cache_flush_invalidate();
 
+  cache_disable();
+
   aarch64_mmu_disable();
 
   aarch64_handoff(address);
@@ -40,6 +42,8 @@ board_handoff_exit_no_mmu_reset(uint32_t address)
 {
   cache_flush_invalidate();
 
+  cache_disable();
+
   aarch64_handoff(address);
 
   while (true);
@@ -49,6 +53,8 @@ void
 board_handoff_jtag_exit(void)
 {
   cache_flush_invalidate();
+
+  cache_disable();
 
   while (true)
     asm volatile("wfe");
