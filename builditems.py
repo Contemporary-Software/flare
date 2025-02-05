@@ -21,7 +21,7 @@ includes = {
 }
 
 cflags = {
-  'default': ['-ffreestanding', '-g', '-O2'],
+  'default': ['-ffreestanding', '-g', '-O2', '-fPIE'],
   'versal': [],
   'zynqmp': [
         '-mcpu=cortex-a53',

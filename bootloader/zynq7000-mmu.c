@@ -72,7 +72,7 @@ struct {
 
 void _setupMMU(void)
 {
-  uint32_t* table = (uint32_t*) 0x00020000UL;
+  uint32_t* table = (uint32_t*) 0xFFFE0000UL;
   uint32_t  e;
   uint32_t  le;
   uint32_t  c;

@@ -44,6 +44,7 @@ sources = {
         'cpu_init.S',
         'zynq7000-mmu.c',
         'crt0.S',
+        'zynq7000-begin-lo.S',
         ]
 }
 

@@ -87,7 +87,7 @@
 .set PSS_SLCR_BASE_ADDR, 0xF8000000
 
 .set RESERVED,		0x0fffff00
-.set TblBase ,		0x00020000
+.set TblBase ,		0xFFFE0000
 .set LRemap,		0xFE00000F		/* set the base address of the peripheral block as not shared */
 .set L2CCWay,		(PSS_L2CC_BASE_ADDR + 0x077C)	/*(PSS_L2CC_BASE_ADDR + PSS_L2CC_CACHE_INVLD_WAY_OFFSET)*/
 .set L2CCSync,		(PSS_L2CC_BASE_ADDR + 0x0730)	/*(PSS_L2CC_BASE_ADDR + PSS_L2CC_CACHE_SYNC_OFFSET)*/
