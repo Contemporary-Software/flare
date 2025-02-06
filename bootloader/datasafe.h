@@ -20,7 +20,7 @@
  * the statically linked or heap memory.
  *
  * The datasafe has been moved to DDR ram and seems work stay around after a
- * reset. This is the only memory no touched by the secure boot of the Zynq.
+ * reset. This is the only memory not touched by the secure boot of the Zynq.
  *
  * In the application most of the access is read only so it assumes the contents
  * are not changing. Updates are special cases.
@@ -36,22 +36,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define FLARE_DATASAFE_HASH_LEN         (16)
-#define FLARE_DATASAFE_BOOT_PATH_LEN    (64)
-#define FLARE_DATASAFE_FACTORY_DATA_LEN (32)
-#define FLARE_DATASAFE_ERROR_TRACE_LEN  (256)
-
-/*
- * Place the datasafe at the bottom of the second piece of RAM. This is the
- * ps7_ram_1_S_AXI_BASEADDR as defined in the boot loader lscript.ld.
- *
- * Length is for the mmu on the Versal
- */
-#define DDR_RAM_BASE             (0x00100000UL)
-#define FLARE_DATASAFE_LENGTH    (0x7000000)
-#define FLARE_DATASAFE_HASH_BASE (DDR_RAM_BASE)
-#define FLARE_DATASAFE_BASE      (FLARE_DATASAFE_HASH_BASE + FLARE_DATASAFE_HASH_LEN)
-#define FLARE_DATASAFE_TOP       (FLARE_DATASAFE_HASH_BASE + FLARE_DATASAFE_LENGTH)
+#define FLARE_DS_BASE       (0x00080000UL)
+#define FLARE_DS_CRC_BASE   ((const unsigned char*)(FLARE_DS_BASE + sizeof(uint32_t)))
+#define FLARE_DS_CRC_LEN    (sizeof(flare_datasafe) - sizeof(uint32_t))
 
 /*
  * Indicate if this is a factory boot.
@@ -83,56 +70,39 @@ extern "C" {
  * Version number is always a 7 digit string. The following format string must
  * be used as:
  *
- *   printf("Version: %" FLARE_VERSION_PRI "lx\n", bc->fsbl_Version);
+ *   printf("Version: %" FLARE_VERSION_PRI "lx\n", bc->flare_version);
  */
 #define FLARE_VERSION_PRI "07"
 
 /*
- * Boot version and configuration.
- */
-typedef struct
-{
-    uint32_t fsbl_Version;    /* First stage boot loader */
-    uint32_t hbl_Version;     /* Flare boot loader. */
-    uint32_t bootMode;
-    char     bootPath[FLARE_DATASAFE_BOOT_PATH_LEN];
-    char     bootLoader[FLARE_DATASAFE_BOOT_PATH_LEN];
-    char     bootFirmware[FLARE_DATASAFE_BOOT_PATH_LEN];
-    char     bootExe[FLARE_DATASAFE_BOOT_PATH_LEN];
-} flare_DSBootConfig;
-
-/*
- * Factory Settings.
- */
-typedef struct
-{
-    uint8_t macAddress[6];
-    char    serialNumber[FLARE_DATASAFE_FACTORY_DATA_LEN];
-    char    partNumber[FLARE_DATASAFE_FACTORY_DATA_LEN];
-    char    revision[FLARE_DATASAFE_FACTORY_DATA_LEN];
-    char    modStrike[FLARE_DATASAFE_FACTORY_DATA_LEN];
-    char    bootOptions[FLARE_DATASAFE_FACTORY_DATA_LEN];
-} flare_DSFactoryConfig;
-
-/*
  * The data safe.
  *
- * The count is the number of times a reset has happened with a valid datasafe.
- * The error is one of the values list above and relates to the error trace data.
- * The reset is the reason for the reset as reported by the processor.
- * The boot configuration as it boots.
- * The factory configuration as loaded from the board.def file.
- * The error trace is the data used to report a fatal error condition.
+ * Definitions of the data safe can be found in datasafe.txt.
+ * This is datasafe version 1
  */
 typedef struct
 {
-    uint16_t              count;
-    uint16_t              code;
+    uint32_t              crc32;
+    uint32_t              format;
+#define FLARE_DS_BOOT_PATH_LEN    (64)
+#define FLARE_DS_FACTORY_DATA_LEN (32)
+#define FLARE_DS_ERROR_TRACE_LEN  (256)
+    uint32_t              count;
     uint32_t              reset;
-    flare_DSBootConfig    boot;
-    flare_DSFactoryConfig factory;
-    uint32_t              errorTrace[FLARE_DATASAFE_ERROR_TRACE_LEN];
-} flare_DataSafe;
+    uint32_t              flare_version;
+    uint32_t              bootmode;
+    char                  boot_path[FLARE_DS_BOOT_PATH_LEN];
+    char                  boot_loader[FLARE_DS_BOOT_PATH_LEN];
+    char                  boot_firmware[FLARE_DS_BOOT_PATH_LEN];
+    char                  boot_exe[FLARE_DS_BOOT_PATH_LEN];
+    uint8_t               mac_address[6];
+    char                  serial_number[FLARE_DS_FACTORY_DATA_LEN];
+    char                  part_number[FLARE_DS_FACTORY_DATA_LEN];
+    char                  revision[FLARE_DS_FACTORY_DATA_LEN];
+    char                  mod_strike[FLARE_DS_FACTORY_DATA_LEN];
+    char                  boot_options[FLARE_DS_FACTORY_DATA_LEN];
+    uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
+} flare_datasafe;
 
 /*
  * There is one header file and a few source files because the FSBL and HBL
@@ -143,22 +113,22 @@ typedef struct
  * Initialise the datasafe clearing the memory if the hash is not valid and
  * if valid update the count. Always set the reset value.
  */
-void flare_DataSafe_FsblInit(uint32_t resetReason);
+void flare_datasafe_FsblInit(uint32_t resetReason);
 
 /*
  * Reset if the datasafe is not valid.
  */
-void flare_DataSafe_FlareInit(void);
+void flare_datasafe_FlareInit(void);
 
 /*
  * Set the boot path and loader.
  */
-void flare_DataSafe_FsblSet(const char* path, const char* loader);
+void flare_datasafe_FsblSet(const char* path, const char* loader);
 
 /*
  * Set the factory settings.
  */
-void flare_DataSafe_FactorySet(const uint8_t* mac,
+void flare_datasafe_FactorySet(const uint8_t* mac,
                                const char*    serial,
                                const char*    part,
                                const char*    revision,
@@ -168,7 +138,7 @@ void flare_DataSafe_FactorySet(const uint8_t* mac,
 /*
  * Set the boot mode.
  */
-void flare_DataSafe_FlareSet(uint32_t    bootMode,
+void flare_datasafe_FlareSet(uint32_t    bootMode,
                              const char* firmware,
                              const char* exe,
                              bool        bitfile_loaded);
@@ -176,107 +146,97 @@ void flare_DataSafe_FlareSet(uint32_t    bootMode,
 /*
  * Set the factory boot flag.
  */
-void flare_DataSafe_SetFactoryBoot(void);
+void flare_datasafe_SetFactoryBoot(void);
 
 /*
  * Is the datasafe data valid ? Only available in the app.
  */
-bool flare_DataSafe_Valid(void);
+bool flare_datasafe_Valid(void);
 
 /*
  * Update the checksum.
  */
-void flare_DataSafe_UpdateChecksum(void);
+void flare_datasafe_UpdateChecksum(void);
 
 /*
  * Print the current status of the datasafe.
  */
-void flare_DataSafe_Show(void);
-
-/*
- * Return the boot configuration. NULL if the data safe is not valid.
- */
-const flare_DSBootConfig* flare_DataSafe_BootConfig(void);
-
-/*
- * Return the factory configuration. NULL if the data safe is not valid.
- */
-const flare_DSFactoryConfig* flare_DataSafe_FactoryConfig(void);
+void flare_datasafe_Show(void);
 
 /*
  * Return the boot path.
  */
-const char* flare_DataSafe_BootPath(void);
+const char* flare_datasafe_BootPath(void);
 
 /*
  * Return the boot firmware filename.
  */
-const char* flare_DataSafe_BootFirmware(void);
+const char* flare_datasafe_BootFirmware(void);
 
 /*
  * Return true if the firmware has been loaded.
  */
-bool flare_DataSafe_FirmwareLoaded(void);
+bool flare_datasafe_FirmwareLoaded(void);
 
 /*
  * Return true if the boot script format supports a checksum.
  */
-bool flare_DataSafe_BootScriptChecksum(void);
+bool flare_datasafe_BootScriptChecksum(void);
 
 /*
  * Set the firmware state.
  */
-void flare_DataSafe_SetFirmwareLoaded(void);
+void flare_datasafe_SetFirmwareLoaded(void);
 
 /*
  * Return the boot mode.
  */
-uint32_t flare_DataSafe_BootMode(void);
+uint32_t flare_datasafe_BootMode(void);
 
 /*
  * Return the run mode.
  */
-uint32_t flare_DataSafe_RunMode(void);
+uint32_t flare_datasafe_RunMode(void);
 
 /*
  * Return true if this is a factory boot.
  */
-bool flare_DataSafe_BootFactory(void);
+bool flare_datasafe_BootFactory(void);
 
 /*
  * Set the run mode.
  */
-void flare_DataSafe_SetRunMode(uint32_t mode);
+void flare_datasafe_SetRunMode(uint32_t mode);
 
 /*
  * Request a factory boot.
  */
-void flare_DataSafe_RequestFactoryBoot(void);
+void flare_datasafe_RequestFactoryBoot(void);
 
 /*
  * Clear a factory boot request.
  */
-void flare_DataSafe_ClearFactoryBootRequest(void);
+void flare_datasafe_ClearFactoryBootRequest(void);
 
 /*
  * Has a factory boot been requested ?
  */
-bool flare_DataSafe_FactoryBootRequested(void);
+bool flare_datasafe_FactoryBootRequested(void);
 
 /*
  * Save the data safe to FLASH on boot if there was a problem.
  */
-void flare_DataSafe_Dump(void);
+void flare_datasafe_Dump(void);
 
 /*
  * Copy the crash dump file to the web download directory on shell start.
  */
-void flare_DataSafe_Copy_Dump(void);
+void flare_datasafe_Copy_Dump(void);
 
 /*
  * Remove the crash dump.
  */
-void flare_DataSafe_Remove_Dump(void);
+void flare_datasafe_Remove_Dump(void);
 
 #ifdef __cplusplus
 }

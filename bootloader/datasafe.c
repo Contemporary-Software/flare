@@ -22,113 +22,122 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "datasafe.h"
-#include "md5.h"
-
-uint8_t * const flare_datasafe_hash = (uint8_t*) FLARE_DATASAFE_HASH_BASE;
-flare_DataSafe * const flare_datasafe = (flare_DataSafe*) FLARE_DATASAFE_BASE;
+#include <datasafe.h>
+#include <crc/crc.h>
 
 void
-flare_DataSafe_FsblInit(uint32_t resetReason)
+flare_datasafe_FsblInit(uint32_t resetReason)
 {
-    uint8_t checksum[FLARE_DATASAFE_HASH_LEN];
-    md5(flare_datasafe, sizeof(*flare_datasafe), checksum);
-    if (memcmp(flare_datasafe_hash, checksum, FLARE_DATASAFE_HASH_LEN) != 0)
-        memset(flare_datasafe, 0, sizeof(*flare_datasafe));
-    ++flare_datasafe->count;
-    flare_datasafe->reset = resetReason;
-    flare_datasafe->boot.bootMode =
-      flare_datasafe->boot.bootMode & FLARE_DS_BOOTMODE_REQ_MASK;
-    flare_datasafe->boot.bootMode |= FLARE_DS_BOOTMODE_BS_CHECKSUM;
-    flare_datasafe->boot.fsbl_Version = 0;
-    memset(&flare_datasafe->boot.bootFirmware[0], 0, sizeof(flare_datasafe->boot.bootFirmware));
-    memset(&flare_datasafe->boot.bootExe[0], 0, sizeof(flare_datasafe->boot.bootExe));
-    md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
-    printf(" Reset Count: %d\n  Reset Code: 0x%08" PRIx32 "\n   Boot Mode: 0x%08" PRIx32 "\n",
-           flare_datasafe->count, resetReason, flare_datasafe->boot.bootMode);
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    CRC32 crc = 0;
+    crc32_update(&crc, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
+    if (crc != datasafe->crc32) {
+        memset(datasafe, 0, sizeof(flare_datasafe));
+        crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
+    }
+    datasafe->format = FLARE_DATASAFE_FORMAT;
+    ++datasafe->count;
+    datasafe->reset = resetReason;
+    datasafe->bootmode = datasafe->bootmode & FLARE_DS_BOOTMODE_REQ_MASK;
+    datasafe->bootmode = datasafe->bootmode | FLARE_DS_BOOTMODE_BS_CHECKSUM;
+    datasafe->flare_version = 0;
+    memset(&datasafe->boot_firmware[0], 0, sizeof(datasafe->boot_firmware));
+    memset(&datasafe->boot_exe[0], 0, sizeof(datasafe->boot_exe));
+    datasafe->crc32 = 0;
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
+    printf(" Reset Count: %d\n  Reset Code: 0x%08x\n   Boot Mode: 0x%08x\n",
+           datasafe->count, resetReason, datasafe->bootmode);
 }
 
 bool
-flare_DataSafe_Valid(void)
+flare_datasafe_Valid(void)
 {
-    uint8_t checksum[FLARE_DATASAFE_HASH_LEN];
-    md5(flare_datasafe, sizeof(*flare_datasafe), checksum);
-    return memcmp(flare_datasafe_hash, checksum, FLARE_DATASAFE_HASH_LEN) == 0;
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    CRC32 crc = 0;
+    crc32_update(&crc, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
+    return crc != datasafe->crc32;
 }
 
 void
-flare_DataSafe_FsblSet(const char* path, const char* loader)
+flare_datasafe_FsblSet(const char* path, const char* loader)
 {
-    memcpy(&flare_datasafe->boot.bootPath[0], path, FLARE_DATASAFE_BOOT_PATH_LEN - 1);
-    memcpy(&flare_datasafe->boot.bootLoader[0], loader, FLARE_DATASAFE_BOOT_PATH_LEN - 1);
-    md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    memcpy(&datasafe->boot_path[0], path, FLARE_DS_BOOT_PATH_LEN - 1);
+    memcpy(&datasafe->boot_loader[0], loader, FLARE_DS_BOOT_PATH_LEN - 1);
+    datasafe->crc32 = 0;
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }
 
 void
-flare_DataSafe_FlareSet(uint32_t    bootMode,
+flare_datasafe_FlareSet(uint32_t    bootmode,
                         const char* firmware,
                         const char* exe,
                         bool        bitfile_loaded)
 {
-    flare_datasafe->boot.bootMode |= bootMode & FLARE_DS_BOOTMODE_MASK;
-    if (bitfile_loaded)
-      flare_datasafe->boot.bootMode |= FLARE_DS_BOOTMODE_BITFILE_LD;
-    memcpy(&flare_datasafe->boot.bootFirmware[0], firmware, FLARE_DATASAFE_BOOT_PATH_LEN - 1);
-    memcpy(&flare_datasafe->boot.bootExe[0], exe, FLARE_DATASAFE_BOOT_PATH_LEN - 1);
-    md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    datasafe->bootmode |= bootmode & FLARE_DS_BOOTMODE_MASK;
+    if (bitfile_loaded) {
+        datasafe->bootmode |= FLARE_DS_BOOTMODE_BITFILE_LD;
+    }
+    memcpy(&datasafe->boot_firmware[0], firmware, FLARE_DS_BOOT_PATH_LEN - 1);
+    memcpy(&datasafe->boot_exe[0], exe, FLARE_DS_BOOT_PATH_LEN - 1);
+    datasafe->crc32 = 0;
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }
 
 void
-flare_DataSafe_FactorySet(const uint8_t* mac,
+flare_datasafe_FactorySet(const uint8_t* mac,
                           const char*    serial,
                           const char*    part,
                           const char*    revision,
                           const char*    mod,
                           const char*    bootOptions)
 {
-    flare_DSFactoryConfig* fc = &flare_datasafe->factory;
-    size_t                 o;
-    for (o = 0; o < sizeof(fc->macAddress); ++o)
-        fc->macAddress[o] = mac[o];
-    memcpy(&fc->serialNumber[0], serial, FLARE_DATASAFE_FACTORY_DATA_LEN - 1);
-    memcpy(&fc->partNumber[0], part, FLARE_DATASAFE_FACTORY_DATA_LEN - 1);
-    memcpy(&fc->revision[0], revision, FLARE_DATASAFE_FACTORY_DATA_LEN - 1);
-    memcpy(&fc->modStrike[0], mod, FLARE_DATASAFE_FACTORY_DATA_LEN - 1);
-    memcpy(&fc->bootOptions[0], bootOptions, FLARE_DATASAFE_FACTORY_DATA_LEN - 1);
-    md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
-}
-
-const flare_DSFactoryConfig*
-flare_DataSafe_FactoryConfig(void)
-{
-    return flare_DataSafe_Valid() ? &flare_datasafe->factory : NULL;
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    size_t o;
+    for (o = 0; o < sizeof(datasafe->mac_address); ++o)
+        datasafe->mac_address[o] = mac[o];
+    memcpy(&datasafe->serial_number[0], serial, FLARE_DS_FACTORY_DATA_LEN - 1);
+    memcpy(&datasafe->part_number[0], part, FLARE_DS_FACTORY_DATA_LEN - 1);
+    memcpy(&datasafe->revision[0], revision, FLARE_DS_FACTORY_DATA_LEN - 1);
+    memcpy(&datasafe->mod_strike[0], mod, FLARE_DS_FACTORY_DATA_LEN - 1);
+    memcpy(&datasafe->boot_options[0], bootOptions, FLARE_DS_FACTORY_DATA_LEN - 1);
+    datasafe->crc32 = 0;
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }
 
 void
-flare_DataSafe_SetFactoryBoot(void)
+flare_datasafe_SetFactoryBoot(void)
 {
-    flare_datasafe->boot.bootMode |= FLARE_DS_BOOTMODE_FACTORY;
-    md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    datasafe->bootmode |= FLARE_DS_BOOTMODE_FACTORY;
+    datasafe->crc32 = 0;
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }
 
 void
-flare_DataSafe_RequestFactoryBoot(void)
+flare_datasafe_RequestFactoryBoot(void)
 {
-    flare_datasafe->boot.bootMode |= FLARE_DS_BOOTMODE_FACTORY_REQ;
-    md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    datasafe->bootmode |= FLARE_DS_BOOTMODE_FACTORY_REQ;
+    datasafe->crc32 = 0;
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }
 
 bool
-flare_DataSafe_FactoryBootRequested(void)
+flare_datasafe_FactoryBootRequested(void)
 {
-    if (flare_DataSafe_Valid())
-        return (flare_datasafe->boot.bootMode & FLARE_DS_BOOTMODE_FACTORY_REQ) != 0;
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    if (flare_datasafe_Valid())
+        return (datasafe->bootmode & FLARE_DS_BOOTMODE_FACTORY_REQ) != 0;
     return false;
 }
 
 void
-flare_DataSafe_ClearFactoryBootRequest(void)
+flare_datasafe_ClearFactoryBootRequest(void)
 {
-    flare_datasafe->boot.bootMode &= ~FLARE_DS_BOOTMODE_FACTORY_REQ;
-    md5(flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash);
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    datasafe->bootmode &= ~FLARE_DS_BOOTMODE_FACTORY_REQ;
+    datasafe->crc32 = 0;
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }

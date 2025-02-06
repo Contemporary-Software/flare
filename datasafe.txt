@@ -1,0 +1,54 @@
+Datasafe.
+
+This file contains the definition of the datasafe.
+
+The datasafe always begins with the length, CRC32 and version.
+The version defines the layout of the datasafe.
+
+Format 1:
+length = 1472
+format = 1
+
+item                : datatype      : bytes
+---------------------------------------
+crc32               : uint32_t      : 4
+format              : uint32_t      : 4
+count               : uint16_t      : 4
+reset               : uint32_t      : 4
+flare_version       : uint32_t      : 4
+bootmode            : uint32_t      : 4
+boot_path           : char[64]      : 64
+boot_loader         : char[64]      : 64
+boot_firmware       : char[64]      : 64
+boot_exe            : char[64]      : 64
+mac_address         : uint8_t[6]    : 6 + 2 (padding)
+serial_number       : char[32]      : 32
+part_number         : char[32]      : 32
+revision            : char[32]      : 32
+mod_strike          : char[32]      : 32
+boot_options        : char[32]      : 32
+error_trace         : uint32_t[256] : 1024
+
+Struct layout
+{
+    uint32_t              crc32;
+    uint32_t              format;
+#define FLARE_DS_BOOT_PATH_LEN    (64)
+#define FLARE_DS_FACTORY_DATA_LEN (32)
+#define FLARE_DS_ERROR_TRACE_LEN  (256)
+    uint32_t              count;
+    uint32_t              reset;
+    uint32_t              flare_version;
+    uint32_t              bootmode;
+    char                  boot_path[FLARE_DS_BOOT_PATH_LEN];
+    char                  boot_loader[FLARE_DS_BOOT_PATH_LEN];
+    char                  boot_firmware[FLARE_DS_BOOT_PATH_LEN];
+    char                  boot_exe[FLARE_DS_BOOT_PATH_LEN];
+    uint8_t               mac_address[6];
+    char                  serial_number[FLARE_DS_FACTORY_DATA_LEN];
+    char                  part_number[FLARE_DS_FACTORY_DATA_LEN];
+    char                  revision[FLARE_DS_FACTORY_DATA_LEN];
+    char                  mod_strike[FLARE_DS_FACTORY_DATA_LEN];
+    char                  boot_options[FLARE_DS_FACTORY_DATA_LEN];
+    uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
+} flare_datasafe;

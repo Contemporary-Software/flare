@@ -5,7 +5,7 @@
 #
 
 defines = {
-  'default': ['FLARE=1'],
+  'default': ['FLARE=1', 'FLARE_DATASAFE_FORMAT=1'],
   'versal': ['FLARE_VERSAL'],
   'zynqmp': ['FLARE_ZYNQMP'],
   'zynq7000': ['FLARE_ZYNQ7000']
