@@ -27,7 +27,7 @@ void wdog_init(void);
 void wdog_control(bool enable);
 void wdog_toggle (void);
 
-void board_WDogToggle (void);
-void board_WDogControl(bool enable);
+void board_wdog_toggle (void);
+void board_wdog_control(bool enable);
 
 #endif

@@ -31,29 +31,29 @@
 #define GPIO_DATA_RO_BASE (GPIO_BASE + 0x060)
 
 static uint32_t
-gpio_Bank(int pin)
+gpio_bank(int pin)
 {
     return pin > 31 ? 1 : 0;
 }
 
 static void
-gpio_SetOutputEnable(int pin, bool state)
+gpio_set_output_enable(int pin, bool state)
 {
-    const uint32_t reg = GPIO_OUTEN_BASE + (gpio_Bank(pin) * GPIO_OUTEN_OFF);
+    const uint32_t reg = GPIO_OUTEN_BASE + (gpio_bank(pin) * GPIO_OUTEN_OFF);
     flare_reg_write(reg,
                     flare_reg_read(reg) | (state ? 1 : 0) << (pin > 31 ? pin - 32 : pin));
 }
 
 static void
-gpio_SetDirection(int pin, bool state)
+gpio_set_direction(int pin, bool state)
 {
-    const uint32_t reg = GPIO_DIR_BASE + (gpio_Bank(pin) * GPIO_DIR_OFF);
+    const uint32_t reg = GPIO_DIR_BASE + (gpio_bank(pin) * GPIO_DIR_OFF);
     flare_reg_write(reg,
                     flare_reg_read(reg) | (state ? 1 : 0) << (pin > 31 ? pin - 32 : pin));
 }
 
 gpio_error
-gpio_SetupPin(const gpio_Pin_Def* pin)
+gpio_setup_pin(const gpio_pin_def* pin)
 {
     uint32_t value;
 
@@ -86,23 +86,23 @@ gpio_SetupPin(const gpio_Pin_Def* pin)
     flare_reg_write(0xF8000700 + (pin->pin * 4), value);
     flare_reg_write(0xF8000004, 0x767B);
 
-    gpio_SetDirection(pin->pin, pin->output);
+    gpio_set_direction(pin->pin, pin->output);
     if (pin->output)
     {
-        gpio_SetOutputEnable(pin->pin, pin->outen);
-        gpio_Output(pin->pin, pin->on);
+        gpio_set_output_enable(pin->pin, pin->outen);
+        gpio_output(pin->pin, pin->on);
     }
 
     return GPIO_NO_ERROR;
 }
 
 gpio_error
-gpio_SetupPins(const gpio_Pin_Def* pins, size_t size)
+gpio_setup_pins(const gpio_pin_def* pins, size_t size)
 {
     size_t pin;
     for (pin = 0; pin < size; ++pin, ++pins)
     {
-        gpio_error ge = gpio_SetupPin(pins);
+        gpio_error ge = gpio_setup_pin(pins);
         if (ge != GPIO_NO_ERROR)
             return ge;
     }
@@ -110,18 +110,18 @@ gpio_SetupPins(const gpio_Pin_Def* pins, size_t size)
 }
 
 gpio_error
-gpio_OutputEnable(int pin, bool on)
+gpio_output_enable(int pin, bool on)
 {
     if ((pin < 0) || (pin > GPIO_MAX_PINS))
         return GPIO_INVALID_PIN;
 
-    gpio_SetOutputEnable(pin, on);
+    gpio_set_output_enable(pin, on);
 
     return GPIO_NO_ERROR;
 }
 
 gpio_error
-gpio_Output(int pin, bool on)
+gpio_output(int pin, bool on)
 {
     uint32_t reg;
 
@@ -138,7 +138,7 @@ gpio_Output(int pin, bool on)
 }
 
 gpio_error
-gpio_Input(int pin, bool* on)
+gpio_input(int pin, bool* on)
 {
     uint32_t reg;
 

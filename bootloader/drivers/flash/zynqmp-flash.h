@@ -170,9 +170,9 @@
 #define GQSPI_DEFAULT_NUM_CS                1  /* Default number of chip selects */
 #define GQSPI_MAX_NUM_CS                    2  /* Maximum number of chip selects */
 
-void flash_WriteUnlock(void);
+void flash_writeUnlock(void);
 
-void flash_WriteLock(void);
+void flash_writeLock(void);
 
 flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised);
 

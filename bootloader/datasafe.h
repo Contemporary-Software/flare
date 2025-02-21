@@ -133,7 +133,7 @@ void flare_datasafe_factory_set(const uint8_t* mac,
 /*
  * Set the boot mode.
  */
-void flare_datasafe_set_bootmode(uint32_t    bootMode,
+void flare_datasafe_set_bootmode(uint32_t    bootmode,
                                  const char* firmware,
                                  const char* exe,
                                  bool        bitfile_loaded);

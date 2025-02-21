@@ -41,7 +41,7 @@
 void DataSafe_Print(void);
 
 static bool
-flash_Check(void)
+flash_check(void)
 {
     uint32_t    flash_size = 0;
     uint32_t    manufactureCode;
@@ -50,7 +50,7 @@ flash_Check(void)
     const char* label = NULL;
     flash_error fe;
 
-    fe = flash_ReadId(&manufactureCode,
+    fe = flash_read_id(&manufactureCode,
                       &memIfaceType,
                       &density);
     if (fe != FLASH_NO_ERROR)
@@ -105,7 +105,7 @@ int
 main(void)
 {
     const char* fb_reason = "";
-    boot_Script script;
+    boot_script script;
     bool        rc;
 
     wdog_control(false);
@@ -114,9 +114,9 @@ main(void)
 
     led_normal();
 
-    if (flash_Check())
+    if (flash_check())
     {
-        rc = flare_FilesystemMount(false);
+        rc = flare_filesystem_mount(false);
         if (rc == 0)
         {
             /*

@@ -34,7 +34,7 @@
  */
 static bool Gpio_Setup;
 static bool led_state[2];
-static const gpio_Pin_Def gpio_Leds[2] =
+static const gpio_pin_def gpio_Leds[2] =
 {
   {
     pin:      33,
@@ -62,7 +62,7 @@ void
 led_init(void)
 {
   gpio_error ge;
-  ge = gpio_SetupPins(gpio_Leds, 2);
+  ge = gpio_setup_pins(gpio_Leds, 2);
   if (ge == GPIO_NO_ERROR)
     Gpio_Setup = true;
 }
@@ -73,7 +73,7 @@ led_on(int led)
   if (Gpio_Setup && led < 2)
   {
     led_state[led] = true;
-    gpio_Output(gpio_Leds[led].pin, true);
+    gpio_output(gpio_Leds[led].pin, true);
   }
 }
 
@@ -83,7 +83,7 @@ led_off(int led)
   if (Gpio_Setup && led < 2)
   {
     led_state[led] = false;
-    gpio_Output(gpio_Leds[led].pin, false);
+    gpio_output(gpio_Leds[led].pin, false);
   }
 }
 

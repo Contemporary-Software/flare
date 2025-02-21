@@ -45,17 +45,17 @@
 #include "board.h"
 
 static bool
-flash_Check(void)
+flash_check(void)
 {
     uint32_t    flash_size = 0;
-    uint32_t    manufactureCode;
-    uint32_t    memIfaceType;
+    uint32_t    manufacture_code;
+    uint32_t    mem_iface_type;
     uint32_t    density;
     const char* label = NULL;
     flash_error fe;
 
-    fe = flash_ReadId(&manufactureCode,
-                      &memIfaceType,
+    fe = flash_read_id(&manufacture_code,
+                      &mem_iface_type,
                       &density);
     if (fe != FLASH_NO_ERROR)
     {
@@ -63,20 +63,20 @@ flash_Check(void)
         return false;
     }
 
-    if (manufactureCode == 1)
+    if (manufacture_code == 1)
     {
-        if ((memIfaceType == 0x20) && (density == 0x18))
+        if ((mem_iface_type == 0x20) && (density == 0x18))
         {
             label = "S25FL128P_64K (16MiB)";
             flash_size = 16 * 1024 * 1024;
         }
-        else if ((memIfaceType == 0x02) && (density == 0x20))
+        else if ((mem_iface_type == 0x02) && (density == 0x20))
         {
             label = "S25FL512S_256K (64MiB)";
             flash_size = 64 * 1024 * 1024;
         }
     }
-    else if (manufactureCode == 0x20)
+    else if (manufacture_code == 0x20)
     {
         if (density == 0x19)
         {
@@ -98,7 +98,7 @@ flash_Check(void)
     if (label == NULL)
     {
         printf("error: flash: unknown device: 0x%02" PRIx32 "/0x%02" PRIx32 "/0x%02" PRIx32 "\n",
-               manufactureCode, memIfaceType, density);
+               manufacture_code, mem_iface_type, density);
         return false;
     }
 
@@ -111,7 +111,7 @@ flash_Check(void)
 }
 
 static void
-FlareBootBoardRequests(void)
+flare_boot_board_requests(void)
 {
     if (flare_datasafe_factory_boot_requested()) {
         factory_boot("Requested");
@@ -119,10 +119,10 @@ FlareBootBoardRequests(void)
 }
 
 static void
-flare_JtagBoot(uint32_t bootMode)
+flare_jtag_boot(uint32_t bootmode)
 {
     /*
-    if (bootMode != JTAG_MODE)
+    if (bootmode != JTAG_MODE)
     {
         const flare_DSFactoryConfig* fc = flare_datasafe_FactoryConfig();
         if (fc)
@@ -141,7 +141,7 @@ flare_JtagBoot(uint32_t bootMode)
                     ++jtag;
                     if (*jtag == '\0')
                     {
-                        bootMode = JTAG_MODE;
+                        bootmode = JTAG_MODE;
                         break;
                     }
                 }
@@ -156,7 +156,7 @@ flare_JtagBoot(uint32_t bootMode)
     }
     */
 
-    if (bootMode == JTAG_MODE)
+    if (bootmode == JTAG_MODE)
     {
         flare_datasafe_set_boot("/jtag", "none");
         flare_datasafe_set_bootmode(JTAG_MODE, "", "none", false);
@@ -171,8 +171,8 @@ int
 main(void)
 {
     const char* fb_reason = "";
-    boot_Script script;
-    uint32_t    bootMode = board_reg_read(BOOT_MODE_REG) & BOOT_MODES_MASK;
+    boot_script script;
+    uint32_t    bootmode = board_reg_read(BOOT_MODE_REG) & BOOT_MODES_MASK;
     uint32_t    reset_status = board_reg_read(RESET_REASON_REG);
     bool        rc;
     int         i;
@@ -195,19 +195,19 @@ main(void)
 
     flare_datasafe_init(reset_status);
 
-    if (flash_Check())
+    if (flash_check())
     {
-        FactoryConfigLoad();
-        //flare_JtagBoot(bootMode);
-        FlareBootBoardRequests();
+        factory_config_load();
+        /* flare_jtag_boot(bootmode); */
+        flare_boot_board_requests();
 
-        rc = flare_FilesystemMount(true);
+        rc = flare_filesystem_mount(true);
         if (rc == 0)
         {
-            if (flare_PowerOnPressed())
+            if (flare_power_on_pressed())
                 factory_boot("Power button");
 
-            rc = BootScriptLoad("/flare-0", &script);
+            rc = boot_script_load("/flare-0", &script);
             if (rc)
             {
                 rc = load_exe(&script, &entry_point);

@@ -57,7 +57,7 @@ typedef struct
     bool           pullup;    /* True to enable the pull up. */
     bool           fast;      /* True to be a fast CMOS edge */
     bool           tristate;  /* True to enable tri-state. */
-} gpio_Pin_Def;
+} gpio_pin_def;
 
 /*
  * Error codes.
@@ -69,11 +69,11 @@ typedef enum
     GPIO_INVALID_VOLTAGE
 } gpio_error;
 
-gpio_error gpio_SetupPin(const gpio_Pin_Def* pin);
-gpio_error gpio_SetupPins(const gpio_Pin_Def* pins, size_t size);
-gpio_error gpio_OutputEnable(int pin, bool on);
-gpio_error gpio_Output(int pin, bool on);
-gpio_error gpio_Input(int pin, bool* on);
+gpio_error gpio_setup_pin(const gpio_pin_def* pin);
+gpio_error gpio_setup_pins(const gpio_pin_def* pins, size_t size);
+gpio_error gpio_output_enable(int pin, bool on);
+gpio_error gpio_output(int pin, bool on);
+gpio_error gpio_input(int pin, bool* on);
 
 #ifdef __cplusplus
 }

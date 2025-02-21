@@ -28,16 +28,16 @@
 /*
  * Mount the file system.
  */
-int flare_FilesystemMount(bool setup_cache);
+int flare_filesystem_mount(bool setup_cache);
 
 /*
  * Read the file.
  */
-int flare_ReadFile(const char* name, void* const buffer, uint32_t* size);
+int flare_read_file(const char* name, void* const buffer, uint32_t* size);
 
 /*
  * Change directory.
  */
-int flare_Chdir(const char* path);
+int flare_chdir(const char* path);
 
 #endif

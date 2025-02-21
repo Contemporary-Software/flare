@@ -107,9 +107,9 @@
 #define FLASH_SR_SRWD  (1 << 7)
 
 
-void flash_WriteUnlock(void);
+void flash_writeUnlock(void);
 
-void flash_WriteLock(void);
+void flash_writeLock(void);
 
 flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised);
 

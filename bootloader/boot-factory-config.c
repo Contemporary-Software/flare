@@ -28,25 +28,25 @@
 #include "md5.h"
 
 void
-FactoryConfigLoad(void)
+factory_config_load(void)
 {
     char*       buffer;
     uint8_t     checksum[FACTORY_CHECKSUM_SIZE];
     flash_error fe;
     int         i;
 
-    if (flare_GetReadBufferSize() < FACTORY_TABLE_SIZE)
+    if (flare_get_read_bufferSize() < FACTORY_TABLE_SIZE)
     {
         printf("error: factory table size too large\n");
         return;
     }
 
-    buffer = flare_GetReadBuffer();
+    buffer = flare_get_read_buffer();
 
     /*
      * Assumes the file has been mounted and so the flash driver initialised.
      */
-    fe = flash_Read(flash_DeviceSize() - FACTORY_TABLE_FLASH_SIZE,
+    fe = flash_read(flash_device_size() - FACTORY_TABLE_FLASH_SIZE,
                    buffer, FACTORY_TABLE_SIZE);
     if (fe != FLASH_NO_ERROR)
     {

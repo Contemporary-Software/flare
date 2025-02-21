@@ -61,13 +61,13 @@
 uint8_t factory_header[IMAGE_HEADER_TOTAL(FLASH_SLOT_FILES)];
 
 uint32_t
-FactoryLoadImage_Get32(uint8_t* table, uint32_t index, uint32_t offset)
+factory_load_image_get32(uint8_t* table, uint32_t index, uint32_t offset)
 {
     return *((uint32_t*) IMAGE_HEADER_RECORD(table, index, offset));
 }
 
 uint8_t
-FactoryLoadImage_Get8(uint8_t* table, uint32_t index, uint32_t offset)
+factory_load_image_get8(uint8_t* table, uint32_t index, uint32_t offset)
 {
     return *((uint8_t*) IMAGE_HEADER_RECORD(table, index, offset));
 }
@@ -88,7 +88,7 @@ platform_factory_booter(uint8_t* header, size_t header_size)
 
     flare_datasafe_set_factory_boot();
 
-    size = FactoryLoadImage_Get32(header, 0, IMAGE_HEADER_SIZE);
+    size = factory_load_image_get32(header, 0, IMAGE_HEADER_SIZE);
     if (size > EXECUTABLE_LOAD_SIZE)
     {
         printf("error: factory image too big: 0x%08x\n", size);
@@ -97,14 +97,14 @@ platform_factory_booter(uint8_t* header, size_t header_size)
 
     flash_offset = FLASH_SLOT_BASE + header_size;
 
-    size = FactoryLoadImage_Get32(header, 0, IMAGE_HEADER_SIZE);
+    size = factory_load_image_get32(header, 0, IMAGE_HEADER_SIZE);
     if (size > EXECUTABLE_LOAD_SIZE)
     {
         printf("error: factory image too big\n");
         return;
     }
 
-    fe = flash_Read(flash_offset, (uint8_t*) FLARE_IMAGE_STAGE_ADDR, size);
+    fe = flash_read(flash_offset, (uint8_t*)FLARE_IMAGE_STAGE_ADDR, size);
     if (fe != FLASH_NO_ERROR)
     {
         printf("error: load factory image: %d\n", fe);
@@ -158,7 +158,7 @@ factory_boot(const char* why)
 
     printf("Factory Boot: %s\n", why);
 
-    fe = flash_Read(FACTORY_BOOT_BASE, header, header_size);
+    fe = flash_read(FACTORY_BOOT_BASE, header, header_size);
 
     if (fe != FLASH_NO_ERROR)
     {

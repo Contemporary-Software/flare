@@ -30,7 +30,7 @@
 #include "crc.h"
 
 static uint8_t
-Hex2Byte(const char* hex)
+hex_to_byte(const char* hex)
 {
     uint32_t byte = 0;
     int      i;
@@ -54,7 +54,7 @@ Hex2Byte(const char* hex)
 }
 
 bool
-BootScriptChecksumValid(const boot_Script* const bs)
+boot_script_checksum_valid(const boot_script* const bs)
 {
     size_t i;
     for (i = 0; i < BOOT_SCRIPT_CSUM_SIZE; ++i)
@@ -64,10 +64,10 @@ BootScriptChecksumValid(const boot_Script* const bs)
 }
 
 bool
-BootScriptLoad(const char* name, boot_Script* bs)
+boot_script_load(const char* name, boot_script* bs)
 {
-    uint32_t    length = flare_GetReadBufferSize();
-    char* const buffer = flare_GetReadBuffer();
+    uint32_t    length = flare_get_read_bufferSize();
+    char* const buffer = flare_get_read_buffer();
     const char* error = "\b: error:";
     const char* path;
     const char* executable;
@@ -86,7 +86,7 @@ BootScriptLoad(const char* name, boot_Script* bs)
 
     memset(bs, 0, sizeof(*bs));
 
-    rc = flare_ReadFile(name, buffer, &length);
+    rc = flare_read_file(name, buffer, &length);
     if (rc != 0)
     {
         printf("%s read: %d\n", error, rc);

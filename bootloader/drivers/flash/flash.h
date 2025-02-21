@@ -20,7 +20,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-//#include "drivers/flash/flash.h"
 #include "flare-io.h"
 
 /*
@@ -118,31 +117,31 @@ typedef enum
 
 void flash_Init(void);
 
-flash_error flash_Open (void);
-flash_error flash_Close (void);
+flash_error flash_open(void);
+flash_error flash_close(void);
 
-flash_error flash_Read(uint32_t address, void* buffer, size_t length);
-flash_error flash_Write(uint32_t address, const void* buffer, size_t length);
+flash_error flash_read(uint32_t address, void* buffer, size_t length);
+flash_error flash_write(uint32_t address, const void* buffer, size_t length);
 
-flash_error flash_Blank(uint32_t address, size_t length);
-flash_error flash_EraseSector(uint32_t address);
-flash_error flash_WriteSector(uint32_t address, const void* buffer, size_t length);
+flash_error flash_blank(uint32_t address, size_t length);
+flash_error flash_erase_sector(uint32_t address);
+flash_error flash_writeSector(uint32_t address, const void* buffer, size_t length);
 
-flash_error flash_EraseDevice(void);
+flash_error flash_erase_device(void);
 
-flash_error flash_ReadId(uint32_t* manufactureCode,
-                         uint32_t* memIfaceType,
-                         uint32_t* density);
-flash_error flash_PrintCFI(void);
+flash_error flash_read_id(uint32_t* manufactureCode,
+                          uint32_t* memIfaceType,
+                          uint32_t* density);
+flash_error flash_print_cfi(void);
 
-flash_error flash_GetRegions(flash_region** regions, size_t* size);
+flash_error flash_get_regions(flash_region** regions, size_t* size);
 
-size_t flash_DeviceSize(void);
-size_t flash_DeviceSectorEraseSize(void);
+size_t flash_device_size(void);
+size_t flash_device_sector_erase_size(void);
 
-void flash_TraceControl(bool state);
+void flash_trace_control(bool state);
 
-const char* flash_ErrorText(flash_error fe);
+const char* flash_error_text(flash_error fe);
 /*
  * A transfer buffer has a buffer and length.
  */
@@ -166,16 +165,16 @@ static flash_transfer_buffer flash_buf_;
 /*
  * Special handler function used by the tester.
  */
-typedef void (*flash_WaitHandler)(void* user);
+typedef void (*flash_wait_handler)(void* user);
 
-void flash_RegisterWaitHandler(flash_WaitHandler handler, void* user);
+void flash_register_wait_handler(flash_wait_handler handler, void* user);
 
-void flash_TransferTrace(const char* message, const flash_transfer_buffer* transfer);
+void flash_transfer_trace(const char* message, const flash_transfer_buffer* transfer);
 
 void qspi_reg_write(uint32_t reg, uint32_t value);
 
 uint32_t qspi_reg_read(uint32_t reg);
 
-flash_error flash_TransferBuffer_Skip(flash_transfer_buffer* transfer, const size_t size);
+flash_error flash_transfer_buffer_skip(flash_transfer_buffer* transfer, const size_t size);
 
 #endif

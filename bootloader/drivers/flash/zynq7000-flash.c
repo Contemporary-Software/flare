@@ -29,7 +29,7 @@
 #define GPIO_MASK_BASE  (GPIO_BASE + 0x000)
 
 void
-flash_WriteUnlock(void)
+flash_writeUnlock(void)
 {
     uint32_t reg;
 
@@ -49,7 +49,7 @@ flash_WriteUnlock(void)
 }
 
 void
-flash_WriteLock(void)
+flash_writeLock(void)
 {
     uint32_t reg;
     reg = GPIO_MASK_BASE + ((GPIO_FLASH_WD_PIN / 16) * 4);
@@ -91,7 +91,7 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
       initialised = true;
     }
 
-    flash_TransferTrace("transfer:TX", transfer);
+    flash_transfer_trace("transfer:TX", transfer);
 
     /*
      * Set the slave select.
@@ -219,7 +219,7 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
     /*
      * Skip the command byte.
      */
-    flash_TransferBuffer_Skip(transfer, 1);
+    flash_transfer_buffer_skip(transfer, 1);
 
     /*
      * Disable the slave select.
@@ -232,7 +232,7 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
      */
     qspi_reg_write(QSPI_REG_EN, 0);
 
-    flash_TransferTrace("transfer:RX", transfer);
+    flash_transfer_trace("transfer:RX", transfer);
 
     return FLASH_NO_ERROR;
 }

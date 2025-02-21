@@ -47,22 +47,22 @@
 /*
  * The results of reading the boot script.
  */
-typedef struct boot_Script
+typedef struct boot_script
 {
     char    path[BOOT_SCRIPT_MAX_PATH];         /* installation path */
     char    executable[BOOT_SCRIPT_MAX_PATH];   /* executable name */
     uint8_t checksum[BOOT_SCRIPT_CSUM_SIZE];    /* executable MD5 checksum */
-} boot_Script;
+} boot_script;
 
 
 /*
  * Load the boot script.
  */
-bool BootScriptLoad(const char* name, boot_Script* bs);
+bool boot_script_load(const char* name, boot_script* bs);
 
 /*
  * Check if the checksum is valid, ie any byte is not zero.
  */
-bool BootScriptChecksumValid(const boot_Script* const bs);
+bool boot_script_checksum_valid(const boot_script* const bs);
 
 #endif

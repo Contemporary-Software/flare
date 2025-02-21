@@ -21,11 +21,11 @@
 #include "wdog.h"
 
 void
-board_WDogToggle (void)
+board_wdog_toggle (void)
 {
 }
 
 void
-board_WDogControl(bool enable)
+board_wdog_control(bool enable)
 {
 }

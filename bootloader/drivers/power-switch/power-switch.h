@@ -24,6 +24,6 @@
 /**
  * Return true if the buttun has been pressed and held on.
  */
-bool flare_PowerOnPressed(void);
+bool flare_power_on_pressed(void);
 
 #endif

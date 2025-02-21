@@ -32,7 +32,7 @@
 #define WDOG_WDI_EN_DISABLE  false
 
 static bool Gpio_Setup;
-static const gpio_Pin_Def gpio_WDog_EN =
+static const gpio_pin_def gpio_WDog_EN =
 {
   pin:      WDOG_WDI_EN_PIN,
   output:   true,
@@ -43,7 +43,7 @@ static const gpio_Pin_Def gpio_WDog_EN =
   fast:     false,
   tristate: false
 };
-static const gpio_Pin_Def gpio_WDog_TD =
+static const gpio_pin_def gpio_WDog_TD =
 {
   pin:      WDOG_WDI_PIN,
   output:   true,
@@ -61,10 +61,10 @@ board_WDogSetup(void)
     if (!Gpio_Setup)
     {
         gpio_error ge;
-        ge = gpio_SetupPin(&gpio_WDog_EN);
+        ge = gpio_setup_pin(&gpio_WDog_EN);
         if (ge != GPIO_NO_ERROR)
             return false;
-        ge = gpio_SetupPin(&gpio_WDog_TD);
+        ge = gpio_setup_pin(&gpio_WDog_TD);
         if (ge != GPIO_NO_ERROR)
             return false;
         Gpio_Setup = true;
@@ -73,20 +73,20 @@ board_WDogSetup(void)
 }
 
 void
-board_WDogToggle (void)
+board_wdog_toggle (void)
 {
     if (board_WDogSetup())
     {
-        gpio_Output(gpio_WDog_TD.pin, WDOG_WDI_HIGH);
-        gpio_Output(gpio_WDog_TD.pin, WDOG_WDI_LOW);
+        gpio_output(gpio_WDog_TD.pin, WDOG_WDI_HIGH);
+        gpio_output(gpio_WDog_TD.pin, WDOG_WDI_LOW);
     }
 }
 
 void
-board_WDogControl(bool enable)
+board_wdog_control(bool enable)
 {
     if (board_WDogSetup())
     {
-        gpio_Output(gpio_WDog_EN.pin, enable);
+        gpio_output(gpio_WDog_EN.pin, enable);
     }
 }

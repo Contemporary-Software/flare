@@ -158,9 +158,9 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point)
 }
 
 bool
-load_exe(const boot_Script* const script, uint32_t* entry_point)
+load_exe(const boot_script* const script, uint32_t* entry_point)
 {
-    bool              csum_valid = BootScriptChecksumValid(script);
+    bool              csum_valid = boot_script_checksum_valid(script);
     const char* const error = "\b: error:";
     size_t            i;
     CRC32             crc;
@@ -170,14 +170,14 @@ load_exe(const boot_Script* const script, uint32_t* entry_point)
 
     printf("  Executable: %s/%s ", script->path, script->executable);
 
-    rc = flare_Chdir(script->path);
+    rc = flare_chdir(script->path);
     if (rc != 0)
     {
         printf("%s chdir: %d\n", error, rc);
         return false;
     }
 
-    rc = flare_ReadFile(script->executable, (char*) FLARE_IMAGE_STAGE_ADDR, &length);
+    rc = flare_read_file(script->executable, (char*)FLARE_IMAGE_STAGE_ADDR, &length);
     if (rc != 0)
     {
         printf("%s read: %d\n", error, rc);
@@ -205,6 +205,6 @@ load_exe(const boot_Script* const script, uint32_t* entry_point)
         }
     }
 
-    return load_uboot_image((uint8_t*) FLARE_IMAGE_STAGE_ADDR, length,
+    return load_uboot_image((uint8_t*)FLARE_IMAGE_STAGE_ADDR, length,
                                      entry_point);
 }

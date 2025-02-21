@@ -148,13 +148,13 @@ static uint32_t command_wrapper(
 }
 
 void
-flash_WriteUnlock(void)
+flash_writeUnlock(void)
 {
   return;
 }
 
 void
-flash_WriteLock(void)
+flash_writeLock(void)
 {
   return;
 }
@@ -257,9 +257,9 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
     }
 
     if (transfer->trans_dir == FLASH_TX_TRANS) {
-      flash_TransferTrace("transfer:TX", transfer);
+      flash_transfer_trace("transfer:TX", transfer);
     } else {
-      flash_TransferTrace("transfer:RX", transfer);
+      flash_transfer_trace("transfer:RX", transfer);
     }
 
     /*
@@ -422,7 +422,7 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
       
       
     if (transfer->trans_dir == FLASH_RX_TRANS) {
-      flash_TransferTrace("transfer end:RX", transfer);
+      flash_transfer_trace("transfer end:RX", transfer);
     }
 
     return FLASH_NO_ERROR;

@@ -33,6 +33,6 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point);
 /*
  * Load the image into the memory at base until the length.
  */
-bool load_exe(const boot_Script* const script, uint32_t* entry_point);
+bool load_exe(const boot_script* const script, uint32_t* entry_point);
 
 #endif

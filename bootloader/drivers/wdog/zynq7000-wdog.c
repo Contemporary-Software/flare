@@ -32,17 +32,17 @@ wdog_init(void)
   /*
    * Use the board level driver.
    */
-  board_WDogControl(false);
+  board_wdog_control(false);
 }
 
 void
 wdog_control(bool enable)
 {
-  board_WDogControl(enable);
+  board_wdog_control(enable);
 }
 
 void
 wdog_toggle (void)
 {
-  board_WDogToggle();
+  board_wdog_toggle();
 }

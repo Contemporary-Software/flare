@@ -346,7 +346,7 @@ jffs2_buffer_flash_read(jffs2_buffer* buffer,
         if (trace_flash_read)
           jffs2_print("buffer_flash_read: flash read: o=0x%08x s=%u (cache)\n",
                       poff, JFFS2_CACHE_PAGE_SIZE);
-        fe = flash_Read(buffer->base + poff,
+        fe = flash_read(buffer->base + poff,
                         buffer->cache + poff,
                         JFFS2_CACHE_PAGE_SIZE);
         if (fe != FLASH_NO_ERROR)
@@ -387,7 +387,7 @@ jffs2_buffer_flash_read(jffs2_buffer* buffer,
       jffs2_print("buffer_flash_read: flash read: o=0x%08x s=%zu\n",
                   address, length);
 
-    fe = flash_Read(buffer->base + address, buf, length);
+    fe = flash_read(buffer->base + address, buf, length);
     if (fe != FLASH_NO_ERROR)
       return JFFS2_FLASH_READ_ERROR;
   }

@@ -26,11 +26,11 @@
 /*
  * Get the pointer to the global buffer.
  */
-char* flare_GetReadBuffer(void);
+char* flare_get_read_buffer(void);
 
 /*
  * Get the pointer to the global buffer.
  */
-size_t flare_GetReadBufferSize(void);
+size_t flare_get_read_bufferSize(void);
 
 #endif

@@ -51,26 +51,26 @@ int main(void) {
 
   printf("Begin\n");
 
-  flash_RegisterWaitHandler(NULL, NULL);
+  flash_register_wait_handler(NULL, NULL);
 
-  flash_ReadId(&manufactureCode, &memIfaceType, &density);
+  flash_read_id(&manufactureCode, &memIfaceType, &density);
 
-  flash_Read(0x03001000, buffer, 20);
+  flash_read(0x03001000, buffer, 20);
 
   print_buff(buffer, 20);
 
-  flash_EraseSector(0x03000000);
+  flash_erase_sector(0x03000000);
 
-  flash_Read(0x03001000, buffer, 20);
+  flash_read(0x03001000, buffer, 20);
 
   print_buff(buffer, 20);
   printf("String: %s\n", buffer);
 
   char test[10] = "Test TEST";
 
-  flash_WriteSector(0x03001000, test, 10);
+  flash_writeSector(0x03001000, test, 10);
 
-  flash_Read(0x03001000, buffer, 20);
+  flash_read(0x03001000, buffer, 20);
   print_buff(buffer, 20);
 
   printf("String: %s\n", buffer);

@@ -51,14 +51,14 @@ flare_DataSafe_FlareInit(void)
 }
 
 void
-flare_DataSafe_FlareSet(uint32_t    bootMode,
+flare_DataSafe_FlareSet(uint32_t    bootmode,
                         const char* firmware,
                         const char* exe,
                         bool        bitfile_loaded)
 {
-    flare_datasafe->boot.bootMode |= bootMode & FLARE_DS_BOOTMODE_MASK;
+    flare_datasafe->boot.bootmode |= bootmode & FLARE_DS_BOOTMODE_MASK;
     if (bitfile_loaded)
-      flare_datasafe->boot.bootMode |= FLARE_DS_BOOTMODE_BITFILE_LD;
+      flare_datasafe->boot.bootmode |= FLARE_DS_BOOTMODE_BITFILE_LD;
     memcpy(&flare_datasafe->boot.bootFirmware[0], firmware, FLARE_DATASAFE_BOOT_PATH_LEN - 1);
     memcpy(&flare_datasafe->boot.bootExe[0], exe, FLARE_DATASAFE_BOOT_PATH_LEN - 1);
     md5((u8*) flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash, 0);
@@ -83,7 +83,7 @@ flare_DataSafe_BootPath(void)
 void
 flare_DataSafe_SetFactoryBoot(void)
 {
-    flare_datasafe->boot.bootMode |= FLARE_DS_BOOTMODE_FACTORY;
+    flare_datasafe->boot.bootmode |= FLARE_DS_BOOTMODE_FACTORY;
     md5((u8*) flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash, 0);
 }
 
@@ -91,20 +91,20 @@ bool
 flare_DataSafe_BootFactory(void)
 {
     if (flare_DataSafe_Valid())
-        return (flare_datasafe->boot.bootMode & FLARE_DS_BOOTMODE_FACTORY) != 0;
+        return (flare_datasafe->boot.bootmode & FLARE_DS_BOOTMODE_FACTORY) != 0;
     return false;
 }
 
 void
 flare_DataSafe_RequestFactoryBoot(void)
 {
-    flare_datasafe->boot.bootMode |= FLARE_DS_BOOTMODE_FACTORY_REQ;
+    flare_datasafe->boot.bootmode |= FLARE_DS_BOOTMODE_FACTORY_REQ;
     md5((u8*) flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash, 0);
 }
 
 void
 flare_DataSafe_ClearFactoryBootRequest(void)
 {
-    flare_datasafe->boot.bootMode &= ~FLARE_DS_BOOTMODE_FACTORY_REQ;
+    flare_datasafe->boot.bootmode &= ~FLARE_DS_BOOTMODE_FACTORY_REQ;
     md5((u8*) flare_datasafe, sizeof(*flare_datasafe), flare_datasafe_hash, 0);
 }

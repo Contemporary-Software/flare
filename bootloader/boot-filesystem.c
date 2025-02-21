@@ -79,7 +79,7 @@ flare_Jffs2Cache_Setup(void)
 }
 
 static uint8_t*
-flare_Jffs2Cache_Valid(void)
+flare_jffs2_cache_valid(void)
 {
     uint8_t* cache = NULL;
     uint32_t* header = (uint32_t*) FLARE_JFFS2_CACHE_BASE;
@@ -94,10 +94,10 @@ flare_Jffs2Cache_Valid(void)
 }
 
 static bool
-flare_Jffs2Cache_Flag(uint32_t flag)
+flare_jffs2_cache_flag(uint32_t flag)
 {
     bool valid = false;
-    if (flare_Jffs2Cache_Valid() != NULL)
+    if (flare_jffs2_cache_valid() != NULL)
     {
         uint32_t* cache = (uint32_t*) FLARE_JFFS2_CACHE_BASE;
         valid = (cache[FLARE_JFFS2_CACHE_HEADER_FLAGS] & flag) != 0 ? true : false;
@@ -106,7 +106,7 @@ flare_Jffs2Cache_Flag(uint32_t flag)
 }
 
 int
-flare_FilesystemMount(bool setup_cache)
+flare_filesystem_mount(bool setup_cache)
 {
     cwd[0] = '\0';
 
@@ -117,7 +117,7 @@ flare_FilesystemMount(bool setup_cache)
 }
 
 int
-flare_ReadFile(const char* name, void* const buffer, uint32_t* size)
+flare_read_file(const char* name, void* const buffer, uint32_t* size)
 {
     uint8_t*    cache_base = NULL;
     bool        cache_crc = false;
@@ -146,10 +146,10 @@ flare_ReadFile(const char* name, void* const buffer, uint32_t* size)
 
     scratch[i] = '\0';
 
-    cache_base = flare_Jffs2Cache_Valid();
+    cache_base = flare_jffs2_cache_valid();
     if (cache_base != NULL)
     {
-        cache_crc = flare_Jffs2Cache_Flag(FLARE_JFFS2_CACHE_FLAGS_CRC);
+        cache_crc = flare_jffs2_cache_flag(FLARE_JFFS2_CACHE_FLAGS_CRC);
     }
 
     je = jffs2_boot_read(&jffs2,
@@ -165,7 +165,7 @@ flare_ReadFile(const char* name, void* const buffer, uint32_t* size)
     return 0;
 }
 
-int flare_Chdir(const char* path)
+int flare_chdir(const char* path)
 {
     size_t i = 0;
 

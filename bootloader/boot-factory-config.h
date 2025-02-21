@@ -24,6 +24,6 @@
 /*
  * Load the factory configruation from flash.
  */
-void FactoryConfigLoad(void);
+void factory_config_load(void);
 
 #endif

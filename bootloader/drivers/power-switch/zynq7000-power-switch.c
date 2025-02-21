@@ -68,7 +68,7 @@ typedef struct {
 } power_pin_config;
 
 static uint32_t        gpio_config_defaults[POWER_PINS];
-static const gpio_Pin_Def gpio_PowerPins[2] =
+static const gpio_pin_def gpio_PowerPins[2] =
 {
   {
     pin:      9,
@@ -130,7 +130,7 @@ static bool gpio_config_setup(void)
   for (pin = 0; pin < POWER_PINS; ++pin)
     gpio_config_defaults[pin] = read_gpio_config(power_pin_configs[pin].pin);
 
-  ge = gpio_SetupPins(&gpio_PowerPins[0], 2);
+  ge = gpio_setup_pins(&gpio_PowerPins[0], 2);
 
   return ge == GPIO_NO_ERROR;
 }
@@ -141,7 +141,7 @@ static bool gpio_power_pressed(void)
   for (pin = 0; pin < POWER_PINS; ++pin)
   {
     bool high = true;
-    gpio_Input(gpio_PowerPins[pin].pin, &high);
+    gpio_input(gpio_PowerPins[pin].pin, &high);
     if (!high)
       return true;
   }
@@ -158,7 +158,7 @@ static inline uint8_t get_char(void)
   return (uint8_t) inbyte();
 }
 
-bool flare_PowerOnPressed(void)
+bool flare_power_on_pressed(void)
 {
   volatile uint32_t seconds = 0;
   bool              pressed = true;

@@ -30,8 +30,8 @@ extern "C" {
 /**
  * Flash memory map.
  */
-#define FLARE_FLASH_SIZE             flash_DeviceSize()
-#define FLARE_FLASH_BLOCK_SIZE       flash_DeviceSectorEraseSize()
+#define FLARE_FLASH_SIZE             flash_device_size()
+#define FLARE_FLASH_BLOCK_SIZE       flash_device_sector_erase_size()
 
 #define FLARE_FLASH_BOOT_BASE        (0UL)
 #define FLARE_FLASH_BOOT_SIZE        (6UL * 1024 * 1024)

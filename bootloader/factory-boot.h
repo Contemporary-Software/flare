@@ -41,8 +41,8 @@ void platform_factory_booter(uint8_t* header, size_t header_size);
 bool factory_load_image(uint32_t base, size_t size, uint8_t* cs);
 
 uint32_t
-FactoryLoadImage_Get32(uint8_t* table, uint32_t index, uint32_t offset);
+factory_load_image_get32(uint8_t* table, uint32_t index, uint32_t offset);
 
 uint8_t
-FactoryLoadImage_Get8(uint8_t* table, uint32_t index, uint32_t offset);
+factory_load_image_get8(uint8_t* table, uint32_t index, uint32_t offset);
 #endif

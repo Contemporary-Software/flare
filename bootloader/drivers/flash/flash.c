@@ -95,7 +95,7 @@ static uint8_t* cfi_data;
 /*
  * Wait handler.
  */
-static flash_WaitHandler wait_Handler;
+static flash_wait_handler wait_Handler;
 static void*             wait_Handler_User;
 
 /*
@@ -107,10 +107,10 @@ static void*             wait_Handler_User;
 static bool flash_trace = 1;
 #endif
 
-static flash_error flash_ReadCFI(void);
+static flash_error flash_readCFI(void);
 
 static void
-flash_TransferTraceHeader(const char*                  message,
+flash_transfer_traceHeader(const char*                  message,
                           const flash_transfer_buffer* transfer)
 {
 #if FLASH_TRACE_TRANSFER
@@ -122,14 +122,14 @@ flash_TransferTraceHeader(const char*                  message,
 }
 
 void
-flash_TransferTrace(const char*                  message,
+flash_transfer_trace(const char*                  message,
                     const flash_transfer_buffer* transfer)
 {
 #if FLASH_TRACE_TRANSFER
     if (flash_trace)
     {
         size_t c;
-        flash_TransferTraceHeader(message, transfer);
+        flash_transfer_traceHeader(message, transfer);
         for (c = 0; c < transfer->length; ++c)
         {
             if ((c % 16) == 0)
@@ -224,7 +224,7 @@ flash_TransferBuffer_Set8(flash_transfer_buffer* transfer, const uint8_t data)
 }
 
 flash_error
-flash_TransferBuffer_Skip(flash_transfer_buffer* transfer, const size_t size)
+flash_transfer_buffer_skip(flash_transfer_buffer* transfer, const size_t size)
 {
 #ifdef FLARE_ZYNQ7000
     if ((transfer->length - (transfer->out - transfer->padding)) < size)
@@ -325,10 +325,10 @@ static void flash_TransferBuffer_SetCommMethod(flash_transfer_buffer* transfer,
 static flash_error flash_SetRegions(void)
 {
 #ifdef FLARE_ZYNQ7000
-  return flash_ReadCFI();
+  return flash_readCFI();
 #else
   uint32_t tmp;
-  flash_ReadId(&tmp, &tmp, &tmp);
+  flash_read_id(&tmp, &tmp, &tmp);
 
   flash_num_regions = 1;
 
@@ -358,7 +358,7 @@ static flash_error flash_SetRegions(void)
 }
 
 static flash_error
-flash_ReadRegister(uint8_t reg, uint16_t* value)
+flash_readRegister(uint8_t reg, uint16_t* value)
 {
     flash_error fe;
 
@@ -392,7 +392,7 @@ flash_WaitForWrite(uint32_t wait)
         if (wait_Handler != NULL)
             wait_Handler(wait_Handler_User);
 
-        fe = flash_ReadRegister(FLASH_READ_STATUS_FLAG_CMD, &status);
+        fe = flash_readRegister(FLASH_READ_STATUS_FLAG_CMD, &status);
         if (fe != FLASH_NO_ERROR)
             return fe;
 
@@ -407,7 +407,7 @@ flash_WaitForWrite(uint32_t wait)
          * write latch remains set it is an error and the write command was not
          * received the flash device.
          */
-        fe = flash_ReadRegister(FLASH_READ_STATUS_CMD, &status);
+        fe = flash_readRegister(FLASH_READ_STATUS_CMD, &status);
         status = status & 0xFF;
         if (fe != FLASH_NO_ERROR)
             return fe;
@@ -446,7 +446,7 @@ flash_SetWEL(void)
     if (fe != FLASH_NO_ERROR)
         return fe;
 
-    fe = flash_ReadRegister(FLASH_READ_STATUS_CMD, &status);
+    fe = flash_readRegister(FLASH_READ_STATUS_CMD, &status);
     if (fe != FLASH_NO_ERROR)
         return fe;
 
@@ -473,7 +473,7 @@ flash_ClearWEL(void)
     if (fe != FLASH_NO_ERROR)
         return fe;
 
-    fe = flash_ReadRegister(FLASH_READ_STATUS_CMD, &status);
+    fe = flash_readRegister(FLASH_READ_STATUS_CMD, &status);
     if (fe != FLASH_NO_ERROR)
         return fe;
 
@@ -484,7 +484,7 @@ flash_ClearWEL(void)
 }
 
 static flash_error
-flash_ReadCFI(void)
+flash_readCFI(void)
 {
     flash_error fe = FLASH_NO_ERROR;
     uint8_t     data = 0;
@@ -504,7 +504,7 @@ flash_ReadCFI(void)
         if (fe != FLASH_NO_ERROR)
             return fe;
 
-        flash_TransferBuffer_Skip(flash_buf, 3);
+        flash_transfer_buffer_skip(flash_buf, 3);
         flash_TransferBuffer_Get8(flash_buf, &data);
 
         if (data == 0)
@@ -609,7 +609,7 @@ flash_FindRegion(uint32_t address, uint32_t* base, size_t* length)
 }
 
 flash_error
-flash_GetRegions(flash_region** regions, size_t* size)
+flash_get_regions(flash_region** regions, size_t* size)
 {
     flash_error fe;
     size_t      region;
@@ -628,7 +628,7 @@ flash_GetRegions(flash_region** regions, size_t* size)
 }
 
 flash_error
-flash_Read(uint32_t address, void* buffer, size_t length)
+flash_read(uint32_t address, void* buffer, size_t length)
 {
     uint8_t* data = buffer;
 
@@ -666,7 +666,7 @@ flash_Read(uint32_t address, void* buffer, size_t length)
         if (fe != FLASH_NO_ERROR)
             return fe;
 
-        flash_TransferBuffer_Skip(flash_buf, FLASH_ADDRESS_SIZE + flash_read_dummies);
+        flash_transfer_buffer_skip(flash_buf, FLASH_ADDRESS_SIZE + flash_read_dummies);
 
         fe = flash_TransferBuffer_CopyOut(flash_buf, data, size);
         if (fe != FLASH_NO_ERROR)
@@ -685,7 +685,7 @@ flash_Read(uint32_t address, void* buffer, size_t length)
 }
 
 flash_error
-flash_Blank(uint32_t address, size_t length)
+flash_blank(uint32_t address, size_t length)
 {
     flash_error fe = FLASH_NO_ERROR;
 
@@ -725,7 +725,7 @@ flash_Blank(uint32_t address, size_t length)
         if (fe != FLASH_NO_ERROR)
             return fe;
 
-        flash_TransferBuffer_Skip(flash_buf, FLASH_ADDRESS_SIZE);
+        flash_transfer_buffer_skip(flash_buf, FLASH_ADDRESS_SIZE);
 
         length -= size;
         address += size;
@@ -744,7 +744,7 @@ flash_Blank(uint32_t address, size_t length)
 }
 
 flash_error
-flash_EraseSector(uint32_t address)
+flash_erase_sector(uint32_t address)
 {
     flash_error fe = FLASH_NO_ERROR;
     uint32_t    base = 0;
@@ -764,12 +764,12 @@ flash_EraseSector(uint32_t address)
     if (fe != FLASH_NO_ERROR)
         return fe;
 
-    flash_WriteUnlock();
+    flash_writeUnlock();
 
     fe = flash_SetWEL();
     if (fe != FLASH_NO_ERROR)
     {
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
@@ -785,7 +785,7 @@ flash_EraseSector(uint32_t address)
     if (fe != FLASH_NO_ERROR)
     {
         flash_ClearWEL();
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
@@ -793,13 +793,13 @@ flash_EraseSector(uint32_t address)
     if (fe != FLASH_NO_ERROR)
     {
         flash_ClearWEL();
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
-    flash_WriteLock();
+    flash_writeLock();
 
-    fe = flash_Blank(base, length);
+    fe = flash_blank(base, length);
     if (fe != FLASH_NO_ERROR)
         return fe;
 
@@ -807,16 +807,16 @@ flash_EraseSector(uint32_t address)
 }
 
 flash_error
-flash_EraseDevice(void)
+flash_erase_device(void)
 {
     flash_error fe = FLASH_NO_ERROR;
 
-    flash_WriteUnlock();
+    flash_writeUnlock();
 
     fe = flash_SetWEL();
     if (fe != FLASH_NO_ERROR)
     {
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
@@ -831,7 +831,7 @@ flash_EraseDevice(void)
     if (fe != FLASH_NO_ERROR)
     {
         flash_ClearWEL();
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
@@ -839,17 +839,17 @@ flash_EraseDevice(void)
     if (fe != FLASH_NO_ERROR)
     {
         flash_ClearWEL();
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
-    flash_WriteLock();
+    flash_writeLock();
 
     return fe;
 }
 
 flash_error
-flash_WriteSector(uint32_t address, const void* buffer, size_t length)
+flash_writeSector(uint32_t address, const void* buffer, size_t length)
 {
     flash_error    fe = FLASH_NO_ERROR;
     const uint8_t* data = buffer;
@@ -864,7 +864,7 @@ flash_WriteSector(uint32_t address, const void* buffer, size_t length)
     address = address / 2;
 #endif
 
-    flash_WriteUnlock();
+    flash_writeUnlock();
 
     while (length)
     {
@@ -906,7 +906,7 @@ flash_WriteSector(uint32_t address, const void* buffer, size_t length)
             fe = flash_SetWEL();
             if (fe != FLASH_NO_ERROR)
             {
-                flash_WriteLock();
+                flash_writeLock();
                 return fe;
             }
 
@@ -922,7 +922,7 @@ flash_WriteSector(uint32_t address, const void* buffer, size_t length)
             fe = flash_TransferBuffer_CopyIn(flash_buf, data, size);
             if (fe != FLASH_NO_ERROR)
             {
-                flash_WriteLock();
+                flash_writeLock();
                 return fe;
             }
 
@@ -930,7 +930,7 @@ flash_WriteSector(uint32_t address, const void* buffer, size_t length)
             if (fe != FLASH_NO_ERROR)
             {
                 flash_ClearWEL();
-                flash_WriteLock();
+                flash_writeLock();
                 return fe;
             }
 
@@ -938,7 +938,7 @@ flash_WriteSector(uint32_t address, const void* buffer, size_t length)
             if (fe != FLASH_NO_ERROR)
             {
                 flash_ClearWEL();
-                flash_WriteLock();
+                flash_writeLock();
                 return fe;
             }
         }
@@ -948,13 +948,13 @@ flash_WriteSector(uint32_t address, const void* buffer, size_t length)
         length -= size;
     }
 
-    flash_WriteLock();
+    flash_writeLock();
 
     return fe;
 }
 
 flash_error
-flash_ReadId(uint32_t* manufactureCode,
+flash_read_id(uint32_t* manufactureCode,
              uint32_t* memIfaceType,
              uint32_t* density)
 {
@@ -1018,12 +1018,12 @@ flash_ReadId(uint32_t* manufactureCode,
         }
     }
 
-    flash_WriteUnlock();
+    flash_writeUnlock();
 
     fe = flash_SetWEL();
     if (fe != FLASH_NO_ERROR)
     {
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
@@ -1040,36 +1040,36 @@ flash_ReadId(uint32_t* manufactureCode,
     if (fe != FLASH_NO_ERROR)
     {
         flash_ClearWEL();
-        flash_WriteLock();
+        flash_writeLock();
         return fe;
     }
 
     flash_ClearWEL();
-    flash_WriteLock();
+    flash_writeLock();
 
 #if FLASH_FAST_READ
     flash_read_dummies = 1;
 #endif
 
-    flash_Read(0, buffer, sizeof(buffer));
+    flash_read(0, buffer, sizeof(buffer));
 
     return FLASH_NO_ERROR;
 }
 
 size_t
-flash_DeviceSize(void)
+flash_device_size(void)
 {
     return flash_size;
 }
 
 size_t
-flash_DeviceSectorEraseSize(void)
+flash_device_sector_erase_size(void)
 {
     return flash_erase_sector_size;
 }
 
 void
-flash_RegisterWaitHandler(flash_WaitHandler handler, void* user)
+flash_register_wait_handler(flash_wait_handler handler, void* user)
 {
     wait_Handler = handler;
     wait_Handler_User = user;

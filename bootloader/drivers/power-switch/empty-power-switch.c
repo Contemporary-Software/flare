@@ -16,6 +16,6 @@
 
 #include <stdbool.h>
 
-bool flare_PowerOnPressed(void) {
+bool flare_power_on_pressed(void) {
   return false;
 }
