@@ -18,3 +18,12 @@ After the build is configured you need to build
 ```
 ./waf
 ```
+
+## Datasafe
+
+The datasafe is a tool to pass data between Flare and the booted exe. The data is
+stored in DDR memory so hard resets clear it but is usually maintained during soft
+resets. 
+
+The datasafe format is defined in `datasafe.txt`. Currently, only one format is
+supported.
