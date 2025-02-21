@@ -67,7 +67,7 @@ FactoryConfigLoad(void)
         }
     }
 
-    flare_datasafe_FactorySet((uint8_t*) &buffer[FACTORY_MAC_ADDR_OFF],
+    flare_datasafe_factory_set((uint8_t*) &buffer[FACTORY_MAC_ADDR_OFF],
                               &buffer[FACTORY_SERIAL_NUM_OFF],
                               &buffer[FACTORY_PART_NUM_OFF],
                               &buffer[FACTORY_REVISION_OFF],

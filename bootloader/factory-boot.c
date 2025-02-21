@@ -32,6 +32,7 @@
 #include "md5.h"
 #include "reset.h"
 #include "tzlib.h"
+#include "uboot.h"
 #include "wdog.h"
 #include "board-handoff.h"
 #include "board.h"
@@ -82,9 +83,10 @@ platform_factory_booter(uint8_t* header, size_t header_size)
     CRC32           crc;
     int             i;
     uint8_t         checksum[CRC_CHECKSUM_SIZE];
+    char            name[UBOOT_NAME_LEN + 1] = {0};
     const uint8_t*  cs = IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_CRC);
 
-    //flare_DataSafe_SetFactoryBoot();
+    flare_datasafe_set_factory_boot();
 
     size = FactoryLoadImage_Get32(header, 0, IMAGE_HEADER_SIZE);
     if (size > EXECUTABLE_LOAD_SIZE)
@@ -130,14 +132,14 @@ platform_factory_booter(uint8_t* header, size_t header_size)
     if(!load_uboot_image((uint8_t*) FLARE_IMAGE_STAGE_ADDR, size, &entry_point)) {
         return;
     }
-    /*
-    flare_DataSafe_FlareSet(QSPI_MODE,
-                            (const char*) IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_NAME),
-                            (const char*) IMAGE_HEADER_RECORD(header, 1, IMAGE_HEADER_NAME),
+
+    memcpy(name, (uint8_t*)FLARE_IMAGE_STAGE_ADDR + UBOOT_IMAGE_NAME_OFF, UBOOT_NAME_LEN);
+    flare_datasafe_set_bootmode(QSPI_MODE,
+                            "",
+                            (const char*)name,
                             0);
 
-    flare_DataSafe_ClearFactoryBootRequest();
-    */
+    flare_datasafe_clear_factory_boot_request();
     wdog_control(true);
     cache_disable();
     board_handoff_exit(entry_point);

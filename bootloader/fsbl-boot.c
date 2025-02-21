@@ -113,8 +113,9 @@ flash_Check(void)
 static void
 FlareBootBoardRequests(void)
 {
-    if (flare_datasafe_FactoryBootRequested())
+    if (flare_datasafe_factory_boot_requested()) {
         factory_boot("Requested");
+    }
 }
 
 static void
@@ -157,8 +158,8 @@ flare_JtagBoot(uint32_t bootMode)
 
     if (bootMode == JTAG_MODE)
     {
-        flare_datasafe_FsblSet("/jtag", "none");
-        flare_datasafe_FlareSet(JTAG_MODE, "", "none", false);
+        flare_datasafe_set_boot("/jtag", "none");
+        flare_datasafe_set_bootmode(JTAG_MODE, "", "none", false);
         printf("JTAG wait .. ");
         out_flush();
         cache_disable();
@@ -192,7 +193,7 @@ main(void)
     led_init();
     led_normal();
 
-    flare_datasafe_FsblInit(reset_status);
+    flare_datasafe_init(reset_status);
 
     if (flash_Check())
     {
@@ -212,7 +213,7 @@ main(void)
                 rc = load_exe(&script, &entry_point);
                 if (rc)
                 {
-                    flare_datasafe_FsblSet(script.path, script.executable);
+                    flare_datasafe_set_boot(script.path, script.executable);
                     wdog_control(true);
                     cache_flush_invalidate();
                     out_flush();

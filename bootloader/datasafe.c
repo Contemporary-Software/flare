@@ -26,7 +26,7 @@
 #include <crc/crc.h>
 
 void
-flare_datasafe_FsblInit(uint32_t resetReason)
+flare_datasafe_init(uint32_t resetReason)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     CRC32 crc = 0;
@@ -50,16 +50,16 @@ flare_datasafe_FsblInit(uint32_t resetReason)
 }
 
 bool
-flare_datasafe_Valid(void)
+flare_datasafe_valid(void)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     CRC32 crc = 0;
     crc32_update(&crc, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
-    return crc != datasafe->crc32;
+    return crc == datasafe->crc32;
 }
 
 void
-flare_datasafe_FsblSet(const char* path, const char* loader)
+flare_datasafe_set_boot(const char* path, const char* loader)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     memcpy(&datasafe->boot_path[0], path, FLARE_DS_BOOT_PATH_LEN - 1);
@@ -69,7 +69,7 @@ flare_datasafe_FsblSet(const char* path, const char* loader)
 }
 
 void
-flare_datasafe_FlareSet(uint32_t    bootmode,
+flare_datasafe_set_bootmode(uint32_t    bootmode,
                         const char* firmware,
                         const char* exe,
                         bool        bitfile_loaded)
@@ -86,12 +86,12 @@ flare_datasafe_FlareSet(uint32_t    bootmode,
 }
 
 void
-flare_datasafe_FactorySet(const uint8_t* mac,
-                          const char*    serial,
-                          const char*    part,
-                          const char*    revision,
-                          const char*    mod,
-                          const char*    bootOptions)
+flare_datasafe_factory_set(const uint8_t* mac,
+                           const char*    serial,
+                           const char*    part,
+                           const char*    revision,
+                           const char*    mod,
+                           const char*    bootOptions)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     size_t o;
@@ -107,7 +107,7 @@ flare_datasafe_FactorySet(const uint8_t* mac,
 }
 
 void
-flare_datasafe_SetFactoryBoot(void)
+flare_datasafe_set_factory_boot(void)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     datasafe->bootmode |= FLARE_DS_BOOTMODE_FACTORY;
@@ -116,7 +116,7 @@ flare_datasafe_SetFactoryBoot(void)
 }
 
 void
-flare_datasafe_RequestFactoryBoot(void)
+flare_datasafe_request_factory_boot(void)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     datasafe->bootmode |= FLARE_DS_BOOTMODE_FACTORY_REQ;
@@ -125,16 +125,17 @@ flare_datasafe_RequestFactoryBoot(void)
 }
 
 bool
-flare_datasafe_FactoryBootRequested(void)
+flare_datasafe_factory_boot_requested(void)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
-    if (flare_datasafe_Valid())
+    if (flare_datasafe_valid()) {
         return (datasafe->bootmode & FLARE_DS_BOOTMODE_FACTORY_REQ) != 0;
+    }
     return false;
 }
 
 void
-flare_datasafe_ClearFactoryBootRequest(void)
+flare_datasafe_clear_factory_boot_request(void)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     datasafe->bootmode &= ~FLARE_DS_BOOTMODE_FACTORY_REQ;
