@@ -84,7 +84,7 @@ platform_factory_booter(uint8_t* header, size_t header_size)
     int             i;
     uint8_t         checksum[CRC_CHECKSUM_SIZE];
     char            name[UBOOT_NAME_LEN + 1] = {0};
-    const uint8_t*  cs = IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_CRC);
+    const uint32_t* header_crc = (const uint32_t*)IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_CRC);
 
     flare_datasafe_set_factory_boot();
 
@@ -120,13 +120,9 @@ platform_factory_booter(uint8_t* header, size_t header_size)
         printf("%c", checksum[i]);
     printf(")\n");
 
-    for (i = 0; i < CRC_CHECKSUM_SIZE; ++i)
-    {
-        if (cs[i] != checksum[i])
-        {
-            printf("error: invalid checksum\n");
-            return;
-        }
+    if (*header_crc != crc) {
+        printf("error: invalid checksum 0x%08x 0x%08x\n", *header_crc, crc);
+        return;
     }
 
     if(!load_uboot_image((uint8_t*) FLARE_IMAGE_STAGE_ADDR, size, &entry_point)) {
@@ -148,13 +144,13 @@ platform_factory_booter(uint8_t* header, size_t header_size)
 void
 factory_boot(const char* why)
 {
-    uint8_t     *header = factory_header;
-    size_t      header_size = sizeof(factory_header);
-    uint8_t     checksum[IMAGE_HEADER_HEADER_CRC_SIZE];
-    flash_error fe;
-    bool        ok = true;
-    int         i;
-    CRC32       crc;
+    uint8_t*          header = factory_header;
+    size_t            header_size = sizeof(factory_header);
+    flash_error       fe;
+    bool              ok = true;
+    int               i;
+    CRC32             crc;
+    const uint32_t*   header_crc;
 
     printf("Factory Boot: %s\n", why);
 
@@ -169,16 +165,12 @@ factory_boot(const char* why)
     crc32_clear(&crc);
     crc32_update(&crc, (const void*)header + IMAGE_HEADER_HEADER_REC,
         header_size - IMAGE_HEADER_HEADER_CRC_SIZE);
-    crc32_str(&crc, checksum);
 
-    for (i = 0; i < IMAGE_HEADER_HEADER_CRC_SIZE; ++i)
+    header_crc = (const uint32_t*)(&header[IMAGE_HEADER_HEADER_CRC]);
+    if (*header_crc != crc)
     {
-        if (header[IMAGE_HEADER_HEADER_CRC + i] != checksum[i])
-        {
-            printf("error: invalid header checksum\n");
-            ok = false;
-            break;
-        }
+        printf("error: invalid header checksum\n", *header_crc, crc);
+        ok = false;
     }
 
     if (ok) {

@@ -33,8 +33,8 @@ flare_datasafe_init(uint32_t resetReason)
     crc32_update(&crc, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
     if (crc != datasafe->crc32) {
         memset(datasafe, 0, sizeof(flare_datasafe));
-        crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
     }
+    datasafe->length = sizeof(flare_datasafe) - 2 * sizeof(uint32_t);
     datasafe->format = FLARE_DATASAFE_FORMAT;
     ++datasafe->count;
     datasafe->reset = resetReason;

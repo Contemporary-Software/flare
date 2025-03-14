@@ -166,7 +166,7 @@ load_exe(const boot_script* const script, uint32_t* entry_point)
     CRC32             crc;
     int               rc;
     uint32_t          length = FLARE_EXECUTABLE_SIZE;
-    uint8_t           checksum[IMAGE_HEADER_HEADER_CRC_SIZE];
+    uint8_t           checksum[CRC_CHECKSUM_SIZE];
 
     printf("  Executable: %s/%s ", script->path, script->executable);
 

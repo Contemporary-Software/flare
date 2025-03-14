@@ -32,12 +32,12 @@
 /*
  * Table header:
  *
- *   CRC[8]
+ *   CRC[4]
  *   REC_SIZE[4]
  *   RECORDS (see the record structure)
  */
 #define IMAGE_HEADER_HEADER_CRC      (0)
-#define IMAGE_HEADER_HEADER_CRC_SIZE (8)
+#define IMAGE_HEADER_HEADER_CRC_SIZE (4)
 #define IMAGE_HEADER_HEADER_REC      (IMAGE_HEADER_HEADER_CRC + IMAGE_HEADER_HEADER_CRC_SIZE)
 #define IMAGE_HEADER_HEADER_REC_SIZE (4)
 #define IMAGE_HEADER_HEADER_SIZE     (IMAGE_HEADER_HEADER_REC + IMAGE_HEADER_HEADER_REC_SIZE)
@@ -46,12 +46,12 @@
  * Record structure:
  *
  *  SIZE[4]
- *  CRC[8]
+ *  CRC[4]
  */
 #define IMAGE_HEADER_SIZE            (0)
 #define IMAGE_HEADER_SIZE_SIZE       (4)
 #define IMAGE_HEADER_CRC             (IMAGE_HEADER_SIZE + IMAGE_HEADER_SIZE_SIZE)
-#define IMAGE_HEADER_CRC_SIZE        (8)
+#define IMAGE_HEADER_CRC_SIZE        (4)
 #define IMAGE_HEADER_RECORD_SIZE     (IMAGE_HEADER_CRC + IMAGE_HEADER_CRC_SIZE)
 #define IMAGE_HEADER_RECORD(i, r, o) ((i) + IMAGE_HEADER_HEADER_SIZE + \
                                         ((r) * IMAGE_HEADER_RECORD_SIZE) + (o))

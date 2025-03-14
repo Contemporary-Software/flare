@@ -36,9 +36,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define FLARE_DS_BASE       (0x00080000UL)
-#define FLARE_DS_CRC_BASE   ((const unsigned char*)(FLARE_DS_BASE + sizeof(uint32_t)))
-#define FLARE_DS_CRC_LEN    (sizeof(flare_datasafe) - sizeof(uint32_t))
+#define FLARE_DS_BASE     (0x00080000UL)
+#define FLARE_DS_CRC_BASE ((const unsigned char*)(FLARE_DS_BASE + 2*sizeof(uint32_t)))
+#define FLARE_DS_CRC_LEN  (sizeof(flare_datasafe) - 2*sizeof(uint32_t))
 
 /*
  * Indicate if this is a factory boot.
@@ -83,6 +83,7 @@ extern "C" {
 typedef struct
 {
     uint32_t              crc32;
+    uint32_t              length;
     uint32_t              format;
 #define FLARE_DS_BOOT_PATH_LEN    (64)
 #define FLARE_DS_FACTORY_DATA_LEN (32)
@@ -103,11 +104,6 @@ typedef struct
     char                  boot_options[FLARE_DS_FACTORY_DATA_LEN];
     uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
 } flare_datasafe;
-
-/*
- * There is one header file and a few source files because the FSBL and HBL
- * have memory limits and the code is specific to them.
- */
 
 /*
  * Initialise the datasafe clearing the memory if the hash is not valid and
