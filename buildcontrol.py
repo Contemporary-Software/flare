@@ -13,7 +13,7 @@ def options(opt):
                      default=None,
                      dest='flare_tools_path',
                      help='Path to tools')
-    copts.add_option('--compiler_prefix',
+    copts.add_option('--compiler-prefix',
                      default=None,
                      dest='flare_compiler_prefix',
                      help='Compiler prefix')

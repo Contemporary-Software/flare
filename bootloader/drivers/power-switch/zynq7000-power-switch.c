@@ -34,7 +34,7 @@
 /*
  * Number of seconds before acknowledging it has been pressed.
  */
-#define POWER_ON_SECONDS (3)
+#define POWER_ON_SECONDS (2)
 
 /*
  * Console keys to enter simulate a power switch.
