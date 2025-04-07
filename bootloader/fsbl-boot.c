@@ -32,6 +32,7 @@
 #include "flash-map.h"
 #include "flash.h"
 #include "flare-boot.h"
+#include "flare-build-id.h"
 #include "leds.h"
 #include "md5.h"
 #include "power-switch.h"
@@ -183,6 +184,7 @@ main(void)
     board_timer_reset();
 
     printf("\nFlare Apache 2.0 Licensed FSBL\n");
+    printf("    Build ID: %08x\n", flare_build_id());
 
     cache_enable_dcache();
     cache_enable_icache();

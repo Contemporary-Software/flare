@@ -6,6 +6,7 @@ VERSION = '0.1'
 
 import buildcontrol
 import builditems
+import buildver
 import xilinx
 
 directories = ['bootloader']
@@ -13,6 +14,7 @@ directories = ['bootloader']
 sources = {
     'default': [
         'bootloader/fsbl-boot.c',
+        'bootloader/flare-build-id.c',
       ],
     'versal': [],
     'zynqmp': [
@@ -77,6 +79,7 @@ def configure(conf):
     buildcontrol.configure(conf)
 
 def build(bld):
+    buildver.build(bld)
     xilinx.build(bld)
     buildcontrol.recurse(bld, directories)
     bld.program(target='flare_fsbl',
