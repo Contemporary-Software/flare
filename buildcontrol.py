@@ -25,6 +25,10 @@ def options(opt):
                      default=None,
                      dest='flare_xsa',
                      help='Path to XSA')
+    copts.add_option('--ps-init',
+                     default=None,
+                     dest='flare_ps_init',
+                     help='Path to PS initialisation file')
 
 def configure(conf):
     tools_prefix = conf.options.flare_compiler_prefix
@@ -57,8 +61,10 @@ def configure(conf):
 
     conf.env.FLARE_TOP_DIR = str(conf.path.find_node('.'))
 
-    if conf.options.flare_xsa:
+    if conf.options.flare_xsa and not conf.options.flare_ps_init:
         conf.env.FLARE_XSA = conf.options.flare_xsa
+    elif not conf.options.flare_xsa and conf.options.flare_ps_init:
+        conf.env.FLARE_PS_INIT = conf.options.flare_ps_init
     else:
         if board == 'zynqmp' or board == 'zynq7000':
-            conf.fatal("XSA is required for this board")
+            conf.fatal("xsa OR ps init is required for this board")

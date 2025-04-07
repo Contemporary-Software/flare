@@ -6,7 +6,7 @@ VERSION = '0.1'
 
 import buildcontrol
 import builditems
-import xsa
+import xilinx
 
 directories = ['bootloader']
 
@@ -19,7 +19,7 @@ sources = {
         'build/xsa/psu_init.c',
         ],
     'zynq7000': [
-        'build/xsa/ps7_init.c',
+        'xilinx/ps7_init.c',
         'bootloader/zynq7000_vectors.S'
         ]
 }
@@ -77,8 +77,7 @@ def configure(conf):
     buildcontrol.configure(conf)
 
 def build(bld):
-    if bld.env.FLARE_XSA:
-        xsa.unzip_xsa(bld.env.FLARE_XSA)
+    xilinx.build(bld)
     buildcontrol.recurse(bld, directories)
     bld.program(target='flare_fsbl',
                 features='c cprogram',
