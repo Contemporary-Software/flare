@@ -8,6 +8,7 @@ import buildcontrol
 
 directories = [
     'crc',
+    'fatfs',
     'flash',
     'jffs2',
     'zlib',
