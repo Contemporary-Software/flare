@@ -39,6 +39,7 @@
 #include <io/board-io.h>
 #include <leds/leds.h>
 #include <power-switch/power-switch.h>
+#include <sdhci/sdhci.h>
 #include <slcr/board-slcr.h>
 #include <timer/board-timer.h>
 #include <timer/sleep.h>

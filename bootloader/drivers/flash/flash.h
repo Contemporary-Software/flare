@@ -115,8 +115,6 @@ typedef enum
     FLASH_INVALID_DEVICE
 } flash_error;
 
-void flash_Init(void);
-
 flash_error flash_open(void);
 flash_error flash_close(void);
 
