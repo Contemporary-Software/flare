@@ -23,7 +23,18 @@
 #include <string.h>
 
 #include <datasafe.h>
+#include <flare-build-id.h>
 #include <crc/crc.h>
+
+static void uint32_to_str(uint32_t *val, unsigned char* data) {
+    const char digits[] = "0123456789abcdef";
+    uint32_t tmp = *val;
+
+    for (int i = 0; i < 8; i++) {
+        data[7 - i] = digits[tmp & 0xF];
+        tmp = tmp >> 4;
+    }
+}
 
 void
 flare_datasafe_init(uint32_t resetReason)
@@ -34,6 +45,7 @@ flare_datasafe_init(uint32_t resetReason)
     if (crc != datasafe->crc32) {
         memset(datasafe, 0, sizeof(flare_datasafe));
     }
+
     datasafe->length = sizeof(flare_datasafe) - 2 * sizeof(uint32_t);
     datasafe->format = FLARE_DATASAFE_FORMAT;
     ++datasafe->count;
@@ -43,6 +55,12 @@ flare_datasafe_init(uint32_t resetReason)
     datasafe->flare_version = 0;
     memset(&datasafe->boot_firmware[0], 0, sizeof(datasafe->boot_firmware));
     memset(&datasafe->boot_exe[0], 0, sizeof(datasafe->boot_exe));
+
+    char flare_name[7] = "flare.";
+    uint32_t build_id = flare_build_id();
+    memcpy(&datasafe->boot_loader[0], flare_name, sizeof(flare_name));
+    uint32_to_str(&build_id, &datasafe->boot_loader[6]);
+
     datasafe->crc32 = 0;
     crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
     printf(" Reset Count: %d\n  Reset Code: 0x%08x\n   Boot Mode: 0x%08x\n",
@@ -59,11 +77,11 @@ flare_datasafe_valid(void)
 }
 
 void
-flare_datasafe_set_boot(const char* path, const char* loader)
+flare_datasafe_set_boot(const char* path, const char* exe)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     memcpy(&datasafe->boot_path[0], path, FLARE_DS_BOOT_PATH_LEN - 1);
-    memcpy(&datasafe->boot_loader[0], loader, FLARE_DS_BOOT_PATH_LEN - 1);
+    memcpy(&datasafe->boot_exe[0], exe, FLARE_DS_BOOT_PATH_LEN - 1);
     datasafe->crc32 = 0;
     crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }

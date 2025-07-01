@@ -114,7 +114,7 @@ void flare_datasafe_init(uint32_t resetReason);
 /*
  * Set the boot path and loader.
  */
-void flare_datasafe_set_boot(const char* path, const char* loader);
+void flare_datasafe_set_boot(const char* path, const char* exe);
 
 /*
  * Set the factory settings.

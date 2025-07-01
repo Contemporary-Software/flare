@@ -18,6 +18,11 @@
  * Header file for generated file containing the unix time of build
  */
 
+#ifndef FLARE_BUILD_ID
+#define FLARE_BUILD_ID
+
 #include <stdint.h>
 
 uint32_t flare_build_id();
+
+#endif /* FLARE_BUILD_ID */
