@@ -20,7 +20,6 @@
 #include <cache.h>
 #include <wdog.h>
 #include <zynqmp-atf.h>
-#include <zynqmp-factory-boot.h>
 
 void do_atf(void) {
     board_handoff_exit_no_mmu_reset(ATF_ENTRYPOINT);
@@ -38,5 +37,5 @@ void factory_atf_return(void) {
 
     printf("Returned to Flare\n");
 
-    zynqmp_factory_second_stage_boot();
+    //zynqmp_factory_second_stage_boot();
 }

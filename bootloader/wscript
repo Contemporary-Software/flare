@@ -65,7 +65,7 @@ includes = {
         ],
     'versal': [],
     'zynqmp': [
-        '../build/xsa/',
+        '../build/xilinx/',
       ],
     'zynq7000': []
 }

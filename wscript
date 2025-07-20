@@ -18,7 +18,7 @@ sources = {
       ],
     'versal': [],
     'zynqmp': [
-        'build/xsa/psu_init.c',
+        'xilinx/psu_init.c',
         ],
     'zynq7000': [
         'xilinx/ps7_init.c',

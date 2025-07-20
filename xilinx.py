@@ -4,7 +4,9 @@ import shutil
 outputs = {
     'default': [],
     'versal': [],
-    'zynqmp': [],
+    'zynqmp': [
+        'xilinx/psu_init.c',
+        ],
     'zynq7000': [
         'xilinx/ps7_init.c',
         ]
@@ -16,14 +18,19 @@ def build(bld):
     def unzip_xsa(task):
         board = task.env.FLARE_BOARD
         path = task.env.FLARE_XSA
-        if path:
-            if board == 'zynq7000':
+        if board == 'zynq7000':
+            if path:
                 shutil.unpack_archive(path, 'build/xsa', 'zip')
                 task.env.FLARE_PS_INIT_SRC = 'build/xsa/ps7_init.c'
-        else:
-            task.env.FLARE_PS_INIT_SRC = task.env.FLARE_PS_INIT
+            else:
+                task.env.FLARE_PS_INIT_SRC = task.env.FLARE_PS_INIT
+        elif board == 'zynqmp':
+            shutil.unpack_archive(path, 'build/xsa', 'zip')
+            task.env.FLARE_PS_INIT_SRC = 'build/xsa/psu_init.c'
+            task.env.FLARE_PS_INIT_HEADER = 'build/xsa/psu_init.h'
 
     def copy_ps_init(task):
+        board = task.env.FLARE_BOARD
         path = task.env.FLARE_PS_INIT_SRC
         output = str(task.outputs[0])
         if not os.path.exists('build/xilinx'):
