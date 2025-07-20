@@ -22,7 +22,7 @@
 #define BOOT_FACTORY_CONFIG_H
 
 /*
- * Load the factory configruation from flash.
+ * Load the factory configuration from flash.
  */
 void factory_config_load(void);
 

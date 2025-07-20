@@ -1,0 +1,33 @@
+Factory data.
+
+This file contains the definitions of factory data.
+
+The factory data always begins with the length, CRC32 and format number.
+The format number defines the layout of the factory data.
+
+All factory data formats begin with
+item                : datatype      : bytes
+---------------------------------------
+crc32               : uint32_t      : 4
+length              : uint32_t      : 4
+format              : uint32_t      : 4
+
+The crc32 includes the format number and all data in the format.
+
+Format 1:
+total size in bytes = 178
+crc32 length (length) = 170
+format number (format) = 1
+
+The factory data layout for format 1 goes as following
+item                    : datatype      : bytes
+------------------------------------------------
+crc32                   : uint32_t      : 4
+length                  : uint32_t      : 4
+format                  : uint32_t      : 4
+assembly serial number  : char[32]      : 32
+board serial number     : char[32]      : 32
+part number             : char[32]      : 32
+revision                : char[32]      : 32
+modstrike               : char[32]      : 32
+mac_address             : uint8_t[6]    : 6

@@ -1,9 +1,9 @@
 Datasafe.
 
-This file contains the definition of the datasafe.
+This file contains the definitions of the datasafe.
 
-The datasafe always begins with the length, CRC32 and version.
-The version defines the layout of the datasafe.
+The datasafe always begins with the length, CRC32 and format number.
+The format number defines the layout of the datasafe.
 
 All datasafe formats begin with
 item                : datatype      : bytes
@@ -12,32 +12,34 @@ crc32               : uint32_t      : 4
 length              : uint32_t      : 4
 format              : uint32_t      : 4
 
-The crc32 includes the format and all data in the format.
+The crc32 includes the format number and all format specific data.
+The length is size of the format specific data and format number.
 
 Format 1:
-length = 1476
-format = 1
+total size in bytes = 1474
+crc32 length (length) = 1466
+format number (format) = 1
 
-item                : datatype      : bytes
----------------------------------------
-crc32               : uint32_t      : 4
-length              : uint32_t      : 4
-format              : uint32_t      : 4
-count               : uint16_t      : 4
-reset               : uint32_t      : 4
-flare_version       : uint32_t      : 4
-bootmode            : uint32_t      : 4
-boot_path           : char[64]      : 64
-boot_loader         : char[64]      : 64
-boot_firmware       : char[64]      : 64
-boot_exe            : char[64]      : 64
-mac_address         : uint8_t[6]    : 6 + 2 (padding)
-serial_number       : char[32]      : 32
-part_number         : char[32]      : 32
-revision            : char[32]      : 32
-mod_strike          : char[32]      : 32
-boot_options        : char[32]      : 32
-error_trace         : uint32_t[256] : 1024
+item                    : datatype      : bytes
+------------------------------------------------
+crc32                   : uint32_t      : 4
+length                  : uint32_t      : 4
+format                  : uint32_t      : 4
+count                   : uint16_t      : 4
+reset                   : uint32_t      : 4
+flare_version           : uint32_t      : 4
+bootmode                : uint32_t      : 4
+boot_path               : char[64]      : 64
+boot_loader             : char[64]      : 64
+boot_firmware           : char[64]      : 64
+boot_exe                : char[64]      : 64
+mac_address             : uint8_t[6]    : 6
+assembly_serial_number  : char[32]      : 32
+part_number             : char[32]      : 32
+revision                : char[32]      : 32
+mod_strike              : char[32]      : 32
+board_serial_number     : char[32]      : 32
+error_trace             : uint32_t[256] : 1024
 
 Struct layout
 {
@@ -63,3 +65,15 @@ Struct layout
     char                  boot_options[FLARE_DS_FACTORY_DATA_LEN];
     uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
 } flare_datasafe;
+
+The factory data layout for datasafe format 1 goes as following
+item                    : datatype      : bytes
+------------------------------------------------
+length                  : uint32_t      : 4
+crc32                   : uint32_t      : 4
+assembly serial number  : char[32]      : 32
+board serial number     : char[32]      : 32
+part number             : char[32]      : 32
+revision                : char[32]      : 32
+modstrike               : char[32]      : 32
+mac_address             : uint8_t[6]    : 6

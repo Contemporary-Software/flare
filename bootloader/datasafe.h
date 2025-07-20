@@ -97,11 +97,11 @@ typedef struct
     char                  boot_firmware[FLARE_DS_BOOT_PATH_LEN];
     char                  boot_exe[FLARE_DS_BOOT_PATH_LEN];
     uint8_t               mac_address[6];
-    char                  serial_number[FLARE_DS_FACTORY_DATA_LEN];
+    char                  assembly_serial_number[FLARE_DS_FACTORY_DATA_LEN];
     char                  part_number[FLARE_DS_FACTORY_DATA_LEN];
     char                  revision[FLARE_DS_FACTORY_DATA_LEN];
     char                  mod_strike[FLARE_DS_FACTORY_DATA_LEN];
-    char                  boot_options[FLARE_DS_FACTORY_DATA_LEN];
+    char                  board_serial_number[FLARE_DS_FACTORY_DATA_LEN];
     uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
 } flare_datasafe;
 
@@ -119,12 +119,17 @@ void flare_datasafe_set_boot(const char* path, const char* exe);
 /*
  * Set the factory settings.
  */
-void flare_datasafe_factory_set(const uint8_t* mac,
-                                const char*    serial,
-                                const char*    part,
-                                const char*    revision,
-                                const char*    mod,
-                                const char*    bootOptions);
+void flare_datasafe_factory_data_set(const uint8_t* mac,
+                                     const char*    serial,
+                                     const char*    part,
+                                     const char*    revision,
+                                     const char*    mod,
+                                     const char*    board_serial);
+
+/*
+ * Clear the factory data
+ */
+void flare_datasafe_factory_data_clear();
 
 /*
  * Set the boot mode.

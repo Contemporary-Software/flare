@@ -125,7 +125,7 @@ flash_error flash_write(uint32_t address, const void* buffer, size_t length);
 
 flash_error flash_blank(uint32_t address, size_t length);
 flash_error flash_erase_sector(uint32_t address);
-flash_error flash_writeSector(uint32_t address, const void* buffer, size_t length);
+flash_error flash_write_sector(uint32_t address, const void* buffer, size_t length);
 
 flash_error flash_erase_device(void);
 

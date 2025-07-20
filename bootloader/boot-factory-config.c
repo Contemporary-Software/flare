@@ -20,22 +20,24 @@
 
 #include <stdio.h>
 
-#include "boot-buffer.h"
-#include "boot-filesystem.h"
-#include "datasafe.h"
-#include "factory.h"
-#include "flash.h"
-#include "md5.h"
+#include <crc/crc.h>
+
+#include <boot-buffer.h>
+#include <boot-filesystem.h>
+#include <datasafe.h>
+#include <factory-data.h>
+#include <flash.h>
+#include <md5.h>
 
 void
 factory_config_load(void)
 {
-    char*       buffer;
-    uint8_t     checksum[FACTORY_CHECKSUM_SIZE];
+    char* buffer;
+    CRC32 crc = 0;
     flash_error fe;
-    int         i;
+    flare_factory_data *data;
 
-    if (flare_get_read_bufferSize() < FACTORY_TABLE_SIZE)
+    if (flare_get_read_bufferSize() < sizeof(flare_factory_data))
     {
         printf("error: factory table size too large\n");
         return;
@@ -46,31 +48,28 @@ factory_config_load(void)
     /*
      * Assumes the file has been mounted and so the flash driver initialised.
      */
-    fe = flash_read(flash_device_size() - FACTORY_TABLE_FLASH_SIZE,
-                   buffer, FACTORY_TABLE_SIZE);
+    fe = flash_read(flash_device_size() - flash_device_sector_erase_size(),
+                   buffer, sizeof(flare_factory_data));
     if (fe != FLASH_NO_ERROR)
     {
         printf("error: factory table read: %d\n", fe);
         return;
     }
 
-    md5((uint8_t*) (buffer + FACTORY_CHECKSUM_SIZE),
-        FACTORY_TABLE_SIZE - FACTORY_CHECKSUM_SIZE,
-        checksum);
+    data = (flare_factory_data*)buffer;
 
-    for (i = 0; i < FACTORY_CHECKSUM_SIZE; ++i)
-    {
-        if (buffer[i] != checksum[i])
-        {
-            printf("error: invalid factory settings checksum\n");
-            return;
-        }
+    crc32_update(&crc, (uint8_t*)(&data->format), FACTORY_CRC_LENGTH);
+
+    if (data->crc32 == crc) {
+        flare_datasafe_factory_data_set(
+            &data->mac_address[0],
+            &data->assembly_serial_number[0],
+            &data->part_number[0],
+            &data->revision[0],
+            &data->modstrike[0],
+            &data->board_serial_number[0]);
+    } else {
+        flare_datasafe_factory_data_clear();
+        printf("error: invalid factory data checksum, %08x != %08x\n", data->crc32, crc);
     }
-
-    flare_datasafe_factory_set((uint8_t*) &buffer[FACTORY_MAC_ADDR_OFF],
-                              &buffer[FACTORY_SERIAL_NUM_OFF],
-                              &buffer[FACTORY_PART_NUM_OFF],
-                              &buffer[FACTORY_REVISION_OFF],
-                              &buffer[FACTORY_MODSTRIKE_OFF],
-                              &buffer[FACTORY_BOOT_OPTIONS_OFF]);
 }
