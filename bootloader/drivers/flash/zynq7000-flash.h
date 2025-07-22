@@ -17,8 +17,9 @@
 #if !defined(_BOOTLOADER_FLASH_ZYNQ_H_)
 #define _BOOTLOADER_FLASH_ZYNQ_H_
 
+#include <io/flare-io.h>
+
 #include "flash.h"
-#include "flare-io.h"
 
 #define FLASH_COMM_METHOD_SINGLE 0 /* Unused */
 #define FLASH_COMM_METHOD_ALL 0 /* Unused */

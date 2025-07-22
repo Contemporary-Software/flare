@@ -21,29 +21,29 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "boot-factory-config.h"
-#include "boot-filesystem.h"
-#include "boot-load.h"
-#include "boot-script.h"
-#include "cache.h"
-#include "console.h"
-#include "datasafe.h"
-#include "factory-boot.h"
-#include "flash-map.h"
-#include "flash.h"
-#include "flare-boot.h"
-#include "flare-build-id.h"
-#include "leds.h"
-#include "md5.h"
-#include "power-switch.h"
-#include "reset.h"
-#include "sleep.h"
-#include "wdog.h"
-#include "board-handoff.h"
-#include "board-io.h"
-#include "board-slcr.h"
-#include "board-timer.h"
-#include "board.h"
+#include <board-handoff.h>
+#include <board.h>
+#include <boot-factory-config.h>
+#include <boot-filesystem.h>
+#include <boot-load.h>
+#include <boot-script.h>
+#include <cache.h>
+#include <datasafe.h>
+#include <factory-boot.h>
+#include <flare-boot.h>
+#include <flare-build-id.h>
+#include <flash-map.h>
+#include <reset.h>
+
+#include <flash/flash.h>
+#include <io/board-io.h>
+#include <leds/leds.h>
+#include <power-switch/power-switch.h>
+#include <slcr/board-slcr.h>
+#include <timer/board-timer.h>
+#include <timer/sleep.h>
+#include <uart/console.h>
+#include <wdog/wdog.h>
 
 static bool
 flash_check(void)
@@ -160,7 +160,6 @@ flare_jtag_boot(uint32_t bootmode)
     if (bootmode == JTAG_MODE)
     {
         flare_datasafe_set_boot("/jtag", "none");
-        flare_datasafe_set_bootmode(JTAG_MODE, "", "none", false);
         printf("JTAG wait .. ");
         out_flush();
         cache_disable();
@@ -173,8 +172,6 @@ main(void)
 {
     const char* fb_reason = "";
     boot_script script;
-    uint32_t    bootmode = board_reg_read(BOOT_MODE_REG) & BOOT_MODES_MASK;
-    uint32_t    reset_status = board_reg_read(RESET_REASON_REG);
     bool        rc;
     int         i;
     uint8_t     header[IMAGE_HEADER_TOTAL(3)];
@@ -195,7 +192,7 @@ main(void)
     led_init();
     led_normal();
 
-    flare_datasafe_init(reset_status);
+    flare_datasafe_init();
 
     if (flash_check())
     {

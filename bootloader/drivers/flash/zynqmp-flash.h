@@ -17,8 +17,9 @@
 #if !defined(_BOOTLOADER_FLASH_VERSAL_H_)
 #define _BOOTLOADER_FLASH_VERSAL_H_
 
+#include <io/flare-io.h>
+
 #include "flash.h"
-#include "flare-io.h"
 
 #define QSPI_CONFIG_INIT_VAL (GQSPI_CFG_GEN_FIFO_START_MODE_MASK|GQSPI_CFG_WP_HOLD_MASK)
 

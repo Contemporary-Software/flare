@@ -18,9 +18,7 @@ sources = {
 
 includes = {
   'default': [
-    '../zlib',
-    '../flash',
-    '../io'
+    '../',
   ],
   'versal': [],
   'zynqmp': [],

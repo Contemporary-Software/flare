@@ -20,7 +20,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "flare-io.h"
+#include <io/flare-io.h>
 
 /*
  * Driver configuration.

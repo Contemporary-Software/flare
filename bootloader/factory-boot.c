@@ -130,10 +130,7 @@ platform_factory_booter(uint8_t* header, size_t header_size)
     }
 
     memcpy(name, (uint8_t*)FLARE_IMAGE_STAGE_ADDR + UBOOT_IMAGE_NAME_OFF, UBOOT_NAME_LEN);
-    flare_datasafe_set_bootmode(QSPI_MODE,
-                            "",
-                            (const char*)name,
-                            0);
+    flare_datasafe_set_boot("", (const char*)name);
 
     flare_datasafe_clear_factory_boot_request();
     wdog_control(true);

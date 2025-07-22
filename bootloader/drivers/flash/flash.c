@@ -18,9 +18,10 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "flash.h"
-#include "board-io.h"
+#include <io/board-io.h>
+#include <io/flare-io.h>
 
+#include "flash.h"
 #if FLARE_VERSAL
 #include "versal-flash.h"
 #elif FLARE_ZYNQ7000
@@ -29,7 +30,6 @@
 #include "zynqmp-flash.h"
 #endif /* ARCH */
 
-#include "flare-io.h"
 
 /*
  * Flash commands.

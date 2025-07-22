@@ -16,9 +16,11 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <board-io.h>
-#include "zynqmp-flash.h"
+
+#include <io/board-io.h>
+
 #include "flash.h"
+#include "zynqmp-flash.h"
 
 #define FLASH_4BYTE_ADDRESSING 1
 

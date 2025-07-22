@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Contemporary Software
+ * Copyright 2025 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  *     limitations under the License.
  */
 
+/**
+ * Datasafe hardware specific.
+ */
 
-#include <stdint.h>
-#include <io/board-io.h>
+#include <datasafe.h>
 
-#define xil_printf printf
-#define Xil_Out32 board_reg_write
-#define Xil_In32 board_reg_read
-
-typedef uint32_t u32;
-typedef uint64_t u64;
+/*
+ * Datasafe hardware registers initialise
+ */
+void flare_datasafe_hw_init(flare_datasafe* ds);

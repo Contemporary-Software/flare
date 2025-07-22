@@ -22,7 +22,8 @@
 #define ZYNQ_H
 
 #include <stdint.h>
-#include <board-io.h>
+
+#include <io/board-io.h>
 
 #define ARCHITECTURE "Zynq"
 

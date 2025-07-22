@@ -32,47 +32,34 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #define FLARE_DS_BASE     (0x00080000UL)
 #define FLARE_DS_CRC_BASE ((const unsigned char*)(FLARE_DS_BASE + 2*sizeof(uint32_t)))
 #define FLARE_DS_CRC_LEN  (sizeof(flare_datasafe) - 2*sizeof(uint32_t))
 
 /*
- * Indicate if this is a factory boot.
- *
- * @note the factory boot request mode is a work around related to the REBOOT_STATUS
- *       register not clearing after reset.
+ * bootmode bit masks
  */
-#define FLARE_DS_BOOTMODE_MASK        (0xff)
-#define FLARE_DS_RUNMODE_BIT_OFF      (16)
-#define FLARE_DS_RUNMODE_MASK         (0xff)
 #define FLARE_DS_BOOTMODE_FACTORY     (1 << 31) /* Set by the FSBL to indicate a
                                                  * factory boot */
 #define FLARE_DS_BOOTMODE_FACTORY_REQ (1 << 30) /* Set in the application to request
                                                  * booting into factory boot mode. */
-#define FLARE_DS_BOOTMODE_BITFILE_LD  (1 << 29) /* The bitfile has been loaded into
-                                                 * the PL. */
-#define FLARE_DS_BOOTMODE_BS_CHECKSUM (1 << 28) /* Boot script supports a checksum */
 
-#define FLARE_DS_GET_RUNMODE(_m) (((_m) >> FLARE_DS_RUNMODE_BIT_OFF) & FLARE_DS_RUNMODE_MASK)
-
-/*
- * Mask of request bits in the bootmode field that are not cleared on reset.
- */
-#define FLARE_DS_BOOTMODE_REQ_MASK                      \
-  (FLARE_DS_BOOTMODE_FACTORY_REQ |                      \
-   (FLARE_DS_RUNMODE_MASK << FLARE_DS_RUNMODE_BIT_OFF))
+#define FLARE_DS_BOOTMODE_HW_MASK     (0xF)
+#define FLARE_DS_BOOTMODE_ERROR       (1 << 0) /* Boot mode unknown or unsupported */
+#define FLARE_DS_BOOTMODE_QSPI        (1 << 1) /* Boot from QSPI */
+#define FLARE_DS_BOOTMODE_SD_CARD     (1 << 2) /* Boot from SD card */
+#define FLARE_DS_BOOTMODE_JTAG        (1 << 3) /* Boot from JTAG */
 
 /*
- * Version number is always a 7 digit string. The following format string must
- * be used as:
- *
- *   printf("Version: %" FLARE_VERSION_PRI "lx\n", bc->flare_version);
+ * reset bit masks
  */
-#define FLARE_VERSION_PRI "07"
+#define FLARE_DS_RESET_MASK (0x3F << 26)
+#define FLARE_DS_RESET_POR (1 << 31) /* Power on reset */
+#define FLARE_DS_RESET_WDT (1 << 30) /* Watch dog timer */
+#define FLARE_DS_RESET_SWR (1 << 29) /* Software reset */
+#define FLARE_DS_RESET_DBG (1 << 28) /* Debug reset */
+#define FLARE_DS_RESET_EXT (1 << 27) /* External reset */
+#define FLARE_DS_RESET_ERR (1 << 26) /* Unknown or unsupported reset */
 
 /*
  * The data safe.
@@ -109,7 +96,7 @@ typedef struct
  * Initialise the datasafe clearing the memory if the hash is not valid and
  * if valid update the count. Always set the reset value.
  */
-void flare_datasafe_init(uint32_t resetReason);
+void flare_datasafe_init();
 
 /*
  * Set the boot path and loader.
@@ -130,14 +117,6 @@ void flare_datasafe_factory_data_set(const uint8_t* mac,
  * Clear the factory data
  */
 void flare_datasafe_factory_data_clear();
-
-/*
- * Set the boot mode.
- */
-void flare_datasafe_set_bootmode(uint32_t    bootmode,
-                                 const char* firmware,
-                                 const char* exe,
-                                 bool        bitfile_loaded);
 
 /*
  * Set the factory boot flag.
@@ -163,9 +142,5 @@ void flare_datasafe_clear_factory_boot_request(void);
  * Has a factory boot been requested?
  */
 bool flare_datasafe_factory_boot_requested(void);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
 
 #endif

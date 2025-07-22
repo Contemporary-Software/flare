@@ -31,11 +31,12 @@
 #include <machine/endian.h>
 #include <sys/stat.h>
 
-#include <tzlib.h>
+#include <flash/flash.h>
+#include <zlib/tzlib.h>
+
 #include "jffs2.h"
 #include "jffs2-boot.h"
 
-#include "flash.h"
 
 #if !defined(JFFS2_TRACE)
  #define JFFS2_TRACE 1

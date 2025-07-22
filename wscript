@@ -29,16 +29,6 @@ sources = {
 includes = {
     'default': [
         'bootloader',
-        'bootloader/drivers/crc',
-        'bootloader/drivers/io',
-        'bootloader/drivers/timer',
-        'bootloader/drivers/uart',
-        'bootloader/drivers/flash',
-        'bootloader/drivers/leds',
-        'bootloader/drivers/md5',
-        'bootloader/drivers/power-switch',
-        'bootloader/drivers/wdog',
-        'bootloader/drivers/slcr',
         'bootloader/drivers',
         ],
     'versal': [],

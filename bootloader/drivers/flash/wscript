@@ -23,7 +23,7 @@ sources = {
 
 includes = {
   'default': [
-    '../io'
+    '../'
   ],
   'versal': [],
   'zynqmp': [],
