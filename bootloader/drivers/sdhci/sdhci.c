@@ -22,9 +22,10 @@
 #include <sdhci/sdhci.h>
 #include <sdhci/sdhci_hw.h>
 
-#define SDHCI_DEBUG_NONE 0
-#define SDHCI_DEBUG_ENA  1
-#define SDHCI_DEBUG_VERB 2
+#define SDHCI_DEBUG_NONE   0
+#define SDHCI_DEBUG_ENA    1
+#define SDHCI_DEBUG_TRACE  2
+#define SDHCI_DEBUG_VERB   3
 
 static const int sdhci_debug = SDHCI_DEBUG_NONE;
 
@@ -41,7 +42,14 @@ static uint16_t card_rca;
         }                         \
     } while (0)
 
-#define SDHCI_REG_DEBUG(...)                   \
+#define SDHCI_TRACE_DEBUG(...)                   \
+    do {                                      \
+        if (sdhci_debug >= SDHCI_DEBUG_TRACE) {  \
+            printf(__VA_ARGS__);              \
+        }                                     \
+    } while (0)
+
+#define SDHCI_VERB_DEBUG(...)                   \
     do {                                      \
         if (sdhci_debug >= SDHCI_DEBUG_VERB) {  \
             printf(__VA_ARGS__);              \
@@ -50,37 +58,37 @@ static uint16_t card_rca;
 
 uint32_t sdhci_reg_read(uint32_t offset) {
     uint32_t val = board_reg_read(sdhci_address() + offset);
-    SDHCI_REG_DEBUG("sdhci: read32: 0x%08x = %08x\n",
+    SDHCI_VERB_DEBUG("sdhci: read32: 0x%08x = %08x\n",
         sdhci_address() + offset, val);
     return val;
 }
 
 uint16_t sdhci_reg_read_16(uint32_t offset) {
     uint16_t val = board_reg_read_16(sdhci_address() + offset);
-    SDHCI_REG_DEBUG("sdhci: read16: 0x%08x = %04x\n",
+    SDHCI_VERB_DEBUG("sdhci: read16: 0x%08x = %04x\n",
         sdhci_address() + offset, val);
     return val;
 }
 
 uint8_t sdhci_reg_read_8(uint32_t offset) {
     uint8_t val = board_reg_read_8(sdhci_address() + offset);
-    SDHCI_REG_DEBUG("sdhci: read8: 0x%08x = %02x\n",
+    SDHCI_VERB_DEBUG("sdhci: read8: 0x%08x = %02x\n",
         sdhci_address() + offset, val);
     return val;
 }
 
 void sdhci_reg_write(uint32_t offset, uint32_t val) {
-    SDHCI_REG_DEBUG("sdhci: write32: 0x%08x = %08x\n", sdhci_address() + offset, val);
+    SDHCI_VERB_DEBUG("sdhci: write32: 0x%08x = %08x\n", sdhci_address() + offset, val);
     board_reg_write(sdhci_address() + offset, val);
 }
 
 void sdhci_reg_write_16(uint32_t offset, uint16_t val) {
-    SDHCI_REG_DEBUG("sdhci: write16: 0x%08x = %04x\n", sdhci_address() + offset, val);
+    SDHCI_VERB_DEBUG("sdhci: write16: 0x%08x = %04x\n", sdhci_address() + offset, val);
     board_reg_write_16(sdhci_address() + offset, val);
 }
 
 void sdhci_reg_write_8(uint32_t offset, uint8_t val) {
-    SDHCI_REG_DEBUG("sdhci: write8: 0x%08x = %02x\n", sdhci_address() + offset, val);
+    SDHCI_VERB_DEBUG("sdhci: write8: 0x%08x = %02x\n", sdhci_address() + offset, val);
     board_reg_write_8(sdhci_address() + offset, val);
 }
 
@@ -93,7 +101,7 @@ static inline void check_initialised() {
 }
 
 static sdhci_error set_clock(bool slow) {
-    SDHCI_DEBUG("sdhci: set_clock(slow = %c)\n", slow ? 'T' : 'F');
+    SDHCI_TRACE_DEBUG("sdhci: set_clock(slow = %c)\n", slow ? 'T' : 'F');
     uint16_t clk_val;
 
     sdhci_reg_write_16(SDHCI_CLOCK_CONTROL, 0);
@@ -136,7 +144,7 @@ static sdhci_error set_clock(bool slow) {
 }
 
 static sdhci_error reset_config() {
-    SDHCI_DEBUG("sdhci: reset_config()\n");
+    SDHCI_TRACE_DEBUG("sdhci: reset_config()\n");
     disable_bus_power();
 
     sdhci_reg_write_8(SDHCI_SOFTWARE_RESET, SDHCI_RESET_ALL);
@@ -153,7 +161,7 @@ static sdhci_error reset_config() {
     }
 
     if (timeout == 0) {
-        SDHCI_DEBUG("sdhci: reset timed out\n");
+        SDHCI_TRACE_DEBUG("sdhci: reset timed out\n");
         return SDHCI_RESET_FAILED;
     }
 
@@ -162,7 +170,7 @@ static sdhci_error reset_config() {
 }
 
 static void config_power() {
-    SDHCI_DEBUG("sdhci: config_power()\n");
+    SDHCI_TRACE_DEBUG("sdhci: config_power()\n");
     uint8_t pl = 0;
     uint32_t caps = sdhci_reg_read(SDHCI_CAPABILITIES);
 
@@ -226,11 +234,11 @@ static uint32_t flag_generator(uint32_t cmd) {
 
 static sdhci_error cmd_transfer(
     uint32_t cmd, uint32_t arg, uint16_t blk_cnt, uint32_t* res) {
-    SDHCI_DEBUG(
+    SDHCI_TRACE_DEBUG(
         "sdhci: cmd_transfer(cmd=%c%d, arg=0x%08x, blk_cnt=%d, res=0x%08x)\n",
         cmd&0x80 ? 'A' : 'C', cmd&0x3F , arg, blk_cnt, res);
     if (!check_idle()) {
-        SDHCI_DEBUG("sdhci: cmd_transfer: SDHCI_BUSY\n");
+        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_BUSY\n");
         return SDHCI_BUSY;
     }
 
@@ -264,7 +272,7 @@ static sdhci_error cmd_transfer(
     if (cval & SDHCI_INT_ERROR || (curr_time >= end_time)) {
         /* Write to clear and return error */
         sdhci_reg_write(SDHCI_INT_STATUS, SDHCI_INT_ERROR_MASK);
-        SDHCI_DEBUG("sdhci: cmd_transfer: SDHCI_TRANSFER_FAILED\n");
+        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_TRANSFER_FAILED\n");
         return SDHCI_TRANSFER_FAILED;
     }
 
@@ -273,16 +281,16 @@ static sdhci_error cmd_transfer(
 
     if (res != NULL) {
         *res = sdhci_reg_read(SDHCI_RESPONSE0);
-        SDHCI_DEBUG("sdhci: cmd_transfer: SDHCI_NO_ERROR: 0x%08x\n", *res);
+        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_NO_ERROR: 0x%08x\n", *res);
     } else {
-        SDHCI_DEBUG("sdhci: cmd_transfer: SDHCI_NO_ERROR\n");
+        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_NO_ERROR\n");
     }
 
     return SDHCI_NO_ERROR;
 }
 
 static uint32_t read_fifo(char* buffer) {
-    SDHCI_DEBUG("sdhci: read_fifo(buffer = 0x%08x)\n", buffer);
+    SDHCI_TRACE_DEBUG("sdhci: read_fifo(buffer = 0x%08x)\n", buffer);
     uint32_t* buff = (uint32_t*)buffer;
     sdhci_reg_write(SDHCI_INT_STATUS, SDHCI_INT_DATA_AVAIL);
     uint32_t total_reads = SDHCI_BLK_SIZE / sizeof(uint32_t);
@@ -294,7 +302,7 @@ static uint32_t read_fifo(char* buffer) {
 }
 
 static sdhci_error read_data_transfer(char* buffer) {
-    SDHCI_DEBUG("sdhci: read_data_transfer(buffer = 0x%08x)\n", buffer);
+    SDHCI_TRACE_DEBUG("sdhci: read_data_transfer(buffer = 0x%08x)\n", buffer);
     uint32_t status;
     uint64_t end_time;
     uint64_t curr_time;
@@ -313,10 +321,10 @@ static sdhci_error read_data_transfer(char* buffer) {
     if ((status & SDHCI_INT_ERROR) || (curr_time >= end_time)) {
         /* Write to clear and return error */
         sdhci_reg_write(SDHCI_INT_STATUS, SDHCI_INT_ERROR_MASK);
-        SDHCI_DEBUG("sdhci: read_data_transfer: SDHCI_TRANSFER_FAILED\n");
+        SDHCI_TRACE_DEBUG("sdhci: read_data_transfer: SDHCI_TRANSFER_FAILED\n");
         return SDHCI_TRANSFER_FAILED;
     }
-    SDHCI_DEBUG("sdhci: read_data_transfer: SDHCI_NO_ERROR\n");
+    SDHCI_TRACE_DEBUG("sdhci: read_data_transfer: SDHCI_NO_ERROR\n");
     return SDHCI_NO_ERROR;
 }
 
@@ -444,7 +452,7 @@ static sdhci_error initialise() {
     }
 
     initialised = true;
-    SDHCI_DEBUG("sdhci: initialise: success\n");
+    SDHCI_TRACE_DEBUG("sdhci: initialise: success\n");
     return SDHCI_NO_ERROR;
 }
 
@@ -456,11 +464,18 @@ sdhci_error sdhci_close(void) {
     initialised = false;
 }
 
+bool sdhci_initalised() {
+    return initialised;
+}
+
 sdhci_error sdhci_read(uint32_t sector, uint32_t count, char* buffer) {
     SDHCI_DEBUG("sdhci: read(sector = 0x%08x, count = %d, buffer = 0x%08x)\n",
         sector, count, buffer);
     sdhci_error err;
     uint32_t res;
+    if (initialised == false) {
+        sdhci_open();
+    }
     if (count == 0) {
         return SDHCI_NO_ERROR;
     } else if (count == 1) {

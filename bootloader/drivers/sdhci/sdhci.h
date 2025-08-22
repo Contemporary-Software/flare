@@ -17,6 +17,7 @@
 #ifndef DRIVERS_SDHCI_SDHCI_H_
 #define DRIVERS_SDHCI_SDHCI_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define SDHCI_BLK_SIZE 512
@@ -35,6 +36,8 @@ typedef enum
 
 sdhci_error sdhci_open(void);
 sdhci_error sdhci_close(void);
+
+bool sdhci_initalised();
 
 sdhci_error sdhci_read(uint32_t sector, uint32_t count, char* buffer);
 

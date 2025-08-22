@@ -19,7 +19,9 @@ sources = {
 }
 
 includes = {
-  'default': [],
+  'default': [
+      '..'
+  ],
   'versal': [],
   'zynqmp': [],
   'zynq7000': []

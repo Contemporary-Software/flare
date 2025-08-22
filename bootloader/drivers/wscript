@@ -41,6 +41,7 @@ def build(bld):
               source=['drivers.c'],
               use=[
                    'flare_crc_driver',
+                   'flare_fatfs_driver',
                    'flare_flash_driver',
                    'flare_gpio_driver',
                    'flare_io_driver',

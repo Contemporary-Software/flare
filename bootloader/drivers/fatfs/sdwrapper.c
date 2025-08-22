@@ -14,6 +14,8 @@
  *     limitations under the License.
  */
 
+#include <sdhci/sdhci.h>
+
 #include "ff.h"
 #include "diskio.h"
 
@@ -21,12 +23,25 @@ DSTATUS disk_status (
 	BYTE pdrv		/* Physical drive nmuber to identify the drive */
 )
 {
+    if (!sdhci_initalised()) {
+        return STA_NOINIT;
+    } else {
+        return 0;
+    }
 }
 
 DSTATUS disk_initialize (
 	BYTE pdrv				/* Physical drive nmuber to identify the drive */
 )
 {
+    sdhci_error err = sdhci_open();
+    if (err == SDHCI_NO_ERROR) {
+        return 0;
+    } else if (err == SDHCI_CARD_NOT_PRESENT) {
+        return STA_NODISK;
+    } else {
+        return STA_NOINIT;
+    }
 }
 
 DRESULT disk_read (
@@ -36,12 +51,10 @@ DRESULT disk_read (
 	UINT count		/* Number of sectors to read */
 )
 {
-}
-
-DRESULT disk_ioctl (
-	BYTE pdrv,		/* Physical drive nmuber (0..) */
-	BYTE cmd,		/* Control code */
-	void *buff		/* Buffer to send/receive control data */
-)
-{
+    sdhci_error err = sdhci_read(sector, count, buff);
+    if (err != SDHCI_NO_ERROR) {
+        return RES_ERROR;
+    } else {
+        return RES_OK;
+    }
 }
