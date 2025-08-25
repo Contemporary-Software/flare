@@ -38,6 +38,6 @@
 char inbyte(void);
 int  inbyte_available(void);
 void outbyte(char c);
-void out_flush(void);
+void console_flush(void);
 
 #endif

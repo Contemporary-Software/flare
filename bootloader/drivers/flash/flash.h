@@ -115,7 +115,7 @@ typedef enum
     FLASH_INVALID_DEVICE
 } flash_error;
 
-flash_error flash_open(void);
+flash_error flash_open(const char** label);
 flash_error flash_close(void);
 
 flash_error flash_read(uint32_t address, void* buffer, size_t length);

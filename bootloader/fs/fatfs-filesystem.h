@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Contemporary Software
+ * Copyright 2025 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 
 /*
- * Flare Boot Loader File System Interface.
+ * Flare FATFS File System Interface.
  */
 
-#if !defined(_BOOT_FILESYSTEM_H_)
-#define _BOOT_FILESYSTEM_H_
+#if !defined(_FATFS_FILESYSTEM_H_)
+#define _FATFS_FILESYSTEM_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -28,16 +28,16 @@
 /*
  * Mount the file system.
  */
-int flare_filesystem_mount(bool setup_cache);
+int fatfs_filesystem_mount();
 
 /*
  * Read the file.
  */
-int flare_read_file(const char* name, void* const buffer, uint32_t* size);
+int fatfs_read_file(const char* name, void* const buffer, uint32_t* size);
 
 /*
  * Change directory.
  */
-int flare_chdir(const char* path);
+int fatfs_chdir(const char* path);
 
 #endif

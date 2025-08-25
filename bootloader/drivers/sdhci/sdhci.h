@@ -37,7 +37,7 @@ typedef enum
 sdhci_error sdhci_open(void);
 sdhci_error sdhci_close(void);
 
-bool sdhci_initalised();
+bool sdhci_initialised();
 
 sdhci_error sdhci_read(uint32_t sector, uint32_t count, char* buffer);
 

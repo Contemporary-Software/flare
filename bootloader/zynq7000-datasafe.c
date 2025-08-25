@@ -18,6 +18,7 @@
  * Data safe hardware specific.
  */
 
+#include <board.h>
 #include <hw-datasafe.h>
 
 #include <io/board-io.h>
@@ -40,18 +41,24 @@
 #define ZYNQ7000_BM_QSPI (0x1)
 #define ZYNQ7000_BM_SD   (0x5)
 
-void flare_datasafe_hw_init(flare_datasafe* ds) {
+int board_bootmode() {
     uint32_t bootmode = board_reg_read(ZYNQ7000_BOOTMODE_REGISTER) & ZYNQ7000_BM_MASK;
+    if (bootmode == ZYNQ7000_BM_QSPI) {
+        return FLARE_DS_BOOTMODE_QSPI;
+    } else if (bootmode == ZYNQ7000_BM_SD) {
+        return FLARE_DS_BOOTMODE_SD_CARD;
+    } else if (bootmode == ZYNQ7000_BM_JTAG) {
+        return FLARE_DS_BOOTMODE_JTAG;
+    } else {
+        return FLARE_DS_BOOTMODE_ERROR;
+    }
+}
+
+void flare_datasafe_hw_init(flare_datasafe* ds) {
     uint32_t rs = board_reg_read(ZYNQ7000_REBOOT_STATUS_REGISTER);
 
     ds->bootmode &= ~FLARE_DS_BOOTMODE_HW_MASK;
-    if (bootmode == ZYNQ7000_BM_QSPI) {
-        ds->bootmode |= FLARE_DS_BOOTMODE_QSPI;
-    } else if (bootmode == ZYNQ7000_BM_SD) {
-        ds->bootmode |= FLARE_DS_BOOTMODE_SD_CARD;
-    } else {
-        ds->bootmode |= FLARE_DS_BOOTMODE_ERROR;
-    }
+    ds->bootmode |= board_bootmode();
 
     ds->reset &= ~FLARE_DS_RESET_MASK;
     if (rs & ZYNQ7000_RS_POR) {

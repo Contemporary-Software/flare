@@ -14,25 +14,36 @@
  *     limitations under the License.
  */
 
-#if !defined(BOARD_H)
-#define BOARD_H
+/*
+ * Flare Boot Loader File System Interface.
+ */
 
-#ifdef FLARE_VERSAL
-  #include "versal.h"
-#elif FLARE_ZYNQMP
-  #include "zynqmp.h"
-#else
-  #include "zynq7000.h"
-#endif
+#if !defined(_BOOT_FILESYSTEM_H_)
+#define _BOOT_FILESYSTEM_H_
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+typedef enum {
+    FILESYSTEM_QSPI_JFFS2,
+    FILESYSTEM_SD_FATFS,
+} flare_fs;
 
 /*
- * Board set up.
+ * Mount the file system.
  */
-void board_hardware_setup(void);
+int flare_filesystem_mount(flare_fs fs);
 
 /*
- * Board bootmode. Modes are defined in datasafe.h.
+ * Read the file.
  */
-int board_bootmode();
+int flare_read_file(
+    flare_fs fs, const char* name, void* const buffer, uint32_t* size);
+
+/*
+ * Change directory.
+ */
+int flare_chdir(flare_fs fs, const char* path);
 
 #endif

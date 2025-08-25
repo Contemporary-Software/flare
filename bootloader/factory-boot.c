@@ -21,21 +21,21 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "boot-load.h"
-#include "cache.h"
-#include "crc.h"
-#include "datasafe.h"
-#include "factory-boot.h"
-#include "flash-map.h"
-#include "flash.h"
-#include "flare-boot.h"
-#include "md5.h"
-#include "reset.h"
-#include "tzlib.h"
-#include "uboot.h"
-#include "wdog.h"
-#include "board-handoff.h"
-#include "board.h"
+#include <boot-factory-config.h>
+#include <boot-load.h>
+#include <cache.h>
+#include <crc.h>
+#include <datasafe.h>
+#include <factory-boot.h>
+#include <flash-map.h>
+#include <flash.h>
+#include <flare-boot.h>
+#include <reset.h>
+#include <tzlib.h>
+#include <uboot.h>
+#include <wdog.h>
+#include <board-handoff.h>
+#include <board.h>
 
 /*
  * The factory boot base and the number of file slots.
@@ -115,10 +115,11 @@ platform_factory_booter(uint8_t* header, size_t header_size)
     crc32_update(&crc, (const void*)FLARE_IMAGE_STAGE_ADDR, size);
     crc32_str(&crc, checksum);
 
-    printf("(CRC32: ");
-    for (i = 0; i < CRC_CHECKSUM_SIZE; ++i)
+    printf("         CRC32: ");
+    for (i = 0; i < CRC_CHECKSUM_SIZE; ++i) {
         printf("%c", checksum[i]);
-    printf(")\n");
+    }
+    printf("\n");
 
     if (*header_crc != crc) {
         printf("error: invalid checksum 0x%08x 0x%08x\n", *header_crc, crc);
@@ -148,11 +149,20 @@ factory_boot(const char* why)
     int               i;
     CRC32             crc;
     const uint32_t*   header_crc;
+    const char*       label;
 
     printf("Factory Boot: %s\n", why);
 
-    fe = flash_read(FACTORY_BOOT_BASE, header, header_size);
+    fe = flash_open(&label);
+    if (fe != FLASH_NO_ERROR)
+    {
+        printf("error: opening flash: %d\n", fe);
+        return;
+    }
+    printf("         Flash: %s\n", label);
+    factory_config_load();
 
+    fe = flash_read(FACTORY_BOOT_BASE, header, header_size);
     if (fe != FLASH_NO_ERROR)
     {
         printf("error: reading factory header: %d\n", fe);

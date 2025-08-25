@@ -27,6 +27,6 @@ void outbyte(char c) {
   board_uart_send(STDOUT_BASEADDRESS, (uint8_t) c);
 }
 
-void out_flush(void) {
+void console_flush(void) {
   while (board_uart_tx_idle(STDOUT_BASEADDRESS) == false);
 }

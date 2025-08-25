@@ -21,13 +21,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "flare-boot.h"
-#include "boot-filesystem.h"
-#include "boot-load.h"
-#include "crc.h"
-#include "uboot.h"
-#include "tzlib.h"
-#include "flash-map.h"
+#include <boot-load.h>
+#include <crc/crc.h>
+#include <flare-boot.h>
+#include <flash-map.h>
+#include <fs/boot-filesystem.h>
+#include <uboot.h>
+#include <zlib/tzlib.h>
 
 #define MASK_N_DIV(x, n) ((x) & ~((n) - 1))
 #define MASK_N_MOD(x, n) ((x) & ((n) - 1))
@@ -170,14 +170,15 @@ load_exe(const boot_script* const script, uint32_t* entry_point)
 
     printf("  Executable: %s/%s ", script->path, script->executable);
 
-    rc = flare_chdir(script->path);
+    rc = flare_chdir(script->fs, script->path);
     if (rc != 0)
     {
         printf("%s chdir: %d\n", error, rc);
         return false;
     }
 
-    rc = flare_read_file(script->executable, (char*)FLARE_IMAGE_STAGE_ADDR, &length);
+    rc = flare_read_file(script->fs, script->executable,
+        (char*)FLARE_IMAGE_STAGE_ADDR, &length);
     if (rc != 0)
     {
         printf("%s read: %d\n", error, rc);
