@@ -20,7 +20,7 @@
 
 #include <unistd.h>
 
-#include "reset.h"
+#include <reset.h>
 
 /* _exit - Simple implementation. Does not return.
 */

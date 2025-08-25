@@ -34,7 +34,7 @@
 #define PAD_n(x, n)      (MASK_N_MOD(x, n) == 0 ? (x) : MASK_N_DIV((x) + ((n) - 1), n))
 #define PAD_4(x)         PAD_n(x, 4)
 
-static inline uint32_t swap_end_32(uint32_t val) {
+static inline uintptr_t swap_end_32(uint32_t val) {
     return (((0xFF000000 & val) >> 24) |
             ((0x00FF0000 & val) >> 8) |
             ((0x0000FF00 & val) << 8) |
@@ -43,13 +43,10 @@ static inline uint32_t swap_end_32(uint32_t val) {
 
 bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point)
 {
-    int i;
-    CRC32             crc;
     uint8_t*          loadTo;
     uint8_t           compression;
     char              name[UBOOT_NAME_LEN + 1] = {0};
     uint32_t          magic_num;
-    uint8_t           checksum[CRC_CHECKSUM_SIZE];
 
     loadTo = (uint8_t*)swap_end_32(*(uint32_t*)(image + UBOOT_LOAD_ADDR_OFF));
     size = (size_t)swap_end_32(*(uint32_t*)(image + UBOOT_DATA_SIZE_OFF));
@@ -73,8 +70,8 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point)
     }
 
     printf("       Loading: U-Boot Image: %s\n", name);
-    printf("            To: 0x%08x\n", loadTo);
-    printf("          Size: 0x%08x\n", size);
+    printf("            To: %p\n", loadTo);
+    printf("          Size: 0x%08zx\n", size);
     printf("    Compressed: %d\n", compression);
     printf("   Entry point: 0x%08x\n", *entry_point);
 

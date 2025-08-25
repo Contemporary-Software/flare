@@ -19,7 +19,8 @@
  */
 
 #include "wdog.h"
-#include "gpio.h"
+
+#include <gpio/gpio.h>
 
 /*
  * Disable the watchdog.

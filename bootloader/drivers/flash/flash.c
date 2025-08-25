@@ -71,6 +71,11 @@
   #define FLASH_READ_STATUS_FLAG_CMD  0x05
 #endif
 
+/*
+ * A write buffer.
+ */
+static flash_transfer_buffer flash_buf_;
+#define flash_buf &flash_buf_
 
 /*
  * The flash page size.
@@ -89,9 +94,6 @@ static size_t        flash_erase_buffer_size;
  */
 static bool initialised = false;
 
-static size_t   cfi_length;
-static uint8_t* cfi_data;
-
 /*
  * Wait handler.
  */
@@ -107,19 +109,12 @@ static void*             wait_Handler_User;
 static bool flash_trace = 1;
 #endif
 
-static flash_error flash_readCFI(void);
+#ifdef FLARE_ZYNQ7000
+static size_t   cfi_length;
+static uint8_t* cfi_data;
 
-static void
-flash_transfer_traceHeader(const char*                  message,
-                          const flash_transfer_buffer* transfer)
-{
-#if FLASH_TRACE_TRANSFER
-    if (flash_trace)
-        printf(" %s: length=%ld in=%ld out=%ld padding=%ld\n",
-               message, transfer->length, transfer->in,
-               transfer->out, transfer->padding);
+static flash_error flash_readCFI(void);
 #endif
-}
 
 void
 flash_transfer_trace(const char*                  message,
@@ -129,7 +124,9 @@ flash_transfer_trace(const char*                  message,
     if (flash_trace)
     {
         size_t c;
-        flash_transfer_traceHeader(message, transfer);
+        printf(" %s: length=%ld in=%ld out=%ld padding=%ld\n",
+               message, transfer->length, transfer->in,
+               transfer->out, transfer->padding);
         for (c = 0; c < transfer->length; ++c)
         {
             if ((c % 16) == 0)
@@ -483,6 +480,8 @@ flash_ClearWEL(void)
     return FLASH_NO_ERROR;
 }
 
+
+#ifdef FLARE_ZYNQ7000
 static flash_error
 flash_readCFI(void)
 {
@@ -575,6 +574,7 @@ flash_readCFI(void)
 
     return fe;
 }
+#endif
 
 static flash_error
 flash_FindRegion(uint32_t address, uint32_t* base, size_t* length)
@@ -612,7 +612,6 @@ flash_error
 flash_get_regions(flash_region** regions, size_t* size)
 {
     flash_error fe;
-    size_t      region;
 
     *regions = NULL;
     *size = 0;
@@ -628,7 +627,6 @@ flash_get_regions(flash_region** regions, size_t* size)
 }
 
 flash_error flash_open(const char** label) {
-    uint32_t    flash_size = 0;
     uint32_t    manufacture_code;
     uint32_t    mem_iface_type;
     uint32_t    density;

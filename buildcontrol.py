@@ -2,9 +2,11 @@
 # Flare Build Control
 #
 
+
 def recurse(ctx, directories):
     for d in directories:
         ctx.recurse(d)
+
 
 def options(opt):
     opt.add_option_group('configure options')
@@ -30,6 +32,7 @@ def options(opt):
                      dest='flare_ps_init',
                      help='Path to PS initialisation file')
 
+
 def configure(conf):
     tools_prefix = conf.options.flare_compiler_prefix
     if tools_prefix == None:
@@ -47,11 +50,21 @@ def configure(conf):
     else:
         tool_path_list = conf.options.flare_tools_path
 
-    conf.find_program(tools_prefix + '-gcc', path_list=tool_path_list, var="CC")
-    conf.find_program(tools_prefix + '-g++', path_list=tool_path_list, var="CXX")
-    conf.find_program(tools_prefix + '-gcc', path_list=tool_path_list, var="LINK_CC")
-    conf.find_program(tools_prefix + '-g++', path_list=tool_path_list, var="LINK_CXX")
-    conf.find_program(tools_prefix + '-gcc', path_list=tool_path_list, var="AS")
+    conf.find_program(tools_prefix + '-gcc',
+                      path_list=tool_path_list,
+                      var="CC")
+    conf.find_program(tools_prefix + '-g++',
+                      path_list=tool_path_list,
+                      var="CXX")
+    conf.find_program(tools_prefix + '-gcc',
+                      path_list=tool_path_list,
+                      var="LINK_CC")
+    conf.find_program(tools_prefix + '-g++',
+                      path_list=tool_path_list,
+                      var="LINK_CXX")
+    conf.find_program(tools_prefix + '-gcc',
+                      path_list=tool_path_list,
+                      var="AS")
     conf.find_program(tools_prefix + '-ld', path_list=tool_path_list, var="LD")
     conf.find_program(tools_prefix + '-ar', path_list=tool_path_list, var="AR")
 

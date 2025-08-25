@@ -4,14 +4,18 @@
 # Flare IO Driver
 #
 
+
 def init(ctx):
-  pass
+    pass
+
 
 def options(opt):
-  pass
+    pass
+
 
 def configure(conf):
-  pass
+    pass
+
 
 def build(bld):
-  pass
+    pass

@@ -23,16 +23,20 @@ directories = [
     'uart',
     'wdog',
     'zlib',
-    ]
+]
+
 
 def init(ctx):
     buildcontrol.recurse(ctx, directories)
 
+
 def options(opt):
     buildcontrol.recurse(opt, directories)
 
+
 def configure(conf):
     buildcontrol.recurse(conf, directories)
+
 
 def build(bld):
     buildcontrol.recurse(bld, directories)
@@ -40,20 +44,20 @@ def build(bld):
               features='c',
               source=['drivers.c'],
               use=[
-                   'flare_crc_driver',
-                   'flare_fatfs_driver',
-                   'flare_flash_driver',
-                   'flare_gpio_driver',
-                   'flare_io_driver',
-                   'flare_jffs2_driver',
-                   'flare_leds_driver',
-                   'flare_libc_driver',
-                   'flare_md5_driver',
-                   'flare_power_switch_driver',
-                   'flare_sdhci_driver',
-                   'flare_slcr_driver',
-                   'flare_timer_driver',
-                   'flare_uart_driver',
-                   'flare_wdog_driver',
-                   'flare_zlib_driver',
-                   ])
+                  'flare_crc_driver',
+                  'flare_fatfs_driver',
+                  'flare_flash_driver',
+                  'flare_gpio_driver',
+                  'flare_io_driver',
+                  'flare_jffs2_driver',
+                  'flare_leds_driver',
+                  'flare_libc_driver',
+                  'flare_md5_driver',
+                  'flare_power_switch_driver',
+                  'flare_sdhci_driver',
+                  'flare_slcr_driver',
+                  'flare_timer_driver',
+                  'flare_uart_driver',
+                  'flare_wdog_driver',
+                  'flare_zlib_driver',
+              ])

@@ -51,7 +51,7 @@ DRESULT disk_read (
 	UINT count		/* Number of sectors to read */
 )
 {
-    sdhci_error err = sdhci_read(sector, count, buff);
+    sdhci_error err = sdhci_read(sector, count, (char*)buff);
     if (err != SDHCI_NO_ERROR) {
         return RES_ERROR;
     } else {

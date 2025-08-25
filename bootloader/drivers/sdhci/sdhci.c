@@ -78,17 +78,20 @@ uint8_t sdhci_reg_read_8(uint32_t offset) {
 }
 
 void sdhci_reg_write(uint32_t offset, uint32_t val) {
-    SDHCI_VERB_DEBUG("sdhci: write32: 0x%08x = %08x\n", sdhci_address() + offset, val);
+    SDHCI_VERB_DEBUG("sdhci: write32: 0x%08x = %08x\n",
+        sdhci_address() + offset, val);
     board_reg_write(sdhci_address() + offset, val);
 }
 
 void sdhci_reg_write_16(uint32_t offset, uint16_t val) {
-    SDHCI_VERB_DEBUG("sdhci: write16: 0x%08x = %04x\n", sdhci_address() + offset, val);
+    SDHCI_VERB_DEBUG("sdhci: write16: 0x%08x = %04x\n",
+        sdhci_address() + offset, val);
     board_reg_write_16(sdhci_address() + offset, val);
 }
 
 void sdhci_reg_write_8(uint32_t offset, uint8_t val) {
-    SDHCI_VERB_DEBUG("sdhci: write8: 0x%08x = %02x\n", sdhci_address() + offset, val);
+    SDHCI_VERB_DEBUG("sdhci: write8: 0x%08x = %02x\n",
+        sdhci_address() + offset, val);
     board_reg_write_8(sdhci_address() + offset, val);
 }
 
@@ -108,7 +111,7 @@ static sdhci_error set_clock(bool slow) {
 
     clk_val = sdhci_reg_read_16(SDHCI_CLOCK_CONTROL);
     clk_val |= SDHCI_CLOCK_INT_EN;
-    if (initialise) {
+    if (slow) {
         /* Set clock to 50Mhz / 128 = 400Khz */
         uint16_t divisor_power = 7;
         clk_val |= (1 << (divisor_power - 1)) << SDHCI_DIVIDER_SHIFT;
@@ -235,7 +238,7 @@ static uint32_t flag_generator(uint32_t cmd) {
 static sdhci_error cmd_transfer(
     uint32_t cmd, uint32_t arg, uint16_t blk_cnt, uint32_t* res) {
     SDHCI_TRACE_DEBUG(
-        "sdhci: cmd_transfer(cmd=%c%d, arg=0x%08x, blk_cnt=%d, res=0x%08x)\n",
+        "sdhci: cmd_transfer(cmd=%c%d, arg=0x%08x, blk_cnt=%d, res=%p)\n",
         cmd&0x80 ? 'A' : 'C', cmd&0x3F , arg, blk_cnt, res);
     if (!check_idle()) {
         SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_BUSY\n");
@@ -281,7 +284,8 @@ static sdhci_error cmd_transfer(
 
     if (res != NULL) {
         *res = sdhci_reg_read(SDHCI_RESPONSE0);
-        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_NO_ERROR: 0x%08x\n", *res);
+        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_NO_ERROR: 0x%08x\n",
+            *res);
     } else {
         SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_NO_ERROR\n");
     }
@@ -290,7 +294,7 @@ static sdhci_error cmd_transfer(
 }
 
 static uint32_t read_fifo(char* buffer) {
-    SDHCI_TRACE_DEBUG("sdhci: read_fifo(buffer = 0x%08x)\n", buffer);
+    SDHCI_TRACE_DEBUG("sdhci: read_fifo(buffer = 0x%p)\n", buffer);
     uint32_t* buff = (uint32_t*)buffer;
     sdhci_reg_write(SDHCI_INT_STATUS, SDHCI_INT_DATA_AVAIL);
     uint32_t total_reads = SDHCI_BLK_SIZE / sizeof(uint32_t);
@@ -301,7 +305,7 @@ static uint32_t read_fifo(char* buffer) {
 }
 
 static sdhci_error read_data_transfer(char* buffer) {
-    SDHCI_TRACE_DEBUG("sdhci: read_data_transfer(buffer = 0x%08x)\n", buffer);
+    SDHCI_TRACE_DEBUG("sdhci: read_data_transfer(buffer = %p)\n", buffer);
     uint32_t status;
     uint64_t end_time;
     uint64_t curr_time;
@@ -465,6 +469,7 @@ sdhci_error sdhci_open(void) {
 
 sdhci_error sdhci_close(void) {
     initialised = false;
+    return SDHCI_NO_ERROR;
 }
 
 bool sdhci_initialised() {
@@ -472,7 +477,7 @@ bool sdhci_initialised() {
 }
 
 sdhci_error sdhci_read(uint32_t sector, uint32_t count, char* buffer) {
-    SDHCI_DEBUG("sdhci: read(sector = 0x%08x, count = %d, buffer = 0x%08x)\n",
+    SDHCI_DEBUG("sdhci: read(sector = 0x%08x, count = %d, buffer = %p)\n",
         sector, count, buffer);
     sdhci_error err;
     uint32_t res;

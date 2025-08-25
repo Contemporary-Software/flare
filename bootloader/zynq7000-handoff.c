@@ -20,10 +20,11 @@
 
 #include <stdio.h>
 
-#include <wdog.h>
-#include <cache.h>
 #include <board-handoff.h>
-#include <board-slcr.h>
+#include <cache.h>
+
+#include <slcr/board-slcr.h>
+#include <wdog/wdog.h>
 
 
 #define ZYNQ_ARM_SWITCH_REGISTERS         uint32_t arm_switch_reg

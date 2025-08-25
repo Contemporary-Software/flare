@@ -7,43 +7,32 @@
 import builditems
 
 sources = {
-  'default': [
-    'md5.c',
-  ],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
+    'default': [
+        'md5.c',
+    ],
+    'versal': [],
+    'zynqmp': [],
+    'zynq7000': []
 }
 
-includes = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+includes = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-defines = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-cflags = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
 
 def init(ctx):
-  pass
+    pass
+
 
 def options(opt):
-  pass
+    pass
+
 
 def configure(conf):
-  pass
+    pass
+
 
 def build(bld):
     bld.objects(target='flare_md5_driver',

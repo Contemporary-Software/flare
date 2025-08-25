@@ -21,15 +21,14 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include <cache.h>
-#include <console.h>
-#include <wdog.h>
-#include <board-slcr.h>
-#include <zynq7000.h>
 #include <board.h>
+#include <cache.h>
+#include <ps7_init.h>
+#include <zynq7000.h>
 
-#include "ps7_init.h"
-
+#include <slcr/board-slcr.h>
+#include <uart/console.h>
+#include <wdog/wdog.h>
 
 static void
 error_lockdown(void)

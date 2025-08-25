@@ -24,6 +24,7 @@ int flare_filesystem_mount(flare_fs fs) {
     } else if (fs == FILESYSTEM_SD_FATFS) {
         return fatfs_filesystem_mount();
     }
+    return 0;
 }
 
 int flare_read_file(
@@ -33,15 +34,14 @@ int flare_read_file(
     } else if (fs == FILESYSTEM_SD_FATFS) {
         return fatfs_read_file(name, buffer, size);
     }
+    return 0;
 }
 
-/*
- * Change directory.
- */
 int flare_chdir(flare_fs fs, const char* path) {
     if (fs == FILESYSTEM_QSPI_JFFS2) {
         return jffs2_chdir(path);
     } else if (fs == FILESYSTEM_SD_FATFS) {
         return fatfs_chdir(path);
     }
+    return 0;
 }

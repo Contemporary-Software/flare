@@ -15,40 +15,27 @@ sources = {
     'default': [
         'bootloader/fsbl-boot.c',
         'bootloader/flare-build-id.c',
-      ],
+    ],
     'versal': [],
     'zynqmp': [
         'xilinx/psu_init.c',
-        ],
-    'zynq7000': [
-        'xilinx/ps7_init.c',
-        'bootloader/zynq7000_vectors.S'
-        ]
+    ],
+    'zynq7000': ['xilinx/ps7_init.c', 'bootloader/zynq7000_vectors.S']
 }
 
 includes = {
     'default': [
         'bootloader',
         'bootloader/drivers',
-        ],
+    ],
     'versal': [],
-    'zynqmp': [],
+    'zynqmp': ['bootloader/drivers/timer'],
     'zynq7000': []
 }
 
-defines = {
-    'default': [],
-    'versal': [],
-    'zynqmp': [],
-    'zynq7000': []
-}
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-cflags = {
-    'default': [],
-    'versal': [],
-    'zynqmp': [],
-    'zynq7000': []
-}
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
 linkflags = {
     'default': [],
@@ -57,16 +44,20 @@ linkflags = {
     'zynq7000': ['-T../bootloader/zynq7000-lscript.ld']
 }
 
+
 def init(ctx):
     buildcontrol.recurse(ctx, directories)
+
 
 def options(opt):
     buildcontrol.recurse(opt, directories)
     buildcontrol.options(opt)
 
+
 def configure(conf):
     buildcontrol.recurse(conf, directories)
     buildcontrol.configure(conf)
+
 
 def build(bld):
     buildver.build(bld)

@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     bootbin_file.close()
 
-    record_offset = 0;
+    record_offset = 0
     if board == "zynqmp":
         record_offset = RECORDS_OFFSET_ZYNQMP
     elif board == "zynq7000":

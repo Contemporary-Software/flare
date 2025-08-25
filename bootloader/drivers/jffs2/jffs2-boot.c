@@ -157,7 +157,7 @@ jffs2_dump_memory(const char* message, uint32_t base, const void* buffer, size_t
     {
       if (c)
         jffs2_print("\n");
-      jffs2_print(" %08lx ", base + c);
+      jffs2_print(" %08zx ", base + c);
     }
     jffs2_print("%02x", p[c]);
     if ((c != (size - 1)) && ((c % 16) == 7))
@@ -375,10 +375,10 @@ jffs2_buffer_flash_read(jffs2_buffer* buffer,
     }
 
     if (trace_buffer_flash_read_cache)
-      jffs2_print("buffer_flash_read: copy: buf=%08lx addr=%08u length=%zu\n",
-                  (intptr_t) buf, address, length);
+      jffs2_print("buffer_flash_read: copy: buf=%p addr=%08u length=%zu\n",
+                  buf, address, length);
     if (length > JFFS2_INODE_BUF_SIZE)
-      jffs2_print("buffer_flash_read: length too big: %lu\n", length);
+      jffs2_print("buffer_flash_read: length too big: %zu\n", length);
 
     memcpy(buf, buffer->cache + address, length);
   }
@@ -429,7 +429,7 @@ jffs2_buffer_fill(jffs2_buffer* buffer, size_t need)
         if (trace_buffer_fill)
           jffs2_print("buffer_fill: compact\n");
         if (remaining > jffs2_buffer_size(buffer))
-          jffs2_print("buffer_fill: remaining too big: %08lx\n", remaining);
+          jffs2_print("buffer_fill: remaining too big: %08zx\n", remaining);
         memmove(buffer->buffer, buffer->buffer + buffer->out, remaining);
       }
       buffer->offset += buffer->out;
@@ -1054,6 +1054,8 @@ jffs2_process_dir(jffs2_control*           control,
   je = jffs2_buffer_read(&control->buffer,
                          control->cache.scratch,
                          rdir->nsize);
+  if (je != JFFS2_NO_ERROR)
+    return je;
   control->cache.scratch[rdir->nsize] = '\0';
 
   if (trace_dir_name)
@@ -1259,7 +1261,7 @@ jffs2_find_path(jffs2_control* control, const char* path)
   {
     jffs2_print("find_path: ");
     jffs2_print_path(control);
-    jffs2_print(": nodes-used=%lu%% (%lu/%lu)\n",
+    jffs2_print(": nodes-used=%zu%% (%zu/%zu)\n",
                 ((JFFS2_DIR_CACHE_NODES - control->cache.dir.min_free) * 100) / JFFS2_DIR_CACHE_NODES,
                 JFFS2_DIR_CACHE_NODES - control->cache.dir.min_free,
                 JFFS2_DIR_CACHE_NODES);
@@ -1277,8 +1279,8 @@ jffs2_inode_copy(jffs2_control* control, uint32_t ino, uint8_t* buffer, size_t* 
   uint32_t dsize_total = 0;
 
   if (trace_inode_copy)
-    jffs2_print("inodes_copy: ino=%u buffer=0x%08lx size=%zu\n",
-                ino, (intptr_t) buffer, *size);
+    jffs2_print("inodes_copy: ino=%u buffer=%p size=%zu\n",
+                ino, buffer, *size);
 
   jffs2_buffer_reset(&control->buffer);
 
@@ -1474,8 +1476,8 @@ jffs2_boot_read(jffs2_control* control,
   jffs2_error je;
 
   if (trace_boot_read)
-    jffs2_print("boot_read: file=%s dest=0x%08lx size=%zu flash-size=%u\n",
-                file, (intptr_t) dest, *size, flash_size);
+    jffs2_print("boot_read: file=%s dest=%p size=%zu flash-size=%u\n",
+                file, dest, *size, flash_size);
 
   jffs2_control_init(control, flash_base, flash_size, flash_erase_sector_size,
                      buffer_cache, cache_crc_blocks);

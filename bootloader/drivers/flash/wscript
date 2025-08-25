@@ -7,51 +7,38 @@
 import builditems
 
 sources = {
-  'default': [
-    'flash.c',
-  ],
-  'versal': [
-    'versal-flash.c',
-  ],
-  'zynqmp': [
-    'zynqmp-flash.c',
-  ],
-  'zynq7000': [
-    'zynq7000-flash.c',
-  ]
+    'default': [
+        'flash.c',
+    ],
+    'versal': [
+        'versal-flash.c',
+    ],
+    'zynqmp': [
+        'zynqmp-flash.c',
+    ],
+    'zynq7000': [
+        'zynq7000-flash.c',
+    ]
 }
 
-includes = {
-  'default': [
-    '../'
-  ],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+includes = {'default': ['../'], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-defines = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-cflags = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
 
 def init(ctx):
-  pass
+    pass
+
 
 def options(opt):
-  pass
+    pass
+
 
 def configure(conf):
-  pass
+    pass
+
 
 def build(bld):
     bld.objects(target='flare_flash_driver',

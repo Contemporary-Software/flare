@@ -6,11 +6,12 @@ outputs = {
     'versal': [],
     'zynqmp': [
         'xilinx/psu_init.c',
-        ],
+    ],
     'zynq7000': [
         'xilinx/ps7_init.c',
-        ]
+    ]
 }
+
 
 def build(bld):
     from waflib import Task
@@ -36,7 +37,6 @@ def build(bld):
         if not os.path.exists('build/xilinx'):
             os.mkdir('build/xilinx')
         shutil.copyfile(path, output)
-
 
     class xilinx_init(Task.Task):
         color = 'CYAN'

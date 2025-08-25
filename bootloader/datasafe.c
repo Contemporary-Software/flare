@@ -27,7 +27,7 @@
 #include <flare-build-id.h>
 #include <hw-datasafe.h>
 
-static void uint32_to_str(uint32_t *val, unsigned char* data) {
+static void uint32_to_str(uint32_t *val, char* data) {
     const char digits[] = "0123456789abcdef";
     uint32_t tmp = *val;
 

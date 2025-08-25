@@ -18,8 +18,9 @@
 
 #include <board-handoff.h>
 #include <cache.h>
-#include <wdog.h>
 #include <zynqmp-atf.h>
+
+#include <wdog/wdog.h>
 
 void do_atf(void) {
     board_handoff_exit_no_mmu_reset(ATF_ENTRYPOINT);

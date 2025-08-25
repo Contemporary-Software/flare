@@ -7,52 +7,39 @@
 import builditems
 
 sources = {
-  'default': [
-    'outbyte.c',
-    'inbyte.c',
-  ],
-  'versal': [
-    'versal-uart.c',
-  ],
-  'zynqmp': [
-    'zynqmp-uart.c',
-  ],
-  'zynq7000': [
-    'zynq7000-uart.c',
-  ]
+    'default': [
+        'outbyte.c',
+        'inbyte.c',
+    ],
+    'versal': [
+        'versal-uart.c',
+    ],
+    'zynqmp': [
+        'zynqmp-uart.c',
+    ],
+    'zynq7000': [
+        'zynq7000-uart.c',
+    ]
 }
 
-includes = {
-  'default': [
-    '../io',
-  ],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+includes = {'default': ['..'], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-defines = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-cflags = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
 
 def init(ctx):
-  pass
+    pass
+
 
 def options(opt):
-  pass
+    pass
+
 
 def configure(conf):
-  pass
+    pass
+
 
 def build(bld):
     bld.objects(target='flare_uart_driver',

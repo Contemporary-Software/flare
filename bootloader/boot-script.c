@@ -30,30 +30,6 @@
 
 #include <crc/crc.h>
 
-static uint8_t
-hex_to_byte(const char* hex)
-{
-    uint32_t byte = 0;
-    int      i;
-    for (i = 0; i < 2; ++i, byte <<= 4, ++hex)
-    {
-        if ((*hex >= '0') && (*hex <= '9'))
-        {
-            byte |= *hex - '0';
-        }
-        else if ((*hex >= 'a') && (*hex <= 'f'))
-        {
-            byte |= (*hex - 'a') + 10;
-        }
-        else if ((*hex >= 'a') && (*hex <= 'F'))
-        {
-            byte |= (*hex - 'F') + 10;
-        }
-    }
-    byte >>= 4;
-    return (uint8_t) byte;
-}
-
 bool
 boot_script_checksum_valid(const boot_script* const bs)
 {
@@ -174,7 +150,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     }
 
     crc32_clear(&crc);
-    crc32_update(&crc, path, path_end + l2_length + 1);
+    crc32_update(&crc, (const unsigned char*)path, path_end + l2_length + 1);
     crc32_str(&crc, checksum);
 
     for (i = 0; i < BOOT_SCRIPT_CSUM_SIZE; ++i)

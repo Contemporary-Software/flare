@@ -55,20 +55,11 @@ flare_boot_board_requests(void)
     }
 }
 
-static bool
-flash_check(void)
-{
-
-    return true;
-}
-
 static void qspi_boot(const char** fb_reason) {
     bool        rc;
     boot_script script;
     const char* label;
-    int         i;
     uint32_t    entry_point = 0;
-    uint8_t     header[IMAGE_HEADER_TOTAL(3)];
 
     flash_error err = flash_open(&label);
     if (err == FLASH_NO_ERROR) {
@@ -160,7 +151,7 @@ static void jtag_boot(const char** fb_reason) {
         if (inbyte_available())
         {
             uint8_t ch = inbyte();
-            if (ch = '\x3') {
+            if (ch == '\x3') {
                 pressed = true;
                 break;
             }

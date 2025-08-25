@@ -20,9 +20,8 @@
 
 #include <stdio.h>
 
-#include "board-io.h"
-
-#include "board-timer.h"
+#include <io/board-io.h>
+#include <timer/board-timer.h>
 
 #define ZYNQMP_TIMER                    (0xff260000)
 #define ZYNQMP_TSG_COUNTER_LOWER_OFFSET (0x08)

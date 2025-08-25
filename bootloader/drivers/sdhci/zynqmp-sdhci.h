@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Contemporary Software
+ * Copyright 2025 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,12 @@
  *     limitations under the License.
  */
 
-/*
- * Hide the includes for the low level parts. This will help move away from
- * Xilinx.
- */
+#ifndef DRIVER_SDHCI_ZYNQMP_H_
+#define DRIVER_SDHCI_ZYNQMP_H_
 
-#if !defined(BOOTLOADER_H)
-#define BOOTLOADER_H
+#include <sdhci/sdhci.h>
 
-#include <zynq.h>
+#define SDHCI0_REG_BASE 0xFF160000
+#define SDHCI1_REG_BASE 0xFF170000
 
-
-#include "xil_types.h"
-#include "xil_cache.h"
-#include "xil_cache_l.h"
-#include "xil_exception.h"
-#include "xil_printf.h"
-
-/*
- * Use printf.
- */
-#define printf(...) xil_printf (__VA_ARGS__)
-
-#endif
+#endif /* DRIVER_SDHCI_ZYNQMP_H_ */

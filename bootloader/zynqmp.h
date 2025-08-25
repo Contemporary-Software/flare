@@ -22,7 +22,6 @@
 #define ZYNQMP_H
 
 #include <stdint.h>
-#include <board-io.h>
 
 #define ARCHITECTURE "ZynqMP"
 

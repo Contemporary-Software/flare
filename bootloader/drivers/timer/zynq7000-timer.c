@@ -22,7 +22,7 @@
 
 #include "board-timer.h"
 
-#include "board-io.h"
+#include <io/board-io.h>
 
 #define ZYNQ_TIMER                    (0xf8f00200)
 #define ZYNQ_TMR_COUNTER_LOWER_OFFSET (0x00)

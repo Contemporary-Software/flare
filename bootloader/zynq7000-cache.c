@@ -26,7 +26,8 @@
 #include <stdint.h>
 
 #include <cache.h>
-#include <board-io.h>
+
+#include <io/board-io.h>
 
 #include <xil_errata.h>
 

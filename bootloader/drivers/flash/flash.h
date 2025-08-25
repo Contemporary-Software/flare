@@ -154,12 +154,6 @@ typedef struct
     uint32_t  command_len;
     uint32_t  comm_method;
 } flash_transfer_buffer;
-
-/*
- * A write buffer.
- */
-static flash_transfer_buffer flash_buf_;
-#define flash_buf &flash_buf_
 /*
  * Special handler function used by the tester.
  */
