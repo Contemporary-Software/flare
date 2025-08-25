@@ -19,7 +19,8 @@
  */
 
 #include "wdog.h"
-#include "board-io.h"
+
+#include <io/board-io.h>
 
 void
 wdog_init(void)

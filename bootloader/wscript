@@ -8,10 +8,10 @@ import buildcontrol
 import builditems
 
 directories = [
-        'drivers',
-        'fs',
-        'aarch64-mmu',
-        ]
+    'drivers',
+    'fs',
+    'aarch64-mmu',
+]
 
 sources = {
     'default': [
@@ -22,7 +22,7 @@ sources = {
         'datasafe.c',
         'factory-boot.c',
         'reset.c',
-        ],
+    ],
     'versal': [],
     'zynqmp': [
         '_exit.c',
@@ -36,7 +36,7 @@ sources = {
         'zynqmp-datasafe.c',
         'zynqmp-pre-main.c',
         'zynqmp-vectors.S',
-        ],
+    ],
     'zynq7000': [
         'zynq7000-handoff.c',
         'zynq7000-cache.c',
@@ -47,53 +47,37 @@ sources = {
         'zynq7000-mmu.c',
         'crt0.S',
         'zynq7000-begin-lo.S',
-        ]
+    ]
 }
 
 includes = {
     'default': [
         '.',
-        'drivers/crc',
-        'drivers/io',
-        'drivers/timer',
-        'drivers/flash',
-        'drivers/wdog',
-        'drivers/slcr',
-        'drivers/md5',
-        'drivers/zlib',
-        'drivers/jffs2',
-        'drivers/uart',
         'drivers',
-        ],
+    ],
     'versal': [],
     'zynqmp': [
         '../build/xilinx/',
-      ],
+    ],
     'zynq7000': []
 }
 
-defines = {
-    'default': [],
-    'versal': [],
-    'zynqmp': [],
-    'zynq7000': []
-}
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-cflags = {
-    'default': [],
-    'versal': [],
-    'zynqmp': [],
-    'zynq7000': []
-}
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
 
 def init(ctx):
     buildcontrol.recurse(ctx, directories)
 
+
 def options(opt):
     buildcontrol.recurse(opt, directories)
 
+
 def configure(conf):
     buildcontrol.recurse(conf, directories)
+
 
 def build(bld):
     buildcontrol.recurse(bld, directories)

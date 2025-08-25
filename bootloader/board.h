@@ -18,11 +18,11 @@
 #define BOARD_H
 
 #ifdef FLARE_VERSAL
-  #include "versal.h"
+  #include <versal.h>
 #elif FLARE_ZYNQMP
-  #include "zynqmp.h"
+  #include <zynqmp.h>
 #else
-  #include "zynq7000.h"
+  #include <zynq7000.h>
 #endif
 
 /*

@@ -7,15 +7,14 @@
 import buildcontrol
 import builditems
 
-directories = [
-        ]
+directories = []
 
 sources = {
-        'default': [
+    'default': [
         'boot-filesystem.c',
         'jffs2-filesystem.c',
         'fatfs-filesystem.c',
-        ],
+    ],
     'versal': [],
     'zynqmp': [],
     'zynq7000': []
@@ -25,34 +24,28 @@ includes = {
     'default': [
         '..',
         '../drivers',
-        ],
+    ],
     'versal': [],
     'zynqmp': [],
     'zynq7000': []
 }
 
-defines = {
-    'default': [],
-    'versal': [],
-    'zynqmp': [],
-    'zynq7000': []
-}
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-cflags = {
-    'default': [],
-    'versal': [],
-    'zynqmp': [],
-    'zynq7000': []
-}
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
 
 def init(ctx):
     buildcontrol.recurse(ctx, directories)
 
+
 def options(opt):
     buildcontrol.recurse(opt, directories)
 
+
 def configure(conf):
     buildcontrol.recurse(conf, directories)
+
 
 def build(bld):
     buildcontrol.recurse(bld, directories)

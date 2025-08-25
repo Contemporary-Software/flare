@@ -199,41 +199,12 @@ qspi_FlushAll(void)
     qspi_FlushGen();
 }
 
-static void
-align_command(flash_transfer_buffer* transfer) {
-  size_t i;
-
-  if (transfer->padding == 0) {
-    return;
-  }
-
-  for (i = transfer->padding; i < transfer->length; i++) {
-    transfer->buffer[i - transfer->padding] = transfer->buffer[i];
-  }
-}
-
-static void align_data(flash_transfer_buffer* transfer) {
-  size_t i;
-
-  if (transfer->command_len == 0) {
-    return;
-  }
-
-  for (i = transfer->command_len; i < transfer->length; i++) {
-    transfer->buffer[i - transfer->command_len] = transfer->buffer[i];
-  }
-}
-
 flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
 {
     uint32_t* tx_data;
     uint32_t* rx_data;
     size_t    tx_length;
     size_t    rx_length;
-    size_t    padding;
-    uint32_t  tx_reg;
-    size_t    sending = 0;
-    bool      start = false;
     uint32_t  sr;
     uint32_t  controller_command;
     uint8_t   trans_dir;
@@ -277,7 +248,6 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
     tx_length = transfer->length;
     rx_length = transfer->length;
     length = transfer->length;
-    padding = transfer->padding;
 
     trans_dir = (uint8_t)transfer->trans_dir;
     header_len = transfer->command_len;

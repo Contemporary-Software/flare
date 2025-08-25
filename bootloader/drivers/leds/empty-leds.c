@@ -20,16 +20,6 @@ led_init(void)
 {
 }
 
-static void
-led_on(int led)
-{
-}
-
-static void
-led_off(int led)
-{
-}
-
 void
 led_normal(void)
 {

@@ -18,10 +18,9 @@
  * Xilinx Zynq SLCR Control.
  */
 
-#include <board-io.h>
-
 #include "board-slcr.h"
 
+#include <io/board-io.h>
 
 void
 board_slcr_unlock(void)

@@ -20,8 +20,8 @@
 
 #include <stdint.h>
 
-#include <board-io.h>
-#include <board-uart.h>
+#include <io/board-io.h>
+#include <uart/board-uart.h>
 
 #define ZYNQ_UART_SR         (0x2c)
 #define ZYNQ_UART_FIFO       (0x30)

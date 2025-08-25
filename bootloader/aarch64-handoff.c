@@ -14,12 +14,13 @@
  *     limitations under the License.
  */
 
-
-#include <wdog.h>
-#include <board-handoff.h>
 #include <stdio.h>
-#include <cache.h>
+
 #include <aarch64-mmu/aarch64-mmu.h>
+#include <board-handoff.h>
+#include <cache.h>
+
+#include <wdog/wdog.h>
 
 extern void aarch64_handoff(uint32_t address);
 

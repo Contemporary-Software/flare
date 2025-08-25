@@ -10,7 +10,7 @@ outputs = {
 }
 
 flare_build_ver_template = [
-'''/*
+    '''/*
  * Copyright 2025 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +33,7 @@ flare_build_ver_template = [
 #include <flare-build-id.h>
 
 uint32_t flare_build_id() {
-    return ''',
-''';
+    return ''', ''';
 }'''
 ]
 
@@ -61,4 +60,3 @@ def build(bld):
     build_ver_tsk = build_ver(env=bld.env)
     build_ver_tsk.set_outputs(outs)
     bld.add_to_group(build_ver_tsk)
-

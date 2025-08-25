@@ -18,11 +18,13 @@
  * Xilinx Versal.
  */
 
-#include <stdio.h>
-#include "board.h"
-#include <console.h>
-#include <stdbool.h>
 #include <inttypes.h>
+#include <stdbool.h>
+#include <stdio.h>
+
+#include <board.h>
+
+#include <uart/console.h>
 
 struct error_stack_frame {
   uint64_t padding[3];

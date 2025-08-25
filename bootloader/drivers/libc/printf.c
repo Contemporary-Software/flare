@@ -158,11 +158,6 @@ static void outunum_neg( unsigned long num, const long base,
     padding( par->left_flag, par);
 }
 
-static void outunum( const unsigned long n, const long base, params_t *par)
-{
-    outunum_neg(n, base, 0, par);
-}
-
 static void outnum( const long n, const long base, params_t *par)
 {
     int negative;
@@ -310,6 +305,11 @@ int printf( const char *ctrl1, ...)
                     outnum( va_arg(argp, unsigned int), 10L, &par);
                     continue;
                 }
+            case 'p':
+                outbyte('0');
+                outbyte('x');
+                outnum( va_arg(argp, uintptr_t), 16L, &par);
+                continue;
             case 'x':
                 outnum((long)va_arg(argp, int), 16L, &par);
                 continue;

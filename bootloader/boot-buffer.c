@@ -18,7 +18,7 @@
  * Flare FSBL Loader.
  */
 
-#include "boot-buffer.h"
+#include <boot-buffer.h>
 
 static char scratch_buffer[1024];
 

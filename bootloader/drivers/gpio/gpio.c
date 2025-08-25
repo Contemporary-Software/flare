@@ -20,7 +20,7 @@
 
 #include "gpio.h"
 
-#include "flare-io.h"
+#include <io/flare-io.h>
 
 #define GPIO_BASE         (0xe000a000)
 #define GPIO_DIR_BASE     (GPIO_BASE + 0x204)

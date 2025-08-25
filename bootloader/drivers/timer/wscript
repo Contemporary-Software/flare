@@ -23,35 +23,29 @@ sources = {
 
 includes = {
     'default': [
-        '../io',
+        '..',
     ],
     'versal': [],
     'zynqmp': [],
     'zynq7000': []
 }
 
-defines = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 
-cflags = {
-  'default': [],
-  'versal': [],
-  'zynqmp': [],
-  'zynq7000': []
-}
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
 
 def init(ctx):
-  pass
+    pass
+
 
 def options(opt):
-  pass
+    pass
+
 
 def configure(conf):
-  pass
+    pass
+
 
 def build(bld):
     bld.objects(target='flare_timer_driver',
@@ -60,4 +54,3 @@ def build(bld):
                 includes=builditems.get_includes(bld, includes),
                 cflags=builditems.get_cflags(bld, cflags),
                 defines=builditems.get_defines(bld, defines))
-

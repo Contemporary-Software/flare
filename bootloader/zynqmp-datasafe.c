@@ -20,6 +20,14 @@
 
 #include <hw-datasafe.h>
 
-void flare_datasafe_hw_init(flare_datasafe* ds) {
+int board_bootmode() {
+    return FLARE_DS_BOOTMODE_ERROR;
+}
 
+void flare_datasafe_hw_init(flare_datasafe* ds) {
+    ds->bootmode &= ~FLARE_DS_BOOTMODE_HW_MASK;
+    ds->bootmode |= board_bootmode();
+
+    ds->reset &= ~FLARE_DS_RESET_MASK;
+    ds->reset |= FLARE_DS_RESET_ERR;
 }

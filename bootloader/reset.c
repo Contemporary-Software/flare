@@ -18,10 +18,12 @@
  * Reset.
  */
 
-#include <cache.h>
-#include <wdog.h>
-#include <board-slcr.h>
 #include <stdbool.h>
+
+#include <cache.h>
+
+#include <slcr/board-slcr.h>
+#include <wdog/wdog.h>
 
 void
 reset(void)

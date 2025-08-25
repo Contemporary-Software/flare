@@ -50,6 +50,7 @@ int fatfs_read_file(const char* name, void* const buffer, uint32_t* size) {
     }
 
     f_close(&file);
+    return 0;
 }
 
 int fatfs_chdir(const char* path) {

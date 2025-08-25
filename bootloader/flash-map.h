@@ -19,11 +19,11 @@
 #define _FLARE_FLASH_H_
 
 #ifdef FLARE_VERSAL
-  #include "versal-flash-map.h"
+  #include <versal-flash-map.h>
 #elif FLARE_ZYNQMP
-  #include "zynqmp-flash-map.h"
+  #include <zynqmp-flash-map.h>
 #else
-  #include "zynq7000-flash-map.h"
+  #include <zynq7000-flash-map.h>
 #endif
 
 /* Flash Dev path */

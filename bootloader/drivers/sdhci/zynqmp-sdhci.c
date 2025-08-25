@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Contemporary Software
+ * Copyright 2025 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
  *     limitations under the License.
  */
 
-/*
- * Boot Load.
- *
- * Load the image into memory and checkum it is required.
- */
+#include <sdhci/sdhci.h>
+#include <sdhci/sdhci_hw.h>
+#include <sdhci/zynqmp-sdhci.h>
 
-#if !defined(BOOT_LOAD_H)
-#define BOOT_LOAD_H
+uint32_t sdhci_address() {
+    return 0;
+}
 
-#include <stdbool.h>
-#include <stdint.h>
+void disable_bus_power() {
+}
 
-#include <boot-script.h>
-
-/* Loads a u-boot legacy image */
-bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point);
-/*
- * Load the image into the memory at base until the length.
- */
-bool load_exe(const boot_script* const script, uint32_t* entry_point);
-
-#endif
+void enable_bus_power() {
+}

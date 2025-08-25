@@ -24,12 +24,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "console.h"
-#include "gpio.h"
-#include "leds.h"
-#include "power-switch.h"
-#include "board-io.h"
-#include "board-slcr.h"
+#include <gpio/gpio.h>
+#include <io/board-io.h>
+#include <leds/leds.h>
+#include <power-switch/power-switch.h>
+#include <slcr/board-slcr.h>
+#include <uart/console.h>
 
 /*
  * Number of seconds before acknowledging it has been pressed.
@@ -163,7 +163,6 @@ bool flare_power_on_pressed(void)
   volatile uint32_t seconds = 0;
   bool              pressed = true;
   int               unlock = 0;
-  int               pin;
 
   if (!gpio_config_setup())
     return false;

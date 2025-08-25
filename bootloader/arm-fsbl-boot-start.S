@@ -71,7 +71,7 @@
 *
 ******************************************************************************/
 
-#include "xil_errata.h"
+#include <xil_errata.h>
 
 .global _prestart
 .global _boot

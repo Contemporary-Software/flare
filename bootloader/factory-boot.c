@@ -21,21 +21,22 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <board-handoff.h>
+#include <board.h>
 #include <boot-factory-config.h>
 #include <boot-load.h>
 #include <cache.h>
-#include <crc.h>
 #include <datasafe.h>
 #include <factory-boot.h>
-#include <flash-map.h>
-#include <flash.h>
 #include <flare-boot.h>
+#include <flash-map.h>
 #include <reset.h>
-#include <tzlib.h>
 #include <uboot.h>
-#include <wdog.h>
-#include <board-handoff.h>
-#include <board.h>
+
+#include <crc/crc.h>
+#include <flash/flash.h>
+#include <wdog/wdog.h>
+#include <zlib/tzlib.h>
 
 /*
  * The factory boot base and the number of file slots.
@@ -79,7 +80,6 @@ platform_factory_booter(uint8_t* header, size_t header_size)
     uint32_t        entry_point;
     size_t          size;
     flash_error     fe;
-    bool            rc;
     CRC32           crc;
     int             i;
     uint8_t         checksum[CRC_CHECKSUM_SIZE];
@@ -91,7 +91,7 @@ platform_factory_booter(uint8_t* header, size_t header_size)
     size = factory_load_image_get32(header, 0, IMAGE_HEADER_SIZE);
     if (size > EXECUTABLE_LOAD_SIZE)
     {
-        printf("error: factory image too big: 0x%08x\n", size);
+        printf("error: factory image too big: 0x%08zx\n", size);
         return;
     }
 
@@ -146,7 +146,6 @@ factory_boot(const char* why)
     size_t            header_size = sizeof(factory_header);
     flash_error       fe;
     bool              ok = true;
-    int               i;
     CRC32             crc;
     const uint32_t*   header_crc;
     const char*       label;
@@ -176,7 +175,7 @@ factory_boot(const char* why)
     header_crc = (const uint32_t*)(&header[IMAGE_HEADER_HEADER_CRC]);
     if (*header_crc != crc)
     {
-        printf("error: invalid header checksum\n", *header_crc, crc);
+        printf("error: invalid header checksum: 0x%08x != 0x%08x\n", *header_crc, crc);
         ok = false;
     }
 
