@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Contemporary Software
+ * Copyright 2025 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,30 @@
  *     limitations under the License.
  */
 
-#if !defined(BOARD_H)
-#define BOARD_H
+/*
+ * Flare JFFS2 File System Interface.
+ */
 
-#ifdef FLARE_VERSAL
-  #include "versal.h"
-#elif FLARE_ZYNQMP
-  #include "zynqmp.h"
-#else
-  #include "zynq7000.h"
-#endif
+#if !defined(_JFFS2_FILESYSTEM_H_)
+#define _JFFS2_FILESYSTEM_H_
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 /*
- * Board set up.
+ * Mount the file system.
  */
-void board_hardware_setup(void);
+int jffs2_filesystem_mount(bool setup_cache);
 
 /*
- * Board bootmode. Modes are defined in datasafe.h.
+ * Read the file.
  */
-int board_bootmode();
+int jffs2_read_file(const char* name, void* const buffer, uint32_t* size);
+
+/*
+ * Change directory.
+ */
+int jffs2_chdir(const char* path);
 
 #endif

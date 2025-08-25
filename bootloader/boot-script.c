@@ -24,10 +24,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "boot-buffer.h"
-#include "boot-filesystem.h"
-#include "boot-script.h"
-#include "crc.h"
+#include <boot-buffer.h>
+#include <boot-script.h>
+#include <fs/boot-filesystem.h>
+
+#include <crc/crc.h>
 
 static uint8_t
 hex_to_byte(const char* hex)
@@ -64,7 +65,7 @@ boot_script_checksum_valid(const boot_script* const bs)
 }
 
 bool
-boot_script_load(const char* name, boot_script* bs)
+boot_script_load(flare_fs fs, const char* name, boot_script* bs)
 {
     uint32_t    length = flare_get_read_bufferSize();
     char* const buffer = flare_get_read_buffer();
@@ -85,8 +86,9 @@ boot_script_load(const char* name, boot_script* bs)
     printf(" Boot Script: %s ", name);
 
     memset(bs, 0, sizeof(*bs));
+    bs->fs = fs;
 
-    rc = flare_read_file(name, buffer, &length);
+    rc = flare_read_file(fs, name, buffer, &length);
     if (rc != 0)
     {
         printf("%s read: %d\n", error, rc);

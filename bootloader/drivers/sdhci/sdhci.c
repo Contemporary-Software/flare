@@ -296,7 +296,6 @@ static uint32_t read_fifo(char* buffer) {
     uint32_t total_reads = SDHCI_BLK_SIZE / sizeof(uint32_t);
     for (uint32_t i = 0; i < total_reads; i++) {
         buff[i] = sdhci_reg_read(SDHCI_BUFFER);
-        usleep(1);
     };
     return SDHCI_BLK_SIZE;
 }
@@ -332,6 +331,10 @@ static sdhci_error initialise() {
     SDHCI_DEBUG("sdhci: initialise()\n");
     sdhci_error err;
     uint32_t res;
+
+    if (initialised) {
+        return SDHCI_NO_ERROR;
+    }
 
     err = reset_config();
     if (err != SDHCI_NO_ERROR) {
@@ -464,7 +467,7 @@ sdhci_error sdhci_close(void) {
     initialised = false;
 }
 
-bool sdhci_initalised() {
+bool sdhci_initialised() {
     return initialised;
 }
 
@@ -477,21 +480,26 @@ sdhci_error sdhci_read(uint32_t sector, uint32_t count, char* buffer) {
         sdhci_open();
     }
     if (count == 0) {
+        SDHCI_DEBUG("sdhci: read() = %d\n", SDHCI_NO_ERROR);
         return SDHCI_NO_ERROR;
     } else if (count == 1) {
         err = cmd_transfer(CMD17, sector, 0, &res);
         if (err != SDHCI_NO_ERROR) {
+            SDHCI_DEBUG("sdhci: read() = %d\n", err);
             return err;
         }
     } else {
         err = cmd_transfer(CMD18, sector, count, &res);
         if (err != SDHCI_NO_ERROR) {
+            SDHCI_DEBUG("sdhci: read() = %d\n", err);
             return err;
         }
     }
     err = read_data_transfer(buffer);
     if (err != SDHCI_NO_ERROR) {
+        SDHCI_DEBUG("sdhci: read() = %d\n", err);
         return err;
     }
+    SDHCI_DEBUG("sdhci: read() = %d\n", SDHCI_NO_ERROR);
     return SDHCI_NO_ERROR;
 }

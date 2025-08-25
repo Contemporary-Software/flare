@@ -15,19 +15,18 @@
  */
 
 /*
- * Load Flare.
+ * Flare JFFS2 wrapper.
  */
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "boot-filesystem.h"
-#include "datasafe.h"
-#include "flash-map.h"
-#include "flash.h"
-#include "jffs2-boot.h"
-#include "md5.h"
+#include <datasafe.h>
+#include <flash-map.h>
+#include <flash/flash.h>
+#include <fs/boot-filesystem.h>
+#include <jffs2/jffs2-boot.h>
 
 /*
  * Cache header.
@@ -106,7 +105,7 @@ flare_jffs2_cache_flag(uint32_t flag)
 }
 
 int
-flare_filesystem_mount(bool setup_cache)
+jffs2_filesystem_mount(bool setup_cache)
 {
     cwd[0] = '\0';
 
@@ -116,9 +115,7 @@ flare_filesystem_mount(bool setup_cache)
     return 0;
 }
 
-int
-flare_read_file(const char* name, void* const buffer, uint32_t* size)
-{
+int jffs2_read_file(const char* name, void* const buffer, uint32_t* size) {
     uint8_t*    cache_base = NULL;
     bool        cache_crc = false;
     jffs2_error je;
@@ -165,7 +162,7 @@ flare_read_file(const char* name, void* const buffer, uint32_t* size)
     return 0;
 }
 
-int flare_chdir(const char* path)
+int jffs2_chdir(const char* path)
 {
     size_t i = 0;
 

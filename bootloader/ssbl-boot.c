@@ -131,7 +131,7 @@ main(void)
                     flare_DataSafe_FlareSet(QSPI_MODE, "", script.executable, 0);
                     led_execute();
                     wdog_control(true);
-                    out_flush();
+                    console_flush();
                     cache_disable();
                     board_handoff_exit(FLARE_EXECUTABLE_BASE);
                 }
@@ -159,7 +159,7 @@ main(void)
     led_failure();
     flare_DataSafe_RequestFactoryBoot();
     printf("Reset ..... ");
-    out_flush();
+    console_flush();
     reset();
     return 0;
 }

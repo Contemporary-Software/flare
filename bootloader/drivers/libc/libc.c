@@ -116,8 +116,12 @@ memcmp(const void *b1, const void *b2, size_t len)
 {
   const volatile uint8_t* ub1 = b1;
   const volatile uint8_t* ub2 = b2;
-  while (len--)
-    if (*ub1 != *ub2)
+  while (len--) {
+    if (*ub1 != *ub2) {
       return *ub1 - *ub2;
+    }
+    ub1++;
+    ub2++;
+  }
   return 0;
 }

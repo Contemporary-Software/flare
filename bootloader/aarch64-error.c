@@ -37,7 +37,7 @@ static void
 error_lockdown(void)
 {
   printf("Bootloader failure. Resetting ...  \b \b \b \b");
-  out_flush();
+  console_flush();
   while (true);
 }
 

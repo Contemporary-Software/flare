@@ -24,7 +24,6 @@
 #include <board-handoff.h>
 #include <board.h>
 #include <boot-factory-config.h>
-#include <boot-filesystem.h>
 #include <boot-load.h>
 #include <boot-script.h>
 #include <cache.h>
@@ -33,8 +32,10 @@
 #include <flare-boot.h>
 #include <flare-build-id.h>
 #include <flash-map.h>
+#include <fs/boot-filesystem.h>
 #include <reset.h>
 
+#include <fatfs/ff.h>
 #include <flash/flash.h>
 #include <io/board-io.h>
 #include <leds/leds.h>
@@ -46,72 +47,6 @@
 #include <uart/console.h>
 #include <wdog/wdog.h>
 
-static bool
-flash_check(void)
-{
-    uint32_t    flash_size = 0;
-    uint32_t    manufacture_code;
-    uint32_t    mem_iface_type;
-    uint32_t    density;
-    const char* label = NULL;
-    flash_error fe;
-
-    fe = flash_read_id(&manufacture_code,
-                      &mem_iface_type,
-                      &density);
-    if (fe != FLASH_NO_ERROR)
-    {
-        printf("flash: device id read failed: %d\n", fe);
-        return false;
-    }
-
-    if (manufacture_code == 1)
-    {
-        if ((mem_iface_type == 0x20) && (density == 0x18))
-        {
-            label = "S25FL128P_64K (16MiB)";
-            flash_size = 16 * 1024 * 1024;
-        }
-        else if ((mem_iface_type == 0x02) && (density == 0x20))
-        {
-            label = "S25FL512S_256K (64MiB)";
-            flash_size = 64 * 1024 * 1024;
-        }
-    }
-    else if (manufacture_code == 0x20)
-    {
-        if (density == 0x19)
-        {
-            label = "1x N25Q256A";
-            flash_size = 0x2000000; /* 256 Mb on one flash */
-        }
-        if (density == 0x21)
-        {
-            label = "2x N25Q00A (128MiB) in parallel (256MiB total)";
-            flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
-        }
-        else if (density == 0x22)
-        {
-            label = "2x mt25qu02g (256MiB) in parallel (512MiB total)";
-            flash_size = 0x10000000UL * 2UL; /* 2Gib on each flash in parallel */
-        }
-    }
-
-    if (label == NULL)
-    {
-        printf("error: flash: unknown device: 0x%02" PRIx32 "/0x%02" PRIx32 "/0x%02" PRIx32 "\n",
-               manufacture_code, mem_iface_type, density);
-        return false;
-    }
-
-    printf("       Flash: %s\n", label);
-
-    if (flash_size != FLARE_FLASH_SIZE)
-        printf("error: flash: size mismatch\n");
-
-    return true;
-}
-
 static void
 flare_boot_board_requests(void)
 {
@@ -120,63 +55,133 @@ flare_boot_board_requests(void)
     }
 }
 
-static void
-flare_jtag_boot(uint32_t bootmode)
+static bool
+flash_check(void)
 {
-    /*
-    if (bootmode != JTAG_MODE)
-    {
-        const flare_DSFactoryConfig* fc = flare_datasafe_FactoryConfig();
-        if (fc)
-        {
-            const char* const jtag_label = "jtag";
-            const char*       jtag = jtag_label;
-            const char*       bopts = &fc->bootOptions[0];
-            int               count = sizeof(fc->bootOptions) - 1;
-            while (count && *bopts)
-            {
-                char c = *bopts;
-                if ((c >= 'A') && (c <= 'Z'))
-                    c = 'a' + (c - 'A');
-                if (*jtag == c)
-                {
-                    ++jtag;
-                    if (*jtag == '\0')
-                    {
-                        bootmode = JTAG_MODE;
-                        break;
-                    }
+
+    return true;
+}
+
+static void qspi_boot(const char** fb_reason) {
+    bool        rc;
+    boot_script script;
+    const char* label;
+    int         i;
+    uint32_t    entry_point = 0;
+    uint8_t     header[IMAGE_HEADER_TOTAL(3)];
+
+    flash_error err = flash_open(&label);
+    if (err == FLASH_NO_ERROR) {
+        printf("       Flash: %s\n", label);
+        factory_config_load();
+        flare_boot_board_requests();
+
+        rc = flare_filesystem_mount(FILESYSTEM_QSPI_JFFS2);
+        if (rc == 0) {
+            if (flare_power_on_pressed())
+                factory_boot("Power button");
+
+            rc = boot_script_load(FILESYSTEM_QSPI_JFFS2, "/flare-0", &script);
+            if (rc) {
+                rc = load_exe(&script, &entry_point);
+                if (rc) {
+                    flare_datasafe_set_boot(script.path, script.executable);
+                    wdog_control(true);
+                    cache_flush_invalidate();
+                    console_flush();
+                    board_handoff_exit(entry_point);
+                } else {
+                    *fb_reason = "Invalid executable";
                 }
-                else
-                {
-                    jtag = jtag_label;
-                }
-                ++bopts;
-                --count;
+            } else {
+                *fb_reason = "Invalid boot script";
             }
+        } else {
+            *fb_reason = "Flash filesystem failure";
         }
     }
-    */
-
-    if (bootmode == JTAG_MODE)
+    else
     {
-        flare_datasafe_set_boot("/jtag", "none");
-        printf("JTAG wait .. ");
-        out_flush();
-        cache_disable();
-        board_handoff_jtag_exit();
+        *fb_reason = "Flash device failure";
     }
 }
 
-int
-main(void)
-{
-    const char* fb_reason = "";
+void sdhci_boot(const char** fb_reason) {
     boot_script script;
-    bool        rc;
-    int         i;
-    uint8_t     header[IMAGE_HEADER_TOTAL(3)];
-    uint32_t    entry_point = 0;
+    int rc;
+    uint32_t entry_point = 0;
+
+    rc = sdhci_open();
+    if (rc == 0) {
+        rc = flare_filesystem_mount(FILESYSTEM_SD_FATFS);
+        if (rc == 0) {
+            rc = boot_script_load(FILESYSTEM_SD_FATFS, "/flare-0", &script);
+            if (rc) {
+                rc = load_exe(&script, &entry_point);
+                if (rc) {
+                    flare_datasafe_set_boot(script.path, script.executable);
+                    cache_flush_invalidate();
+                    console_flush();
+                    board_handoff_exit(entry_point);
+                } else {
+                    *fb_reason = "Invalid executable";
+                }
+            } else {
+                printf("Boot script invalid: %d\n", rc);
+                *fb_reason = "Invalid boot script";
+            }
+        } else {
+            printf("FATFS mount failed: %d\n", rc);
+            *fb_reason = "SD card filesystem failure";
+        }
+    } else {
+        printf("SD card error: %d\n", rc);
+        *fb_reason = "SD card device failure";
+    }
+}
+
+static void jtag_boot(const char** fb_reason) {
+    const uint32_t    wait_seconds = 2;
+    volatile uint32_t seconds = 0;
+    bool              pressed = false;
+
+    printf("   JTAG boot: booting from SD in %1d   (^c for QSPI)"
+        "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b",
+        wait_seconds);
+
+    while (seconds++ < wait_seconds)
+    {
+      volatile uint32_t msecs = 0;
+
+      printf("\b\b%1d ", wait_seconds - seconds + 1);
+
+      while (msecs++ < 1000)
+      {
+        if (inbyte_available())
+        {
+            uint8_t ch = inbyte();
+            if (ch = '\x3') {
+                pressed = true;
+                break;
+            }
+        }
+        usleep(1000);
+      }
+    }
+
+    printf("    \b\b\b\b\b\b\b\b\b\b\b\b%s                     \n",
+        pressed ? "QSPI" : "SD");
+
+    if (pressed) {
+        qspi_boot(fb_reason);
+    } else {
+        sdhci_boot(fb_reason);
+    }
+}
+
+int main(void) {
+    const char* fb_reason = NULL;
+    int bootmode = board_bootmode();
 
     board_hardware_setup();
     board_timer_reset();
@@ -195,54 +200,20 @@ main(void)
 
     flare_datasafe_init();
 
-    if (flash_check())
-    {
-        factory_config_load();
-        /* flare_jtag_boot(bootmode); */
-        flare_boot_board_requests();
-
-        rc = flare_filesystem_mount(true);
-        if (rc == 0)
-        {
-            if (flare_power_on_pressed())
-                factory_boot("Power button");
-
-            rc = boot_script_load("/flare-0", &script);
-            if (rc)
-            {
-                rc = load_exe(&script, &entry_point);
-                if (rc)
-                {
-                    flare_datasafe_set_boot(script.path, script.executable);
-                    wdog_control(true);
-                    cache_flush_invalidate();
-                    out_flush();
-                    board_handoff_exit(entry_point);
-                }
-                else
-                {
-                    fb_reason = "Invalid executable";
-                }
-            }
-            else
-            {
-                fb_reason = "Invalid boot script";
-            }
-        }
-        else
-        {
-            fb_reason = "Flash filesystem failure";
-        }
-    }
-    else
-    {
-        fb_reason = "Flash device failure";
+    if (bootmode == FLARE_DS_BOOTMODE_QSPI) {
+        qspi_boot(&fb_reason);
+    } else if (bootmode == FLARE_DS_BOOTMODE_SD_CARD) {
+        sdhci_boot(&fb_reason);
+    } else if (bootmode == FLARE_DS_BOOTMODE_JTAG) {
+        jtag_boot(&fb_reason);
+    } else {
+        fb_reason = "Invalid bootmode";
     }
 
     led_failure();
     factory_boot(fb_reason);
     printf("Reset ..... ");
-    out_flush();
+    console_flush();
     reset();
     return 0;
 }

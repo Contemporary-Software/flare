@@ -9,6 +9,7 @@ import builditems
 
 directories = [
         'drivers',
+        'fs',
         'aarch64-mmu',
         ]
 
@@ -16,7 +17,6 @@ sources = {
     'default': [
         'boot-buffer.c',
         'boot-factory-config.c',
-        'boot-filesystem.c',
         'boot-load.c',
         'boot-script.c',
         'datasafe.c',
@@ -104,4 +104,4 @@ def build(bld):
               cflags=builditems.get_cflags(bld, cflags),
               asflags=builditems.get_cflags(bld, cflags),
               defines=builditems.get_defines(bld, defines),
-              use=['flare_aarch64_mmu'])
+              use=['flare_aarch64_mmu', 'flare_fs'])

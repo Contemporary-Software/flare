@@ -35,7 +35,7 @@ static void
 error_lockdown(void)
 {
   printf("Bootloader failure. Reseting ...  \b \b \b \b");
-  out_flush();
+  console_flush();
   board_slcr_lock();
   wdog_control(true);
   while (true);

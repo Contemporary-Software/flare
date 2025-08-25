@@ -627,6 +627,63 @@ flash_get_regions(flash_region** regions, size_t* size)
     return FLASH_NO_ERROR;
 }
 
+flash_error flash_open(const char** label) {
+    uint32_t    flash_size = 0;
+    uint32_t    manufacture_code;
+    uint32_t    mem_iface_type;
+    uint32_t    density;
+    flash_error fe;
+
+    fe = flash_read_id(&manufacture_code,
+                      &mem_iface_type,
+                      &density);
+    if (fe != FLASH_NO_ERROR)
+    {
+        printf("flash: device id read failed: %d\n", fe);
+        return fe;
+    }
+
+    if (manufacture_code == 1)
+    {
+        if ((mem_iface_type == 0x20) && (density == 0x18))
+        {
+            *label = "S25FL128P_64K (16MiB)";
+            flash_size = 16 * 1024 * 1024;
+        }
+        else if ((mem_iface_type == 0x02) && (density == 0x20))
+        {
+            *label = "S25FL512S_256K (64MiB)";
+            flash_size = 64 * 1024 * 1024;
+        }
+    }
+    else if (manufacture_code == 0x20)
+    {
+        if (density == 0x19)
+        {
+            *label = "1x N25Q256A";
+            flash_size = 0x2000000; /* 256 Mb on one flash */
+        }
+        if (density == 0x21)
+        {
+            *label = "2x N25Q00A (128MiB) in parallel (256MiB total)";
+            flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
+        }
+        else if (density == 0x22)
+        {
+            *label = "2x mt25qu02g (256MiB) in parallel (512MiB total)";
+            flash_size = 0x10000000UL * 2UL; /* 2Gib on each flash in parallel */
+        }
+    }
+
+    if (label == NULL)
+    {
+        printf("error: flash: unknown device: 0x%02x 0x%02x 0x%02x\n",
+               manufacture_code, mem_iface_type, density);
+        return FLASH_INVALID_DEVICE;
+    }
+    return FLASH_NO_ERROR;
+}
+
 flash_error
 flash_read(uint32_t address, void* buffer, size_t length)
 {

@@ -23,7 +23,7 @@ DSTATUS disk_status (
 	BYTE pdrv		/* Physical drive nmuber to identify the drive */
 )
 {
-    if (!sdhci_initalised()) {
+    if (!sdhci_initialised()) {
         return STA_NOINIT;
     } else {
         return 0;

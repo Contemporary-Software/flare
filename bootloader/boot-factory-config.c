@@ -20,14 +20,12 @@
 
 #include <stdio.h>
 
-#include <crc/crc.h>
-
 #include <boot-buffer.h>
-#include <boot-filesystem.h>
 #include <datasafe.h>
 #include <factory-data.h>
-#include <flash.h>
-#include <md5.h>
+
+#include <flash/flash.h>
+#include <crc/crc.h>
 
 void
 factory_config_load(void)

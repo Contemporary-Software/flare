@@ -34,6 +34,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <fs/boot-filesystem.h>
+
 /*
  * The maximum path or file name.
  */
@@ -49,16 +51,17 @@
  */
 typedef struct boot_script
 {
-    char    path[BOOT_SCRIPT_MAX_PATH];         /* installation path */
-    char    executable[BOOT_SCRIPT_MAX_PATH];   /* executable name */
-    uint8_t checksum[BOOT_SCRIPT_CSUM_SIZE];    /* executable MD5 checksum */
+    char      path[BOOT_SCRIPT_MAX_PATH];         /* installation path */
+    char      executable[BOOT_SCRIPT_MAX_PATH];   /* executable name */
+    uint8_t   checksum[BOOT_SCRIPT_CSUM_SIZE];    /* executable CRC32 */
+    flare_fs  fs;                                 /* filesystem used */
 } boot_script;
 
 
 /*
  * Load the boot script.
  */
-bool boot_script_load(const char* name, boot_script* bs);
+bool boot_script_load(flare_fs fs, const char* name, boot_script* bs);
 
 /*
  * Check if the checksum is valid, ie any byte is not zero.
