@@ -47,6 +47,15 @@
 #include <uart/console.h>
 #include <wdog/wdog.h>
 
+#define JTAG_BOOT_DEFAULT FLARE_DS_BOOTMODE_QSPI
+#if JTAG_BOOT_DEFAULT == FLARE_DS_BOOTMODE_QSPI
+  #define JTAG_BOOT_PRIMARY   "QSPI"
+  #define JTAG_BOOT_SECONDARY "SD  "
+#else
+  #define JTAG_BOOT_PRIMARY   "SD  "
+  #define JTAG_BOOT_SECONDARY "QSPI"
+#endif
+
 static void
 flare_boot_board_requests(void)
 {
@@ -136,9 +145,9 @@ static void jtag_boot(const char** fb_reason) {
     volatile uint32_t seconds = 0;
     bool              pressed = false;
 
-    printf("   JTAG boot: booting from SD in %1d   (^c for QSPI)"
+    printf("   JTAG boot: booting from %s in %1d   (^c for %s)"
         "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b",
-        wait_seconds);
+        JTAG_BOOT_PRIMARY, wait_seconds, JTAG_BOOT_SECONDARY);
 
     while (seconds++ < wait_seconds)
     {
@@ -160,10 +169,10 @@ static void jtag_boot(const char** fb_reason) {
       }
     }
 
-    printf("    \b\b\b\b\b\b\b\b\b\b\b\b%s                     \n",
-        pressed ? "QSPI" : "SD");
+    printf("    \b\b\b\b\b\b\b\b\b\b\b\b\b\b%s                       \n",
+        pressed ? JTAG_BOOT_SECONDARY : JTAG_BOOT_PRIMARY);
 
-    if (pressed) {
+    if ((pressed && JTAG_BOOT_DEFAULT == FLARE_DS_BOOTMODE_QSPI) || !pressed) {
         qspi_boot(fb_reason);
     } else {
         sdhci_boot(fb_reason);
