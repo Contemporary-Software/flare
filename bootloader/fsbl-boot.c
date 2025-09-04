@@ -172,9 +172,13 @@ static void jtag_boot(const char** fb_reason) {
     printf("    \b\b\b\b\b\b\b\b\b\b\b\b\b\b%s                       \n",
         pressed ? JTAG_BOOT_SECONDARY : JTAG_BOOT_PRIMARY);
 
-    if ((pressed && JTAG_BOOT_DEFAULT == FLARE_DS_BOOTMODE_QSPI) || !pressed) {
+    if ((pressed && JTAG_BOOT_DEFAULT != FLARE_DS_BOOTMODE_QSPI) || !pressed) {
+        flare_datasafe_set_bootmode(FLARE_DS_BOOTMODE_JTAG |
+                                FLARE_DS_BOOTMODE_QSPI);
         qspi_boot(fb_reason);
     } else {
+        flare_datasafe_set_bootmode(FLARE_DS_BOOTMODE_JTAG |
+                                FLARE_DS_BOOTMODE_SD_CARD);
         sdhci_boot(fb_reason);
     }
 }

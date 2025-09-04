@@ -16,8 +16,8 @@ The crc32 includes the format number and all format specific data.
 The length is size of the format specific data and format number.
 
 Format 1:
-total size in bytes = 1474
-crc32 length (length) = 1466
+total size in bytes = 1496
+crc32 length (length) = 1488
 format number (format) = 1
 
 item                    : datatype      : bytes
@@ -29,11 +29,15 @@ count                   : uint16_t      : 4
 reset                   : uint32_t      : 4
 flare_version           : uint32_t      : 4
 bootmode                : uint32_t      : 4
+status                  : uint32_t      : 4
 boot_path               : char[64]      : 64
 boot_loader             : char[64]      : 64
 boot_firmware           : char[64]      : 64
 boot_exe                : char[64]      : 64
-mac_address             : uint8_t[6]    : 6
+mac_address_0           : uint8_t[6]    : 6
+mac_address_1           : uint8_t[6]    : 6
+mac_address_2           : uint8_t[6]    : 6
+mac_address_3           : uint8_t[6]    : 6
 assembly_serial_number  : char[32]      : 32
 part_number             : char[32]      : 32
 revision                : char[32]      : 32
@@ -41,7 +45,7 @@ mod_strike              : char[32]      : 32
 board_serial_number     : char[32]      : 32
 error_trace             : uint32_t[256] : 1024
 
-Struct layout
+typedef struct
 {
     uint32_t              crc32;
     uint32_t              length;
@@ -53,16 +57,20 @@ Struct layout
     uint32_t              reset;
     uint32_t              flare_version;
     uint32_t              bootmode;
+    uint32_t              status;
     char                  boot_path[FLARE_DS_BOOT_PATH_LEN];
     char                  boot_loader[FLARE_DS_BOOT_PATH_LEN];
     char                  boot_firmware[FLARE_DS_BOOT_PATH_LEN];
     char                  boot_exe[FLARE_DS_BOOT_PATH_LEN];
-    uint8_t               mac_address[6];
-    char                  serial_number[FLARE_DS_FACTORY_DATA_LEN];
+    uint8_t               mac_address_0[6];
+    uint8_t               mac_address_1[6];
+    uint8_t               mac_address_2[6];
+    uint8_t               mac_address_3[6];
+    char                  assembly_serial_number[FLARE_DS_FACTORY_DATA_LEN];
     char                  part_number[FLARE_DS_FACTORY_DATA_LEN];
     char                  revision[FLARE_DS_FACTORY_DATA_LEN];
     char                  mod_strike[FLARE_DS_FACTORY_DATA_LEN];
-    char                  boot_options[FLARE_DS_FACTORY_DATA_LEN];
+    char                  board_serial_number[FLARE_DS_FACTORY_DATA_LEN];
     uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
 } flare_datasafe;
 

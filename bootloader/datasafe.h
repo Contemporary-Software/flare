@@ -37,6 +37,11 @@
 #define FLARE_DS_CRC_LEN  (sizeof(flare_datasafe) - 2*sizeof(uint32_t))
 
 /*
+ * status bit masks
+ */
+#define FLARE_DS_STATUS_FACTORY_DATA_VALID   (1 << 0)
+
+/*
  * bootmode bit masks
  */
 #define FLARE_DS_BOOTMODE_FACTORY     (1 << 31) /* Set by the FSBL to indicate a
@@ -79,11 +84,15 @@ typedef struct
     uint32_t              reset;
     uint32_t              flare_version;
     uint32_t              bootmode;
+    uint32_t              status;
     char                  boot_path[FLARE_DS_BOOT_PATH_LEN];
     char                  boot_loader[FLARE_DS_BOOT_PATH_LEN];
     char                  boot_firmware[FLARE_DS_BOOT_PATH_LEN];
     char                  boot_exe[FLARE_DS_BOOT_PATH_LEN];
-    uint8_t               mac_address[6];
+    uint8_t               mac_address_0[6];
+    uint8_t               mac_address_1[6];
+    uint8_t               mac_address_2[6];
+    uint8_t               mac_address_3[6];
     char                  assembly_serial_number[FLARE_DS_FACTORY_DATA_LEN];
     char                  part_number[FLARE_DS_FACTORY_DATA_LEN];
     char                  revision[FLARE_DS_FACTORY_DATA_LEN];
@@ -102,6 +111,11 @@ void flare_datasafe_init();
  * Set the boot path and loader.
  */
 void flare_datasafe_set_boot(const char* path, const char* exe);
+
+/*
+ * Set the bootmode.
+ */
+void flare_datasafe_set_bootmode(uint32_t bootmode);
 
 /*
  * Set the factory settings.

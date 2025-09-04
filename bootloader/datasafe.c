@@ -88,6 +88,15 @@ flare_datasafe_set_boot(const char* path, const char* exe)
 }
 
 void
+flare_datasafe_set_bootmode(uint32_t bootmode)
+{
+    flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
+    datasafe->bootmode = datasafe->bootmode & FLARE_DS_BOOTMODE_FACTORY_REQ;
+    datasafe->bootmode |= (bootmode & FLARE_DS_BOOTMODE_HW_MASK);
+    crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
+}
+
+void
 flare_datasafe_factory_data_set(const uint8_t* mac,
                            const char*    ass_serial,
                            const char*    part,
@@ -97,8 +106,8 @@ flare_datasafe_factory_data_set(const uint8_t* mac,
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     size_t o;
-    for (o = 0; o < sizeof(datasafe->mac_address); ++o)
-        datasafe->mac_address[o] = mac[o];
+    for (o = 0; o < sizeof(datasafe->mac_address_0); ++o)
+        datasafe->mac_address_0[o] = mac[o];
     memcpy(&datasafe->assembly_serial_number[0], ass_serial,
         FLARE_DS_FACTORY_DATA_LEN - 1);
     memcpy(&datasafe->part_number[0], part, FLARE_DS_FACTORY_DATA_LEN - 1);
@@ -106,6 +115,7 @@ flare_datasafe_factory_data_set(const uint8_t* mac,
     memcpy(&datasafe->mod_strike[0], mod, FLARE_DS_FACTORY_DATA_LEN - 1);
     memcpy(&datasafe->board_serial_number[0], board_serial,
         FLARE_DS_FACTORY_DATA_LEN - 1);
+    datasafe->status |= FLARE_DS_STATUS_FACTORY_DATA_VALID;
     datasafe->crc32 = 0;
     crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }
@@ -114,12 +124,13 @@ void
 flare_datasafe_factory_data_clear()
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
-    memset(&datasafe->mac_address[0], 0, sizeof(datasafe->mac_address));
+    memset(&datasafe->mac_address_0[0], 0, sizeof(datasafe->mac_address_0));
     memset(&datasafe->assembly_serial_number[0], 0, sizeof(datasafe->assembly_serial_number));
     memset(&datasafe->part_number[0], 0, sizeof(datasafe->part_number));
     memset(&datasafe->revision[0], 0, sizeof(datasafe->revision));
     memset(&datasafe->mod_strike[0], 0, sizeof(datasafe->mod_strike));
     memset(&datasafe->board_serial_number[0], 0, sizeof(datasafe->board_serial_number));
+    datasafe->status &= ~((uint32_t)FLARE_DS_STATUS_FACTORY_DATA_VALID);
     datasafe->crc32 = 0;
     crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);
 }
