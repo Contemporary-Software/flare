@@ -35,7 +35,7 @@
  * Definitions can be found in factory-data.txt.
  * This is format 1.
  */
-#define FACTORY_CRC_LENGTH 170
+#define FACTORY_CRC_LENGTH 188
 
 typedef struct {
     uint32_t crc32;
@@ -47,7 +47,10 @@ typedef struct {
     char part_number[FACTORY_STRING_SIZE];
     char revision[FACTORY_STRING_SIZE];
     char modstrike[FACTORY_STRING_SIZE];
-    uint8_t mac_address[6];
+    uint8_t mac_address_0[6];
+    uint8_t mac_address_1[6];
+    uint8_t mac_address_2[6];
+    uint8_t mac_address_3[6];
 } flare_factory_data;
 
 #endif

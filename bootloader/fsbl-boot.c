@@ -109,7 +109,13 @@ static void qspi_boot(const char** fb_reason) {
 void sdhci_boot(const char** fb_reason) {
     boot_script script;
     int rc;
+    const char* label;
     uint32_t entry_point = 0;
+    flash_error err = flash_open(&label);
+    if (err == FLASH_NO_ERROR) {
+        printf("       Flash: %s\n", label);
+    }
+    factory_config_load();
 
     rc = sdhci_open();
     if (rc == 0) {

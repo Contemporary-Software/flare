@@ -15,8 +15,8 @@ format              : uint32_t      : 4
 The crc32 includes the format number and all data in the format.
 
 Format 1:
-total size in bytes = 178
-crc32 length (length) = 170
+total size in bytes = 196
+crc32 length (length) = 188
 format number (format) = 1
 
 The factory data layout for format 1 goes as following
@@ -30,4 +30,7 @@ board serial number     : char[32]      : 32
 part number             : char[32]      : 32
 revision                : char[32]      : 32
 modstrike               : char[32]      : 32
-mac_address             : uint8_t[6]    : 6
+mac_address_0           : uint8_t[6]    : 6
+mac_address_1           : uint8_t[6]    : 6
+mac_address_2           : uint8_t[6]    : 6
+mac_address_3           : uint8_t[6]    : 6
