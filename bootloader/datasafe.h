@@ -77,9 +77,10 @@ typedef struct
     uint32_t              crc32;
     uint32_t              length;
     uint32_t              format;
-#define FLARE_DS_BOOT_PATH_LEN    (64)
-#define FLARE_DS_FACTORY_DATA_LEN (32)
-#define FLARE_DS_ERROR_TRACE_LEN  (256)
+#define FLARE_DS_BOOT_PATH_LEN            (64)
+#define FLARE_DS_FACTORY_DATA_LEN         (32)
+#define FLARE_DS_ERROR_TRACE_LEN          (256)
+#define FLARE_DS_FACTORY_APP_DETAILS_SIZE (128)
     uint32_t              count;
     uint32_t              reset;
     uint32_t              flare_version;
@@ -98,6 +99,8 @@ typedef struct
     char                  revision[FLARE_DS_FACTORY_DATA_LEN];
     char                  mod_strike[FLARE_DS_FACTORY_DATA_LEN];
     char                  board_serial_number[FLARE_DS_FACTORY_DATA_LEN];
+    char                  app_data[FLARE_DS_FACTORY_APP_DETAILS_SIZE];
+    char                  boot_cmd[FLARE_DS_FACTORY_APP_DETAILS_SIZE];
     uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
 } flare_datasafe;
 
@@ -125,7 +128,9 @@ void flare_datasafe_factory_data_set(const uint8_t* mac,
                                      const char*    part,
                                      const char*    revision,
                                      const char*    mod,
-                                     const char*    board_serial);
+                                     const char*    board_serial,
+                                     const char*    app_data,
+                                     const char*    boot_cmd);
 
 /*
  * Clear the factory data

@@ -65,7 +65,9 @@ factory_config_load(void)
             &data->part_number[0],
             &data->revision[0],
             &data->modstrike[0],
-            &data->board_serial_number[0]);
+            &data->board_serial_number[0],
+            &data->app_data[0],
+            &data->boot_cmd[0]);
     } else {
         flare_datasafe_factory_data_clear();
         printf("error: invalid factory data checksum, %08x != %08x\n", data->crc32, crc);

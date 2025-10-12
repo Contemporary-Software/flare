@@ -102,7 +102,9 @@ flare_datasafe_factory_data_set(const uint8_t* mac,
                            const char*    part,
                            const char*    revision,
                            const char*    mod,
-                           const char*    board_serial)
+                           const char*    board_serial,
+                           const char*    app_data,
+                           const char*    boot_cmd)
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     size_t o;
@@ -115,6 +117,10 @@ flare_datasafe_factory_data_set(const uint8_t* mac,
     memcpy(&datasafe->mod_strike[0], mod, FLARE_DS_FACTORY_DATA_LEN - 1);
     memcpy(&datasafe->board_serial_number[0], board_serial,
         FLARE_DS_FACTORY_DATA_LEN - 1);
+    memcpy(&datasafe->app_data[0], app_data,
+        FLARE_DS_FACTORY_APP_DETAILS_SIZE- 1);
+    memcpy(&datasafe->boot_cmd[0], boot_cmd,
+        FLARE_DS_FACTORY_APP_DETAILS_SIZE- 1);
     datasafe->status |= FLARE_DS_STATUS_FACTORY_DATA_VALID;
     datasafe->crc32 = 0;
     crc32_update(&datasafe->crc32, FLARE_DS_CRC_BASE, FLARE_DS_CRC_LEN);

@@ -16,8 +16,8 @@ The crc32 includes the format number and all format specific data.
 The length is size of the format specific data and format number.
 
 Format 1:
-total size in bytes = 1496
-crc32 length (length) = 1488
+total size in bytes = 1752
+crc32 length (length) = 1744
 format number (format) = 1
 
 item                    : datatype      : bytes
@@ -43,6 +43,8 @@ part_number             : char[32]      : 32
 revision                : char[32]      : 32
 mod_strike              : char[32]      : 32
 board_serial_number     : char[32]      : 32
+app_data                : char[128]     : 128
+boot_cmd                : char[128]     : 128
 error_trace             : uint32_t[256] : 1024
 
 typedef struct
@@ -50,9 +52,10 @@ typedef struct
     uint32_t              crc32;
     uint32_t              length;
     uint32_t              format;
-#define FLARE_DS_BOOT_PATH_LEN    (64)
-#define FLARE_DS_FACTORY_DATA_LEN (32)
-#define FLARE_DS_ERROR_TRACE_LEN  (256)
+#define FLARE_DS_BOOT_PATH_LEN            (64)
+#define FLARE_DS_FACTORY_DATA_LEN         (32)
+#define FLARE_DS_ERROR_TRACE_LEN          (256)
+#define FLARE_DS_FACTORY_APP_DETAILS_SIZE (128)
     uint32_t              count;
     uint32_t              reset;
     uint32_t              flare_version;
@@ -71,6 +74,8 @@ typedef struct
     char                  revision[FLARE_DS_FACTORY_DATA_LEN];
     char                  mod_strike[FLARE_DS_FACTORY_DATA_LEN];
     char                  board_serial_number[FLARE_DS_FACTORY_DATA_LEN];
+    char                  app_data[FLARE_DS_FACTORY_APP_DETAILS_SIZE];
+    char                  boot_cmd[FLARE_DS_FACTORY_APP_DETAILS_SIZE];
     uint32_t              error_trace[FLARE_DS_ERROR_TRACE_LEN];
 } flare_datasafe;
 
