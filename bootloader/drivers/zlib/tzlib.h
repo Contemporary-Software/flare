@@ -3,7 +3,7 @@
  */
 
 #if !defined(_TZLIB_H_)
-#define _TZIB_H_
+#define _TZLIB_H_
 
 #if !defined(TZLIB_USE_ZLIB)
 #define TZLIB_USE_ZLIB 0
