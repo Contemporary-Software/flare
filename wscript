@@ -71,4 +71,5 @@ def build(bld):
                 includes=builditems.get_includes(bld, includes),
                 defines=builditems.get_defines(bld, defines),
                 source=builditems.get_items(bld, sources),
-                use=['flare', 'flare_drivers'])
+                use=['flare', 'flare_drivers'],
+                install_path='${PREFIX}/share/flare/${FLARE_BOARD}')
