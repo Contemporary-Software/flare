@@ -632,6 +632,12 @@ flash_error flash_open(const char** label) {
     uint32_t    density;
     flash_error fe;
 
+    if (label == NULL) {
+        return FLASH_INVALID_DEVICE;
+    }
+
+    *label = NULL;
+
     fe = flash_read_id(&manufacture_code,
                       &mem_iface_type,
                       &density);
@@ -678,7 +684,7 @@ flash_error flash_open(const char** label) {
         }
     }
 
-    if (label == NULL)
+    if (*label == NULL)
     {
         printf("error: flash: unknown device: 0x%02x 0x%02x 0x%02x\n",
                manufacture_code, mem_iface_type, density);
