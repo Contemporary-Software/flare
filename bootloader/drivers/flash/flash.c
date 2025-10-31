@@ -656,6 +656,11 @@ flash_error flash_open(const char** label) {
     }
     else if (manufacture_code == 0x20)
     {
+        if (density == 0x18)
+        {
+            *label = "1x MT25QL128ABA";
+            flash_size = 0x1000000; /* 128 Mb on one flash */
+        }
         if (density == 0x19)
         {
             *label = "1x N25Q256A";
