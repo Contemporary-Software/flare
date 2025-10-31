@@ -647,42 +647,50 @@ flash_error flash_open(const char** label) {
         return fe;
     }
 
-    if (manufacture_code == 1)
-    {
-        if ((mem_iface_type == 0x20) && (density == 0x18))
-        {
-            *label = "S25FL128P_64K (16MiB)";
-            flash_size = 16 * 1024 * 1024;
-        }
-        else if ((mem_iface_type == 0x02) && (density == 0x20))
-        {
-            *label = "S25FL512S_256K (64MiB)";
-            flash_size = 64 * 1024 * 1024;
-        }
+    switch (manufacture_code) {
+        case 1:
+            if ((mem_iface_type == 0x20) && (density == 0x18))
+            {
+                *label = "S25FL128P_64K (16MiB)";
+                flash_size = 16 * 1024 * 1024;
+            }
+            else if ((mem_iface_type == 0x02) && (density == 0x20))
+            {
+                *label = "S25FL512S_256K (64MiB)";
+                flash_size = 64 * 1024 * 1024;
+            }
+            break;
+        case  0x20:
+            switch (density) {
+                case 0x18:
+                    *label = "1x MT25QL128ABA";
+                    flash_size = 0x1000000; /* 128 Mb on one flash */
+                    break;
+                case 0x19:
+                    *label = "1x N25Q256A";
+                    flash_size = 0x2000000; /* 256 Mb on one flash */
+                    break;
+                case 0x21:
+                    *label = "2x N25Q00A (128MiB) in parallel (256MiB total)";
+                    flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
+                    break;
+                case 0x22:
+                    *label = "2x mt25qu02g (256MiB) in parallel (512MiB total)";
+                    flash_size = 0x10000000UL * 2UL; /* 2Gib on each flash in parallel */
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
-    else if (manufacture_code == 0x20)
-    {
-        if (density == 0x18)
-        {
-            *label = "1x MT25QL128ABA";
-            flash_size = 0x1000000; /* 128 Mb on one flash */
-        }
-        if (density == 0x19)
-        {
-            *label = "1x N25Q256A";
-            flash_size = 0x2000000; /* 256 Mb on one flash */
-        }
-        if (density == 0x21)
-        {
-            *label = "2x N25Q00A (128MiB) in parallel (256MiB total)";
-            flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
-        }
-        else if (density == 0x22)
-        {
-            *label = "2x mt25qu02g (256MiB) in parallel (512MiB total)";
-            flash_size = 0x10000000UL * 2UL; /* 2Gib on each flash in parallel */
-        }
+
+#ifdef FLARE_ZYNQ7000
+    if (flash_readCFI() == FLASH_NO_ERROR) {
+        *label = "Unknown CFI";
     }
+#endif /* FLARE_ZYNQ7000 */
 
     if (*label == NULL)
     {
