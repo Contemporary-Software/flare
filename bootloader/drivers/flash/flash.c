@@ -558,6 +558,7 @@ flash_readCFI(void)
             if (flash_erase_buffer_size < flash_regions[region].size)
                 flash_erase_buffer_size = flash_regions[region].size;
         }
+        flash_erase_sector_size = flash_erase_buffer_size;
 
         if (flash_erase_buffer_size)
         {
@@ -571,6 +572,12 @@ flash_readCFI(void)
             }
         }
     }
+
+    printf("   Flash CFI: ID: %02x %02x %02x Flash size: 0x%llx\n",
+      flash_Get8(cfi_data + 0),
+      flash_Get8(cfi_data + 1),
+      flash_Get8(cfi_data + 2),
+      flash_size);
 
     return fe;
 }
@@ -627,10 +634,12 @@ flash_get_regions(flash_region** regions, size_t* size)
 }
 
 flash_error flash_open(const char** label) {
+    uint8_t     buffer[64];
     uint32_t    manufacture_code;
     uint32_t    mem_iface_type;
     uint32_t    density;
     flash_error fe;
+    bool        found = false;
 
     if (label == NULL) {
         return FLASH_INVALID_DEVICE;
@@ -647,42 +656,68 @@ flash_error flash_open(const char** label) {
         return fe;
     }
 
-    if (manufacture_code == 1)
-    {
-        if ((mem_iface_type == 0x20) && (density == 0x18))
-        {
-            *label = "S25FL128P_64K (16MiB)";
-            flash_size = 16 * 1024 * 1024;
-        }
-        else if ((mem_iface_type == 0x02) && (density == 0x20))
-        {
-            *label = "S25FL512S_256K (64MiB)";
-            flash_size = 64 * 1024 * 1024;
-        }
+    switch (manufacture_code) {
+        case 1:
+            if ((mem_iface_type == 0x20) && (density == 0x18))
+            {
+                *label = "S25FL128P_64K (16MiB)";
+                flash_size = 16UL * 1024UL * 1024UL;
+                flash_erase_sector_size = 64UL * 1024UL;
+                flash_page_size = 256;
+                found = true;
+            }
+            else if ((mem_iface_type == 0x02) && (density == 0x20))
+            {
+                *label = "S25FL512S_256K (64MiB)";
+                flash_size = 64UL * 1024UL * 1024UL;
+                flash_erase_sector_size = 256UL * 1024UL;
+                flash_page_size = 256;
+                found = true;
+            }
+            break;
+        case  0x20:
+            switch (density) {
+                case 0x18:
+                    *label = "1x MT25QL128ABA";
+                    flash_size = 0x1000000; /* 128 Mb on one flash */
+                    flash_erase_sector_size = 0x10000UL;
+                    flash_page_size = 256;
+                    found = true;
+                    break;
+                case 0x19:
+                    *label = "1x N25Q256A";
+                    flash_size = 0x2000000; /* 256 Mb on one flash */
+                    flash_erase_sector_size = 0x10000UL;
+                    flash_page_size = 256;
+                    found = true;
+                    break;
+                case 0x21:
+                    *label = "2x N25Q00A (128MiB) in parallel (256MiB total)";
+                    flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
+                    flash_erase_sector_size = 0x10000UL * 2;
+                    flash_page_size = 256 * 2;
+                    found = true;
+                    break;
+                case 0x22:
+                    *label = "2x mt25qu02g (256MiB) in parallel (512MiB total)";
+                    flash_size = 0x10000000UL * 2UL; /* 2Gib on each flash in parallel */
+                    flash_erase_sector_size = 0x10000UL * 2UL;
+                    flash_page_size = 256 * 2;
+                    found = true;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
-    else if (manufacture_code == 0x20)
-    {
-        if (density == 0x18)
-        {
-            *label = "1x MT25QL128ABA";
-            flash_size = 0x1000000; /* 128 Mb on one flash */
-        }
-        if (density == 0x19)
-        {
-            *label = "1x N25Q256A";
-            flash_size = 0x2000000; /* 256 Mb on one flash */
-        }
-        if (density == 0x21)
-        {
-            *label = "2x N25Q00A (128MiB) in parallel (256MiB total)";
-            flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
-        }
-        else if (density == 0x22)
-        {
-            *label = "2x mt25qu02g (256MiB) in parallel (512MiB total)";
-            flash_size = 0x10000000UL * 2UL; /* 2Gib on each flash in parallel */
-        }
+
+#ifdef FLARE_ZYNQ7000
+    if (!found && (flash_readCFI() == FLASH_NO_ERROR)) {
+        *label = "Unknown Flash";
     }
+#endif /* FLARE_ZYNQ7000 */
 
     if (*label == NULL)
     {
@@ -690,7 +725,42 @@ flash_error flash_open(const char** label) {
                manufacture_code, mem_iface_type, density);
         return FLASH_INVALID_DEVICE;
     }
-    return FLASH_NO_ERROR;
+
+    flash_writeUnlock();
+
+    fe = flash_SetWEL();
+    if (fe != FLASH_NO_ERROR)
+    {
+        flash_writeLock();
+        return fe;
+    }
+
+    flash_TransferBuffer_Clear(flash_buf);
+    flash_TransferBuffer_SetLength(flash_buf, 1 + 2);
+    flash_TransferBuffer_Set8(flash_buf, FLASH_WRITE_STATUS_CMD);
+    flash_TransferBuffer_Set8(flash_buf, 0);
+    flash_TransferBuffer_Set8(flash_buf, FLASH_SR_SRWD | FLASH_SR_WEL);
+    flash_TransferBuffer_SetDir(flash_buf, FLASH_TX_TRANS);
+    flash_TransferBuffer_SetCommandLen(flash_buf, FLASH_COMMAND_SIZE);
+    flash_TransferBuffer_SetCommMethod(flash_buf, FLASH_COMM_METHOD_SINGLE);
+
+    fe = flash_Transfer(flash_buf, initialised);
+    if (fe != FLASH_NO_ERROR)
+    {
+        flash_ClearWEL();
+        flash_writeLock();
+        return fe;
+    }
+
+    flash_ClearWEL();
+    flash_writeLock();
+
+#if FLASH_FAST_READ
+    flash_read_dummies = 1;
+#endif
+
+    fe = flash_read(0, buffer, sizeof(buffer));
+    return fe;
 }
 
 flash_error
@@ -1024,7 +1094,6 @@ flash_read_id(uint32_t* manufactureCode,
              uint32_t* memIfaceType,
              uint32_t* density)
 {
-    uint8_t     buffer[64];
     uint8_t     value = 0;
     flash_error fe;
 
@@ -1047,77 +1116,6 @@ flash_read_id(uint32_t* manufactureCode,
     *memIfaceType = value;
     flash_TransferBuffer_Get8(flash_buf, &value);
     *density = value;
-
-    if (*manufactureCode == 1)
-    {
-        if ((*memIfaceType == 0x20) && (*density == 0x18))
-        {
-            flash_size = 16UL * 1024UL * 1024UL;
-            flash_erase_sector_size = 64UL * 1024UL;
-            flash_page_size = 256;
-        }
-        else if ((*memIfaceType == 0x02) && (*density == 0x20))
-        {
-            flash_size = 64UL * 1024UL * 1024UL;
-            flash_erase_sector_size = 256UL * 1024UL;
-            flash_page_size = 512;
-        }
-    }
-    else if (*manufactureCode == 0x20)
-    {
-        if (*density == 0x19) {
-            flash_size = 0x2000000; /* 256 Mib on one flash */
-            flash_erase_sector_size = 0x10000UL; /* 64Kib erase sector */
-            flash_page_size = 256 * 2;
-        }
-        else if (*density == 0x21)
-        {
-            flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
-            flash_erase_sector_size = 0x10000UL * 2UL; /* 128Kib erase sector */
-            flash_page_size = 256 * 2;
-        }
-        else if (*density == 0x22)
-        {
-            flash_size = 0x10000000UL * 2UL; /* 2Gib on each flash in parallel */
-            flash_erase_sector_size = 0x10000UL * 2UL; /* 128Kib erase sector */
-            flash_page_size = 256 * 2;
-        }
-    }
-
-    flash_writeUnlock();
-
-    fe = flash_SetWEL();
-    if (fe != FLASH_NO_ERROR)
-    {
-        flash_writeLock();
-        return fe;
-    }
-
-    flash_TransferBuffer_Clear(flash_buf);
-    flash_TransferBuffer_SetLength(flash_buf, 1 + 2);
-    flash_TransferBuffer_Set8(flash_buf, FLASH_WRITE_STATUS_CMD);
-    flash_TransferBuffer_Set8(flash_buf, 0);
-    flash_TransferBuffer_Set8(flash_buf, 0x82);
-    flash_TransferBuffer_SetDir(flash_buf, FLASH_TX_TRANS);
-    flash_TransferBuffer_SetCommandLen(flash_buf, FLASH_COMMAND_SIZE);
-    flash_TransferBuffer_SetCommMethod(flash_buf, FLASH_COMM_METHOD_SINGLE);
-
-    fe = flash_Transfer(flash_buf, initialised);
-    if (fe != FLASH_NO_ERROR)
-    {
-        flash_ClearWEL();
-        flash_writeLock();
-        return fe;
-    }
-
-    flash_ClearWEL();
-    flash_writeLock();
-
-#if FLASH_FAST_READ
-    flash_read_dummies = 1;
-#endif
-
-    flash_read(0, buffer, sizeof(buffer));
 
     return FLASH_NO_ERROR;
 }
