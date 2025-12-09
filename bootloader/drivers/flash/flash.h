@@ -25,7 +25,7 @@
 /*
  * Driver configuration.
  */
-#define FLASH_4BYTE_ADDRESSING  1
+#define FLASH_4BYTE_ADDRESSING  0
 #define FLASH_FAST_READ         1
 
 /*
