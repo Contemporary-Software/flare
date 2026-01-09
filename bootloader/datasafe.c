@@ -27,16 +27,6 @@
 #include <flare-build-id.h>
 #include <hw-datasafe.h>
 
-static void uint32_to_str(uint32_t *val, char* data) {
-    const char digits[] = "0123456789abcdef";
-    uint32_t tmp = *val;
-
-    for (int i = 0; i < 8; i++) {
-        data[7 - i] = digits[tmp & 0xF];
-        tmp = tmp >> 4;
-    }
-}
-
 void flare_datasafe_init()
 {
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
@@ -55,10 +45,10 @@ void flare_datasafe_init()
     memset(&datasafe->boot_firmware[0], 0, sizeof(datasafe->boot_firmware));
     memset(&datasafe->boot_exe[0], 0, sizeof(datasafe->boot_exe));
 
-    char flare_name[7] = "flare.";
-    uint32_t build_id = flare_build_id();
+    char flare_name[7] = "flare-";
     memcpy(&datasafe->boot_loader[0], flare_name, sizeof(flare_name));
-    uint32_to_str(&build_id, &datasafe->boot_loader[6]);
+    memcpy(&datasafe->boot_loader[6], flare_build_id(),
+        flare_build_id_length() + 1);
 
     flare_datasafe_hw_init(datasafe);
 

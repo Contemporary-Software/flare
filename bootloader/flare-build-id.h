@@ -21,8 +21,10 @@
 #ifndef FLARE_BUILD_ID
 #define FLARE_BUILD_ID
 
-#include <stdint.h>
+#include <stddef.h>
 
-uint32_t flare_build_id();
+const char* flare_build_id();
+
+size_t flare_build_id_length();
 
 #endif /* FLARE_BUILD_ID */

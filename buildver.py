@@ -27,16 +27,41 @@ flare_build_ver_template = [
  */
 
 /*
- * Header file for generated file containing the unix time of build as an ID
+ * Header file for generated file containing the git hash and unix time of
+ * build as an ID.
  */
 
 #include <flare-build-id.h>
 
-uint32_t flare_build_id() {
+const char* flare_build_id() {
+    return "''', '''";
+}
+
+size_t flare_build_id_length() {
     return ''', ''';
 }'''
 ]
 
+def set_build_id(bld):
+    ''' Build id is `git_hash[-m]-hex_time` where
+    `-m` means the repo is dirty'''
+    import waflib
+    bid = None
+    try:
+        cmd = 'git ls-files --modified'
+        modified = bld.cmd_and_log(cmd, quiet=waflib.Context.BOTH).strip()
+        cmd = 'git rev-parse --verify HEAD'
+        out = bld.cmd_and_log(cmd, quiet=waflib.Context.BOTH).strip()
+    except WafError:
+        bid = 'no-repo'
+    if out:
+        bid = out[:8]
+    elif bid is None:
+        bid = 'no-repo'
+    if modified:
+        bid += '-m'
+    bid += '-' + hex(int(time.time()))[2:]
+    bld.env.BUILD_ID = bid
 
 def build(bld):
     from waflib import Task
@@ -45,13 +70,17 @@ def build(bld):
         output = str(task.outputs[0])
         with open(output, 'w') as bv:
             bv.write(flare_build_ver_template[0])
-            bv.write(hex(int(time.time())))
+            bv.write(task.env.BUILD_ID)
             bv.write(flare_build_ver_template[1])
+            bv.write(hex(len(task.env.BUILD_ID)))
+            bv.write(flare_build_ver_template[2])
 
     class build_ver(Task.Task):
         color = 'CYAN'
         always_run = True
         run_str = [create_build_ver_c]
+
+    set_build_id(bld)
 
     board = bld.env.FLARE_BOARD
     outs = [bld.path.find_or_declare(file) for file in outputs['default']]
