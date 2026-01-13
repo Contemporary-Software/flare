@@ -137,7 +137,7 @@ static void outunum_neg( unsigned long num, const long base,
                          const int negative, params_t *par)
 {
     charptr cp;
-    char outbuf[32];
+    char outbuf[64];
     const char digits[] = "0123456789abcdef";
 
     /* Build number (backwards) in outbuf            */
@@ -311,7 +311,18 @@ int printf( const char *ctrl1, ...)
                 outnum( va_arg(argp, uintptr_t), 16L, &par);
                 continue;
             case 'x':
-                outnum((long)va_arg(argp, int), 16L, &par);
+                if (long_flag) {
+                    outnum( va_arg(argp, long), 16L, &par);
+                    continue;
+                }
+                else if (size_t_flag) {
+                    outnum( va_arg(argp, ssize_t), 16L, &par);
+                    continue;
+                }
+                else {
+                    outnum( va_arg(argp, int), 16L, &par);
+                    continue;
+                }
                 continue;
 
             case 's':
