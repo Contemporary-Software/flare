@@ -22,8 +22,8 @@
 
 #include <cache.h>
 
-#include <slcr/board-slcr.h>
-#include <wdog/wdog.h>
+#include <driver/slcr/board-slcr.h>
+#include <driver/wdog/wdog.h>
 
 void
 reset(void)

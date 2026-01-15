@@ -34,18 +34,18 @@
 #include <flash-map.h>
 #include <fs/boot-filesystem.h>
 #include <reset.h>
+#include <sleep.h>
 
-#include <fatfs/ff.h>
-#include <flash/flash.h>
-#include <io/board-io.h>
-#include <leds/leds.h>
-#include <power-switch/power-switch.h>
-#include <sdhci/sdhci.h>
-#include <slcr/board-slcr.h>
-#include <timer/board-timer.h>
-#include <timer/sleep.h>
-#include <uart/console.h>
-#include <wdog/wdog.h>
+#include <driver/fatfs/ff.h>
+#include <driver/flash/flash.h>
+#include <driver/io/board-io.h>
+#include <driver/leds/leds.h>
+#include <driver/power-switch/power-switch.h>
+#include <driver/sdhci/sdhci.h>
+#include <driver/slcr/board-slcr.h>
+#include <driver/timer/board-timer.h>
+#include <driver/uart/console.h>
+#include <driver/wdog/wdog.h>
 
 #define JTAG_BOOT_DEFAULT FLARE_DS_BOOTMODE_QSPI
 #if JTAG_BOOT_DEFAULT == FLARE_DS_BOOTMODE_QSPI

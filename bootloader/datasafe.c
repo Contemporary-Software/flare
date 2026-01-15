@@ -23,9 +23,10 @@
 #include <string.h>
 
 #include <datasafe.h>
-#include <crc/crc.h>
 #include <flare-build-id.h>
 #include <hw-datasafe.h>
+
+#include <driver/crc/crc.h>
 
 void flare_datasafe_init()
 {
@@ -36,7 +37,7 @@ void flare_datasafe_init()
         memset(datasafe, 0, sizeof(flare_datasafe));
     }
 
-    datasafe->length = sizeof(flare_datasafe) - 2 * sizeof(uint32_t);
+    datasafe->length = sizeof(flare_datasafe) - (2 * sizeof(uint32_t));
     datasafe->format = FLARE_DATASAFE_FORMAT;
     ++datasafe->count;
     datasafe->reset = 0;

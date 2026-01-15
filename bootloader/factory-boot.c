@@ -33,10 +33,10 @@
 #include <reset.h>
 #include <uboot.h>
 
-#include <crc/crc.h>
-#include <flash/flash.h>
-#include <wdog/wdog.h>
-#include <zlib/tzlib.h>
+#include <driver/crc/crc.h>
+#include <driver/flash/flash.h>
+#include <driver/wdog/wdog.h>
+#include <driver/zlib/tzlib.h>
 
 /*
  * The factory boot base and the number of file slots.

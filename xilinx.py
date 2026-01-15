@@ -6,6 +6,7 @@ outputs = {
     'versal': [],
     'zynqmp': [
         'xilinx/psu_init.c',
+        'xilinx/psu_init.h',
     ],
     'zynq7000': [
         'xilinx/ps7_init.c',
@@ -37,6 +38,11 @@ def build(bld):
         if not os.path.exists('build/xilinx'):
             os.mkdir('build/xilinx')
         shutil.copyfile(path, output)
+
+        path = task.env.FLARE_PS_INIT_HEADER
+        if path:
+            output = str(task.outputs[1])
+            shutil.copyfile(path, output)
 
     class xilinx_init(Task.Task):
         color = 'CYAN'

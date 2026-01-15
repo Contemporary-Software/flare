@@ -24,8 +24,8 @@
 #include <datasafe.h>
 #include <factory-data.h>
 
-#include <flash/flash.h>
-#include <crc/crc.h>
+#include <driver/flash/flash.h>
+#include <driver/crc/crc.h>
 
 void
 factory_config_load(void)

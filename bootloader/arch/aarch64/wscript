@@ -1,0 +1,53 @@
+#! /usr/bin/env python
+# encoding: utf-8
+#
+# Flare AARCH64 Support
+#
+
+import builditems
+
+sources = {
+    'default': [],
+    'versal': [],
+    'zynqmp': [
+        'aarch64-cache.c',
+        'aarch64-error.c',
+        'aarch64-fsbl-boot-start.S',
+        'aarch64-handoff.S',
+        'aarch64-handoff.c',
+        'mmu/aarch64-cache.c',
+    ],
+    'zynq7000': []
+}
+
+includes = {
+    'default': ['../..', '../../../build/xilinx'],
+    'versal': [],
+    'zynqmp': [],
+    'zynq7000': []
+}
+
+defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
+cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
+
+
+def init(ctx):
+    pass
+
+
+def options(opt):
+    pass
+
+
+def configure(conf):
+    pass
+
+
+def build(bld):
+    bld.objects(target='flare_aarch64_support',
+                features='c',
+                source=builditems.get_items(bld, sources),
+                includes=builditems.get_includes(bld, includes),
+                cflags=builditems.get_cflags(bld, cflags),
+                defines=builditems.get_defines(bld, defines))
