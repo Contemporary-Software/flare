@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+#
+# Flare Arch Support
+#
+
+import buildcontrol
+
+directories = [
+    'aarch64',
+    'arm',
+]
+
+
+def init(ctx):
+    buildcontrol.recurse(ctx, directories)
+
+
+def options(opt):
+    buildcontrol.recurse(opt, directories)
+
+
+def configure(conf):
+    buildcontrol.recurse(conf, directories)
+
+
+def build(bld):
+    buildcontrol.recurse(bld, directories)

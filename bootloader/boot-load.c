@@ -22,12 +22,14 @@
 #include <string.h>
 
 #include <boot-load.h>
-#include <crc/crc.h>
 #include <flare-boot.h>
 #include <flash-map.h>
-#include <fs/boot-filesystem.h>
 #include <uboot.h>
-#include <zlib/tzlib.h>
+
+#include <fs/boot-filesystem.h>
+
+#include <driver/crc/crc.h>
+#include <driver/zlib/tzlib.h>
 
 #define MASK_N_DIV(x, n) ((x) & ~((n) - 1))
 #define MASK_N_MOD(x, n) ((x) & ((n) - 1))

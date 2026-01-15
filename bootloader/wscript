@@ -8,9 +8,10 @@ import buildcontrol
 import builditems
 
 directories = [
-    'drivers',
+    'driver',
     'fs',
-    'aarch64-mmu',
+    'arch',
+    'board',
 ]
 
 sources = {
@@ -24,41 +25,16 @@ sources = {
         'reset.c',
     ],
     'versal': [],
-    'zynqmp': [
-        '_exit.c',
-        'aarch64-cache.c',
-        'aarch64-error.c',
-        'aarch64-fsbl-boot-start.S',
-        'aarch64-handoff.S',
-        'aarch64-handoff.c',
-        'zynqmp-atf-return.S',
-        'zynqmp-atf.c',
-        'zynqmp-datasafe.c',
-        'zynqmp-pre-main.c',
-        'zynqmp-vectors.S',
-    ],
-    'zynq7000': [
-        'zynq7000-handoff.c',
-        'zynq7000-cache.c',
-        'zynq7000-datasafe.c',
-        'zynq7000-error.c',
-        'arm-fsbl-boot-start.S',
-        'cpu_init.S',
-        'zynq7000-mmu.c',
-        'crt0.S',
-        'zynq7000-begin-lo.S',
-    ]
+    'zynqmp': [],
+    'zynq7000': []
 }
 
 includes = {
     'default': [
         '.',
-        'drivers',
     ],
     'versal': [],
-    'zynqmp': [
-        '../build/xilinx/',
-    ],
+    'zynqmp': [],
     'zynq7000': []
 }
 
@@ -88,4 +64,7 @@ def build(bld):
               cflags=builditems.get_cflags(bld, cflags),
               asflags=builditems.get_cflags(bld, cflags),
               defines=builditems.get_defines(bld, defines),
-              use=['flare_aarch64_mmu', 'flare_fs'])
+              use=[
+                  'flare_fs', 'flare_zynqmp_support', 'flare_aarch64_support',
+                  'flare_zynq7000_support', 'flare_arm_support'
+              ])

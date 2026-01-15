@@ -16,7 +16,7 @@
 
 
 #include <stdint.h>
-#include <io/board-io.h>
+#include <driver/io/board-io.h>
 
 #define xil_printf printf
 #define Xil_Out32 board_reg_write
