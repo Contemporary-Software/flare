@@ -24,9 +24,10 @@
 
 #include <datasafe.h>
 #include <flash-map.h>
-#include <flash/flash.h>
 #include <fs/boot-filesystem.h>
-#include <jffs2/jffs2-boot.h>
+
+#include <driver/flash/flash.h>
+#include <driver/jffs2/jffs2-boot.h>
 
 /*
  * Cache header.

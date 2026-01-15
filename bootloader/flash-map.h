@@ -18,13 +18,7 @@
 #if !defined(_FLARE_FLASH_H_)
 #define _FLARE_FLASH_H_
 
-#ifdef FLARE_VERSAL
-  #include <versal-flash-map.h>
-#elif FLARE_ZYNQMP
-  #include <zynqmp-flash-map.h>
-#else
-  #include <zynq7000-flash-map.h>
-#endif
+#include <board.h>
 
 /* Flash Dev path */
 #define FLASHDEV_PATH "/dev/flashdev0"

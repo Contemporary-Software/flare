@@ -28,7 +28,7 @@
 #include <boot-script.h>
 #include <fs/boot-filesystem.h>
 
-#include <crc/crc.h>
+#include <driver/crc/crc.h>
 
 bool
 boot_script_checksum_valid(const boot_script* const bs)

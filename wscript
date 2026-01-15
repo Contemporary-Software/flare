@@ -20,17 +20,16 @@ sources = {
     'zynqmp': [
         'xilinx/psu_init.c',
     ],
-    'zynq7000': ['xilinx/ps7_init.c', 'bootloader/zynq7000_vectors.S']
+    'zynq7000': ['xilinx/ps7_init.c']
 }
 
 includes = {
     'default': [
         'bootloader',
-        'bootloader/drivers',
     ],
     'versal': [],
-    'zynqmp': ['bootloader/drivers/timer'],
-    'zynq7000': []
+    'zynqmp': [],
+    'zynq7000': ['bootloader/board/zynq7000/']
 }
 
 defines = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
@@ -40,8 +39,8 @@ cflags = {'default': [], 'versal': [], 'zynqmp': [], 'zynq7000': []}
 linkflags = {
     'default': [],
     'versal': [],
-    'zynqmp': ['-T../bootloader/zynqmp-lscript.ld'],
-    'zynq7000': ['-T../bootloader/zynq7000-lscript.ld']
+    'zynqmp': ['-T../bootloader/board/zynqmp/zynqmp-lscript.ld'],
+    'zynq7000': ['-T../bootloader/board/zynq7000/zynq7000-lscript.ld']
 }
 
 
