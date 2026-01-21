@@ -15,7 +15,7 @@
  */
 
 /*
- * Xilinx Zynq Cache.
+ * Cache.
  */
 
 #if !defined(CACHE_H)

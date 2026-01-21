@@ -327,7 +327,7 @@ aarch64_mmu_set_translation_table_entries(
   }
 }
 
-static inline void aarch64_mmu_setup_translation_table(
+static inline void aarch64_el3_mmu_setup_translation_table(
   const aarch64_mmu_config_entry *config_table,
   size_t config_count
 )
@@ -350,8 +350,19 @@ static inline void aarch64_mmu_setup_translation_table(
   }
 }
 
+static inline void aarch64_el2_mmu_setup_translation_table(
+  const aarch64_mmu_config_entry *config_table,
+  size_t config_count
+)
+{
+  uint64_t *ttb = (uint64_t *) bsp_translation_table_base;
+
+  /* Use the EL3 table as we set it up earlier */
+  _AArch64_Write_ttbr0_el2( (uintptr_t) ttb );
+}
+
 static inline void
-aarch64_mmu_enable( void )
+aarch64_el3_mmu_enable( void )
 {
   uint64_t sctlr;
 
@@ -368,7 +379,24 @@ aarch64_mmu_enable( void )
 }
 
 static inline void
-aarch64_mmu_disable( void )
+aarch64_el2_mmu_enable( void )
+{
+  uint64_t sctlr;
+
+  /* CPUECTLR_EL1.SMPEN is already set on ZynqMP and is not writable */
+
+  /* Flush and invalidate cache */
+  rtems_cache_flush_entire_data();
+  rtems_cache_invalidate_entire_data();
+
+  /* Enable MMU and cache */
+  sctlr = _AArch64_Read_sctlr_el2();
+  sctlr |= AARCH64_SCTLR_EL2_I | AARCH64_SCTLR_EL2_C | AARCH64_SCTLR_EL2_M;
+  _AArch64_Write_sctlr_el2( sctlr );
+}
+
+static inline void
+aarch64_el3_mmu_disable( void )
 {
   uint64_t sctlr;
 
@@ -384,7 +412,24 @@ aarch64_mmu_disable( void )
   _AArch64_Write_sctlr_el3( sctlr );
 }
 
-static inline void aarch64_mmu_setup( void )
+static inline void
+aarch64_el2_mmu_disable( void )
+{
+  uint64_t sctlr;
+
+  /*
+   * Flush data cache before disabling the MMU. While the MMU is disabled, all
+   * accesses are treated as uncached device memory.
+   */
+  rtems_cache_flush_entire_data();
+
+  /* Disable MMU */
+  sctlr = _AArch64_Read_sctlr_el2();
+  sctlr &= ~(AARCH64_SCTLR_EL2_M);
+  _AArch64_Write_sctlr_el2( sctlr );
+}
+
+static inline void aarch64_el3_mmu_setup( void )
 {
   /* Set TCR */
   /* 256TB/48 bits mappable (64-0x10) */
@@ -396,6 +441,23 @@ static inline void aarch64_mmu_setup( void )
 
   /* Set MAIR */
   _AArch64_Write_mair_el3(
+    AARCH64_MAIR_EL1_ATTR0( 0x0 ) | AARCH64_MAIR_EL1_ATTR1( 0x4 ) |
+    AARCH64_MAIR_EL1_ATTR2( 0x44 ) | AARCH64_MAIR_EL1_ATTR3( 0xFF )
+  );
+}
+
+static inline void aarch64_el2_mmu_setup( void )
+{
+  /* Set TCR */
+  /* 256TB/48 bits mappable (64-0x10) */
+  _AArch64_Write_tcr_el2(
+    AARCH64_TCR_EL2_T0SZ( 0x10 ) | AARCH64_TCR_EL2_IRGN0( 0x1 ) |
+    AARCH64_TCR_EL2_ORGN0( 0x1 ) | AARCH64_TCR_EL2_SH0( 0x3 ) |
+    AARCH64_TCR_EL2_TG0( 0x0 ) | AARCH64_TCR_EL2_IPS( 0x5ULL )
+  );
+
+  /* Set MAIR */
+  _AArch64_Write_mair_el2(
     AARCH64_MAIR_EL1_ATTR0( 0x0 ) | AARCH64_MAIR_EL1_ATTR1( 0x4 ) |
     AARCH64_MAIR_EL1_ATTR2( 0x44 ) | AARCH64_MAIR_EL1_ATTR3( 0xFF )
   );

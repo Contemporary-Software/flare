@@ -199,8 +199,7 @@ int main(void) {
     printf("\nFlare Apache 2.0 Licensed FSBL\n");
     printf("    Build ID: %s\n", flare_build_id());
 
-    cache_enable_dcache();
-    cache_enable_icache();
+    cache_enable();
 
     wdog_init();
     wdog_control(false);

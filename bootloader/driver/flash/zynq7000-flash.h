@@ -21,9 +21,13 @@
 
 #include "flash.h"
 
+/*
+ * Driver configuration.
+ */
 #define FLASH_COMM_METHOD_SINGLE 0 /* Unused */
 #define FLASH_COMM_METHOD_ALL 0 /* Unused */
-
+#define FLASH_4BYTE_ADDRESSING  0
+#define FLASH_FAST_READ         1
 
 /*
  * QSPI registers.

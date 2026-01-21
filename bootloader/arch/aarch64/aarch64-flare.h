@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Contemporary Software
+ * Copyright 2026 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,9 @@
  *     limitations under the License.
  */
 
-/*
- * Header file for generated file containing the unix time of build
- */
+#ifndef _FLARE_ARCH_AARCH64_AARCH64_FLARE_H_
+#define _FLARE_ARCH_AARCH64_AARCH64_FLARE_H_
 
-#ifndef FLARE_BUILD_ID
-#define FLARE_BUILD_ID
+void aarch64_print_flare_id();
 
-#include <stddef.h>
-#include <stdio.h>
-
-const char* flare_build_id();
-
-size_t flare_build_id_length();
-
-#endif /* FLARE_BUILD_ID */
+#endif /* _FLARE_ARCH_AARCH64_AARCH64_FLARE_H_ */

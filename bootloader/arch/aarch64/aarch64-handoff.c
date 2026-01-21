@@ -23,7 +23,6 @@
 
 #include <driver/wdog/wdog.h>
 
-
 extern void aarch64_handoff(uint32_t address);
 
 void
@@ -33,7 +32,7 @@ board_handoff_exit(uint32_t address)
 
   cache_disable();
 
-  aarch64_mmu_disable();
+  aarch64_el2_mmu_disable();
 
   aarch64_handoff(address);
 

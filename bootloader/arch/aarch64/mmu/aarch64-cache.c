@@ -379,24 +379,44 @@ inline void rtems_cache_invalidate_entire_data(void)
   AArch64_data_cache_invalidate_all_levels();
 }
 
-inline void rtems_cache_enable_data(void)
+inline void rtems_cache_enable_data(uint64_t el)
 {
   uint64_t sctlr;
 
-  sctlr = _AArch64_Read_sctlr_el3();
-  sctlr |= AARCH64_SCTLR_EL3_C;
-  _AArch64_Write_sctlr_el3(sctlr);
+  if (el == 3) {
+    sctlr = _AArch64_Read_sctlr_el3();
+    sctlr |= AARCH64_SCTLR_EL3_C;
+    _AArch64_Write_sctlr_el3(sctlr);
+  } else if (el == 2) {
+    sctlr = _AArch64_Read_sctlr_el2();
+    sctlr |= AARCH64_SCTLR_EL2_C;
+    _AArch64_Write_sctlr_el2(sctlr);
+  } else if (el == 1) {
+    sctlr = _AArch64_Read_sctlr_el1();
+    sctlr |= AARCH64_SCTLR_EL1_C;
+    _AArch64_Write_sctlr_el1(sctlr);
+  }
 }
 
-inline void rtems_cache_disable_data(void)
+inline void rtems_cache_disable_data(uint64_t el)
 {
   uint64_t sctlr;
 
   AArch64_data_cache_clean_all_levels();
   AArch64_data_cache_invalidate_all_levels();
-  sctlr = _AArch64_Read_sctlr_el3();
-  sctlr &= ~AARCH64_SCTLR_EL3_C;
-  _AArch64_Write_sctlr_el3(sctlr);
+  if (el == 3) {
+    sctlr = _AArch64_Read_sctlr_el3();
+    sctlr &= ~AARCH64_SCTLR_EL3_C;
+    _AArch64_Write_sctlr_el3(sctlr);
+  } else if (el == 2) {
+    sctlr = _AArch64_Read_sctlr_el2();
+    sctlr &= ~AARCH64_SCTLR_EL3_C;
+    _AArch64_Write_sctlr_el2(sctlr);
+  } else if (el == 1) {
+    sctlr = _AArch64_Read_sctlr_el1();
+    sctlr &= ~AARCH64_SCTLR_EL3_C;
+    _AArch64_Write_sctlr_el1(sctlr);
+  }
 }
 
 static inline
@@ -436,22 +456,42 @@ inline void rtems_cache_invalidate_entire_instruction(void)
   _AARCH64_Instruction_synchronization_barrier();
 }
 
-inline void rtems_cache_enable_instruction(void)
+inline void rtems_cache_enable_instruction(uint64_t el)
 {
   uint64_t sctlr;
 
-  sctlr = _AArch64_Read_sctlr_el3();
-  sctlr |= AARCH64_SCTLR_EL3_I;
-  _AArch64_Write_sctlr_el3(sctlr);
+  if (el == 3) {
+    sctlr = _AArch64_Read_sctlr_el3();
+    sctlr |= AARCH64_SCTLR_EL3_I;
+    _AArch64_Write_sctlr_el3(sctlr);
+  } else if (el == 2) {
+    sctlr = _AArch64_Read_sctlr_el2();
+    sctlr |= AARCH64_SCTLR_EL2_I;
+    _AArch64_Write_sctlr_el2(sctlr);
+  } else if (el == 1) {
+    sctlr = _AArch64_Read_sctlr_el1();
+    sctlr |= AARCH64_SCTLR_EL1_I;
+    _AArch64_Write_sctlr_el1(sctlr);
+  }
 }
 
-inline void rtems_cache_disable_instruction(void)
+inline void rtems_cache_disable_instruction(uint64_t el)
 {
   uint64_t sctlr;
 
-  sctlr = _AArch64_Read_sctlr_el3();
-  sctlr &= ~AARCH64_SCTLR_EL3_I;
-  _AArch64_Write_sctlr_el3(sctlr);
+  if (el == 3) {
+    sctlr = _AArch64_Read_sctlr_el3();
+    sctlr &= ~AARCH64_SCTLR_EL3_I;
+    _AArch64_Write_sctlr_el3(sctlr);
+  } else if (el == 2) {
+    sctlr = _AArch64_Read_sctlr_el2();
+    sctlr &= ~AARCH64_SCTLR_EL3_I;
+    _AArch64_Write_sctlr_el2(sctlr);
+  } else if (el == 1) {
+    sctlr = _AArch64_Read_sctlr_el1();
+    sctlr &= ~AARCH64_SCTLR_EL3_I;
+    _AArch64_Write_sctlr_el1(sctlr);
+  }
 }
 
 static inline size_t AArch64_get_cache_size(

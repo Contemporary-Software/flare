@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Contemporary Software
+ * Copyright 2026 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,25 @@
  *     limitations under the License.
  */
 
-/*
- * Header file for generated file containing the unix time of build
+/**
+ * AARCH64 Exception Level.
  */
 
-#ifndef FLARE_BUILD_ID
-#define FLARE_BUILD_ID
+#include <stdint.h>
 
-#include <stddef.h>
-#include <stdio.h>
+static inline uint64_t _AArch64_Read_CurrentEL( void )
+{
+    uint64_t value;
 
-const char* flare_build_id();
+    __asm__ volatile (
+      "mrs %0, CurrentEL" : "=&r" ( value ) : : "memory"
+    );
 
-size_t flare_build_id_length();
+    return value;
+}
 
-#endif /* FLARE_BUILD_ID */
+static inline uint64_t get_current_EL() {
+    uint64_t reg = _AArch64_Read_CurrentEL();
+
+    return (reg >> 2) & 0x3;
+}

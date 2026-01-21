@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Contemporary Software
+ * Copyright 2026 Contemporary Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,20 @@
  *     limitations under the License.
  */
 
-/*
- * Header file for generated file containing the unix time of build
- */
-
-#ifndef FLARE_BUILD_ID
-#define FLARE_BUILD_ID
-
-#include <stddef.h>
 #include <stdio.h>
 
-const char* flare_build_id();
+#include <flare-build-id.h>
 
-size_t flare_build_id_length();
+#include "aarch64-atf.h"
 
-#endif /* FLARE_BUILD_ID */
+void aarch64_print_flare_id() {
+    printf("\nFlare Apache 2.0 Licensed FSBL\n");
+    printf("    Build ID: %s\n", flare_build_id());
+    printf("    Handoff to ARM Trusted Firmware (BL31) at 0x%x\n\n",
+        ATF_DEFAULT_ENTRY);
+
+    /* ATF removes 64 characters and we don't want our messages to disappear */
+    for (int i = 0; i < 64; i++) {
+      printf(" ");
+    }
+}

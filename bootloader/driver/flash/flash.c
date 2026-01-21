@@ -160,7 +160,7 @@ static void
 flash_TransferBuffer_SetLength(flash_transfer_buffer* transfer, size_t length)
 {
     transfer->length = length;
-    transfer->padding = (4 - (length & 3)) & 3;
+    transfer->padding = flash_get_padding(length);
     transfer->in = transfer->padding;
     transfer->out = transfer->padding;
 }
@@ -173,8 +173,6 @@ flash_TransferBuffer_Fill(flash_transfer_buffer* transfer, const uint8_t data, s
         return FLASH_BUFFER_OVERFLOW;
 
     memset(transfer->buffer + transfer->in, data, length);
-
-    transfer->in += length;
 
     return FLASH_NO_ERROR;
 }
@@ -634,6 +632,7 @@ flash_error flash_open(const char** label) {
                     flash_erase_sector_size = 64UL * 1024UL;
                     flash_page_size = 256;
                     found = true;
+                    break;
                 case 0x21:
                     *label = "2x N25Q00A (128MiB) in parallel (256MiB total)";
                     flash_size = 0x8000000UL * 2UL; /* 1 Gib on each flash in parallel */
@@ -736,7 +735,8 @@ flash_read(uint32_t address, void* buffer, size_t length)
         if (fe != FLASH_NO_ERROR)
             return fe;
         flash_TransferBuffer_SetDir(flash_buf, FLASH_RX_TRANS);
-        flash_TransferBuffer_SetCommandLen(flash_buf, FLASH_COMMAND_SIZE + FLASH_ADDRESS_SIZE + flash_read_dummies);
+        flash_TransferBuffer_SetCommandLen(flash_buf, FLASH_COMMAND_SIZE
+            + FLASH_ADDRESS_SIZE + flash_read_dummies);
         flash_TransferBuffer_SetCommMethod(flash_buf, FLASH_COMM_METHOD_ALL);
 
         fe = flash_Transfer(flash_buf, initialised);

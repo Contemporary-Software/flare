@@ -25,6 +25,7 @@
 .global __bss_end
 .global __vector_table
 .global _reset
+.global aarch64_atf_return
 
 /* Stack pointer and section locations for boot code */
 .set system_stack,  __stack
@@ -43,11 +44,6 @@ _boot:
   ldr  x0, =system_stack      /* system stack pointer */
   mov  sp, x0
 
-  /*
-   * Set vector table offsets. All set to 0x100 
-   * to share the same vector table and avoid NULL
-   * pointer accesses.
-   */
   ldr x0, =vector_base
   msr VBAR_EL3, x0
   msr VBAR_EL2, x0
@@ -57,15 +53,36 @@ _boot:
   bl _xbss_init
 
   /* Disable MMU and cache */
-  bl aarch64_disable_mmu_and_cache
+  bl aarch64_disable_el3_mmu_and_cache
 
   /* Set up DDR and peripherals */
-  bl board_hardware_setup
+  bl psu_init
 
-  /* Set up mmu and caching */
-  bl aarch64_setup_mmu_and_cache
+  /* Set up mmu and cache */
+  bl aarch64_setup_el3_mmu_and_cache
 
-  /* Branch to main */
+  /* Print bootloader information */
+  bl aarch64_print_flare_id
+
+  /* Hand off to ATF */
+  b aarch64_atf_handoff
+
+aarch64_atf_return:
+  /* Set up the stack pointer */
+  ldr  x0, =system_stack      /* system stack pointer */
+  mov  sp, x0
+
+  ldr x0, =vector_base
+  msr VBAR_EL2, x0
+  msr VBAR_EL1, x0
+
+  /* Disable MMU and cache */
+  bl aarch64_disable_el2_mmu_and_cache
+
+  /* Set up mmu and cache */
+  bl aarch64_setup_el2_mmu_and_cache
+
+  /* Hand off to ATF */
   b main
 
 /* Zero registers and jump to boot */
@@ -112,7 +129,6 @@ _zero_loop_ret:
   ret
 
 _xbss_init:
-_sbss_start_init:
   mov   x3, x30
   ldr   x0, =sbss_start
   ldr   x1, =sbss_end
