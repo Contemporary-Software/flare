@@ -14,8 +14,8 @@
  *     limitations under the License.
  */
 
-#if !defined(_BOOTLOADER_FLASH_VERSAL_H_)
-#define _BOOTLOADER_FLASH_VERSAL_H_
+#if !defined(_BOOTLOADER_FLASH_ZYNQMP_H_)
+#define _BOOTLOADER_FLASH_ZYNQMP_H_
 
 #include <driver/io/board-io.h>
 
@@ -23,9 +23,13 @@
 
 #define QSPI_CONFIG_INIT_VAL (GQSPI_CFG_GEN_FIFO_START_MODE_MASK|GQSPI_CFG_WP_HOLD_MASK|0x10)
 
+/*
+ * Driver configuration.
+ */
 #define FLASH_COMM_METHOD_SINGLE FLASH_COMM_METHOD_SINGLE_BOTTOM
 #define FLASH_COMM_METHOD_ALL FLASH_COMM_METHOD_SINGLE_BOTTOM
-
+#define FLASH_4BYTE_ADDRESSING  1
+#define FLASH_FAST_READ         1
 
 /*
  * Flash Status bits.
@@ -177,5 +181,4 @@ void flash_writeLock(void);
 
 flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised);
 
-
-#endif /* _BOOTLOADER_FLASH_VERSAL_H_ */
+#endif /* _BOOTLOADER_FLASH_ZYNQMP_H_ */

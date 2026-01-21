@@ -22,11 +22,7 @@
 
 #include <driver/io/board-io.h>
 
-/*
- * Driver configuration.
- */
-#define FLASH_4BYTE_ADDRESSING  0
-#define FLASH_FAST_READ         1
+#include "flash-board.h"
 
 /*
  * Static allocation of needed buffers.
@@ -137,9 +133,6 @@ flash_error flash_get_regions(flash_region** regions, size_t* size);
 size_t flash_device_size(void);
 size_t flash_device_sector_erase_size(void);
 
-void flash_trace_control(bool state);
-
-const char* flash_error_text(flash_error fe);
 /*
  * A transfer buffer has a buffer and length.
  */
@@ -162,7 +155,6 @@ typedef void (*flash_wait_handler)(void* user);
 void flash_register_wait_handler(flash_wait_handler handler, void* user);
 
 void flash_transfer_trace(const char* message, const flash_transfer_buffer* transfer);
-
 
 static inline void qspi_reg_write(uint32_t reg, uint32_t value)
 {

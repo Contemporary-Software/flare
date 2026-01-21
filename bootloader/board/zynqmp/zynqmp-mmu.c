@@ -58,8 +58,10 @@
 #include <arch/aarch64/mmu/aarch64-mmu-vmsav8-64.h>
 
 
-void zynqmp_setup_mmu_and_cache(void);
-void zynqmp_disable_mmu_and_cache(void);
+void zynqmp_setup_el3_mmu_and_cache(void);
+void zynqmp_setup_el2_mmu_and_cache(void);
+void zynqmp_disable_el3_mmu_and_cache(void);
+void zynqmp_disable_el2_mmu_and_cache(void);
 
 static const aarch64_mmu_config_entry
 zynqmp_mmu_config_table[] = {
@@ -67,44 +69,73 @@ zynqmp_mmu_config_table[] = {
     .begin = 0x00000000U,
     .end = 0x80000000U,
     .flags = AARCH64_MMU_DATA_RW_CACHED
-  }, {
+  }, { /* APU GIC */
     .begin = 0xf9000000U,
     .end = 0xf9100000U,
     .flags = AARCH64_MMU_DEVICE
-  }, {
+  }, { /* FPD and LPD Slaves */
     .begin = 0xfd000000U,
+    .end = 0xffc00000U,
+    .flags = AARCH64_MMU_DEVICE
+  }, { /* PMU */
+    .begin = 0xffd00000U,
     .end = 0xfffc0000U,
     .flags = AARCH64_MMU_DEVICE
-  }, {
-    /* Map OCM space */
+  }, { /* OCM */
     .begin = 0xfffc0000U,
     .end = 0x100000000U,
     .flags = AARCH64_MMU_DATA_RW_CACHED
   }
 };
 
-void aarch64_setup_mmu_and_cache( void )
+void aarch64_setup_el3_mmu_and_cache( void )
 {
-  zynqmp_setup_mmu_and_cache();
+  zynqmp_setup_el3_mmu_and_cache();
 }
 
-void aarch64_disable_mmu_and_cache( void ) {
-  zynqmp_disable_mmu_and_cache();
+void aarch64_setup_el2_mmu_and_cache( void )
+{
+  zynqmp_setup_el2_mmu_and_cache();
 }
 
-void zynqmp_setup_mmu_and_cache( void ) {
-  aarch64_mmu_setup();
+void aarch64_disable_el3_mmu_and_cache( void ) {
+  zynqmp_disable_el3_mmu_and_cache();
+}
 
-  aarch64_mmu_setup_translation_table(
+void aarch64_disable_el2_mmu_and_cache( void ) {
+  zynqmp_disable_el2_mmu_and_cache();
+}
+
+void zynqmp_setup_el3_mmu_and_cache( void ) {
+  aarch64_el3_mmu_setup();
+
+  aarch64_el3_mmu_setup_translation_table(
     &zynqmp_mmu_config_table[ 0 ],
     RTEMS_ARRAY_SIZE( zynqmp_mmu_config_table )
   );
 
-  aarch64_mmu_enable();
+  aarch64_el3_mmu_enable();
 }
 
-void zynqmp_disable_mmu_and_cache( void ) {
+void zynqmp_setup_el2_mmu_and_cache( void ) {
+  aarch64_el2_mmu_setup();
+
+  aarch64_el2_mmu_setup_translation_table(
+    &zynqmp_mmu_config_table[ 0 ],
+    RTEMS_ARRAY_SIZE( zynqmp_mmu_config_table )
+  );
+
+  aarch64_el2_mmu_enable();
+}
+
+void zynqmp_disable_el3_mmu_and_cache( void ) {
   cache_flush_invalidate();
   cache_disable();
-  aarch64_mmu_disable();
+  aarch64_el3_mmu_disable();
+}
+
+void zynqmp_disable_el2_mmu_and_cache( void ) {
+  cache_flush_invalidate();
+  cache_disable();
+  aarch64_el2_mmu_disable();
 }

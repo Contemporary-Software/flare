@@ -19,7 +19,6 @@
 
 #include <driver/io/board-io.h>
 
-#include "flash.h"
 #include "zynqmp-flash.h"
 
 #define FLASH_4BYTE_ADDRESSING 1
@@ -54,7 +53,6 @@ void print_regs() {
 
     printf("        ---------- GQSPI Registers ----------\n");
     printf("GQSPI_Cfg:       %8x     ", *((uint32_t*)(qspi_base + GQSPI_CONFIG_OFST)));
-    //printf("QSPI_REF_CTRL:   %8x\n",    *((uint32_t*)(qspi_base + GQSPI_)));
     printf("GQSPI_IMR:       %8x     ", *((uint32_t*)(qspi_base + GQSPI_IMASK_OFST)));
     printf("GQSPI_En:        %8x\n",    *((uint32_t*)(qspi_base + GQSPI_EN_OFST)));
     printf("GQSPI_GF_Thresh: %8x     ", *((uint32_t*)(qspi_base + GQSPI_GF_THRESHOLD_OFST)));
@@ -161,6 +159,10 @@ flash_writeLock(void)
   return;
 }
 
+size_t flash_get_padding(size_t length) {
+    return 0;
+}
+
 static void
 qspi_FlushRx(void)
 {
@@ -210,7 +212,7 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
     uint8_t   trans_dir;
     size_t    length;
     size_t    transfer_length = 0;
-    uint32_t  x = 0;
+    uint32_t  x;
     uint32_t  header_len;
     uint32_t  communication_method;
 
@@ -245,8 +247,8 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
      */
     tx_data = (uint32_t*) transfer->buffer;
     rx_data = (uint32_t*) transfer->buffer;
-    tx_length = transfer->length;
-    rx_length = transfer->length;
+    tx_length = transfer->length - transfer->command_len;
+    rx_length = transfer->length - transfer->command_len;
     length = transfer->length;
 
     trans_dir = (uint8_t)transfer->trans_dir;
@@ -264,8 +266,8 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
       );
     qspi_reg_write(GQSPI_GEN_FIFO_OFST, controller_command);
 
+    x = 0;
     while (x < header_len) {
-
         qspi_reg_write(GQSPI_TXD_OFST, *tx_data);
         ++tx_data;
         sr = qspi_reg_read(GQSPI_ISR_OFST);
@@ -343,22 +345,20 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
     sr = qspi_reg_read(GQSPI_ISR_OFST);
 
     if (trans_dir == FLASH_TX_TRANS) {
-        while (tx_length)
-        {
-          while (tx_length && (sr & GQSPI_ISR_TXFULL_MASK) == 0)
-          {
-              usleep(100);
-              qspi_reg_write (GQSPI_TXD_OFST, *tx_data);
-              ++tx_data;
-              if (tx_length > sizeof(uint32_t))
-                  tx_length -= sizeof(uint32_t);
-              else
-                  tx_length = 0;
+        while (tx_length) {
+            while (tx_length && (sr & GQSPI_ISR_TXFULL_MASK) == 0) {
+                usleep(100);
+                qspi_reg_write (GQSPI_TXD_OFST, *tx_data);
+                ++tx_data;
+                if (tx_length > sizeof(uint32_t))
+                    tx_length -= sizeof(uint32_t);
+                else
+                    tx_length = 0;
 
-              sr = qspi_reg_read(GQSPI_ISR_OFST);
-          }
-          qspi_reg_write(GQSPI_CONFIG_OFST,
-                       qspi_reg_read(GQSPI_CONFIG_OFST) | GQSPI_CFG_START_GEN_FIFO_MASK);
+                sr = qspi_reg_read(GQSPI_ISR_OFST);
+            }
+            qspi_reg_write(GQSPI_CONFIG_OFST,
+                         qspi_reg_read(GQSPI_CONFIG_OFST) | GQSPI_CFG_START_GEN_FIFO_MASK);
         }
     }
 
@@ -372,15 +372,17 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
         }
 
         sr = qspi_reg_read(GQSPI_ISR_OFST);
-        while ((sr & GQSPI_ISR_RXEMPTY_MASK) == 0)
-        {
-            *rx_data = qspi_reg_read(GQSPI_RXD_OFST);
-            ++rx_data;
-            if (rx_length > sizeof(uint32_t))
-                rx_length -= sizeof(uint32_t);
-            else 
-                rx_length = 0;
-
+        while (rx_length) {
+            if ((sr & GQSPI_ISR_RXEMPTY_MASK) == 0) {
+                *rx_data = qspi_reg_read(GQSPI_RXD_OFST);
+                ++rx_data;
+                if (rx_length > sizeof(uint32_t))
+                    rx_length -= sizeof(uint32_t);
+                else 
+                    rx_length = 0;
+            } else {
+                usleep(100);
+            }
             sr = qspi_reg_read(GQSPI_ISR_OFST);
         }
     }
@@ -390,8 +392,6 @@ flash_error flash_Transfer(flash_transfer_buffer* transfer, bool initialised)
      */
     qspi_reg_write(GQSPI_EN_OFST, 0);
 
-      
-      
     if (transfer->trans_dir == FLASH_RX_TRANS) {
       flash_transfer_trace("transfer end:RX", transfer);
     }

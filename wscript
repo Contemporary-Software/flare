@@ -20,7 +20,9 @@ sources = {
     'zynqmp': [
         'xilinx/psu_init.c',
     ],
-    'zynq7000': ['xilinx/ps7_init.c']
+    'zynq7000': [
+        'xilinx/ps7_init.c',
+    ]
 }
 
 includes = {

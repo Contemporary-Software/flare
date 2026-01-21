@@ -580,7 +580,7 @@ void rtems_cache_invalidate_entire_instruction( void );
  * * The directive will not cause the calling task to be preempted.
  * @endparblock
  */
-void rtems_cache_enable_data( void );
+void rtems_cache_enable_data( uint64_t el );
 
 /* Generated from spec:/rtems/cache/if/disable-data */
 
@@ -598,7 +598,7 @@ void rtems_cache_enable_data( void );
  * * The directive will not cause the calling task to be preempted.
  * @endparblock
  */
-void rtems_cache_disable_data( void );
+void rtems_cache_disable_data( uint64_t el );
 
 /* Generated from spec:/rtems/cache/if/enable-instruction */
 
@@ -616,7 +616,7 @@ void rtems_cache_disable_data( void );
  * * The directive will not cause the calling task to be preempted.
  * @endparblock
  */
-void rtems_cache_enable_instruction( void );
+void rtems_cache_enable_instruction( uint64_t el );
 
 /* Generated from spec:/rtems/cache/if/disable-instruction */
 
@@ -634,7 +634,7 @@ void rtems_cache_enable_instruction( void );
  * * The directive will not cause the calling task to be preempted.
  * @endparblock
  */
-void rtems_cache_disable_instruction( void );
+void rtems_cache_disable_instruction( uint64_t el );
 
 /* Generated from spec:/rtems/cache/if/aligned-malloc */
 

@@ -10,8 +10,10 @@ sources = {
     'default': [],
     'versal': [],
     'zynqmp': [
+        'aarch64-atf.c',
         'aarch64-cache.c',
         'aarch64-error.c',
+        'aarch64-flare.c',
         'aarch64-fsbl-boot-start.S',
         'aarch64-handoff.S',
         'aarch64-handoff.c',

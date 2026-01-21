@@ -24,7 +24,7 @@
 
 #include "board-timer.h"
 
-#define ZYNQMP_TIMER                    (0xff260000)
+#define ZYNQMP_TIMER                    (0xfe900000)
 #define ZYNQMP_TSG_COUNTER_LOWER_OFFSET (0x08)
 #define ZYNQMP_TSG_COUNTER_UPPER_OFFSET (0x0C)
 #define ZYNQMP_TSG_CTRL_OFFSET          (0x00)
@@ -38,8 +38,6 @@ board_timer_get(uint64_t* time)
 {
   uint32_t u = board_reg_read(ZYNQMP_TIMER + ZYNQMP_TSG_COUNTER_UPPER_OFFSET);
   uint32_t l = board_reg_read(ZYNQMP_TIMER + ZYNQMP_TSG_COUNTER_LOWER_OFFSET);
-  if (board_reg_read(ZYNQMP_TIMER + ZYNQMP_TSG_COUNTER_UPPER_OFFSET) != u)
-    l = board_reg_read(ZYNQMP_TIMER + ZYNQMP_TSG_COUNTER_LOWER_OFFSET);
   *time = ((((uint64_t) u) << 32) | (uint64_t) l) / TIMER_CLK_DIV;
 }
 

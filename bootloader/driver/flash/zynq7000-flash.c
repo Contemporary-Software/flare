@@ -14,6 +14,7 @@
  *     limitations under the License.
  */
 
+#include "flash-board.h"
 #include "zynq7000-flash.h"
 
 #define GPIO_FLASH_WD_PIN  (4)
@@ -27,6 +28,10 @@
 #define GPIO_OUTEN_BASE (GPIO_BASE + 0x208)
 #define GPIO_OUTEN_OFF  (0x040)
 #define GPIO_MASK_BASE  (GPIO_BASE + 0x000)
+
+size_t flash_get_padding(size_t length) {
+    return (4 - (length & 3)) & 3;
+}
 
 void
 flash_writeUnlock(void)

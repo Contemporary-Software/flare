@@ -22,8 +22,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <psu_init.h>
-
 #include <board.h>
 #include <cache.h>
 
@@ -32,7 +30,7 @@
 #include "mmu/aarch64-mmu.h"
 
 struct error_stack_frame {
-  uint64_t padding[3];
+  uint64_t padding[2];
   uint64_t Xn[31];
   uint64_t ELR;
   uint64_t ESR;
@@ -43,79 +41,96 @@ struct error_stack_frame {
 static void
 error_lockdown(void)
 {
-  printf("Bootloader failure. Resetting ...  \b \b \b \b");
-  console_flush();
-  cache_flush_invalidate();
-  cache_disable();
-  aarch64_mmu_disable();
-  while (true);
+    printf("Bootloader failure. Resetting ...  \b \b \b \b");
+    console_flush();
+    while (true);
 }
 
-static void
-trace_error(const char* label)
-{
-  int                i;
-  volatile struct error_stack_frame *frame = (struct error_stack_frame*) &frame;
+static void trace_error(int el, int es, const char* label) {
+    int i;
+    volatile struct error_stack_frame *frame = (struct error_stack_frame*) &frame;
+    const char* el_str;
+    const char* es_str;
 
-  printf("\nFATAL: %sStack Pointer: %016lx\n", label, (uint64_t) frame->stack);
+    switch (el) {
+        case 1:
+            el_str = "EL1";
+            break;
+        case 2:
+            el_str = "EL2";
+            break;
+        case 3:
+            el_str = "EL3";
+            break;
+        default:
+            el_str = "Unknown exception level";
+            break;
+    }
 
-  printf("ELR: %016lx\n", frame->ELR);
-  printf("ESR: %016lx\n", frame->ESR);
-  printf("FAR: %016lx\n", frame->FAR);
+    switch (es) {
+        case 0:
+            es_str = "EL is using SP_EL0 stack";
+            break;
+        case 1:
+            es_str = "EL is using SP_ELx stack";
+            break;
+        case 2:
+            es_str = "From lower EL in AARCH64";
+            break;
+        case 3:
+            es_str = "From lower EL in AARCH32";
+            break;
+        default:
+            es_str = "Unknown error source";
+            break;
+    }
 
-  for (i = 0; i < 30; i = i + 2)
-  {
-    printf("x%02d: 0x%016lx   x%02d: 0x%016lx\n", i, frame->Xn[i], i+1, frame->Xn[i+1]);
-  }
-  printf("x%02d: 0x%016lx\n", 30, frame->Xn[30]);
+    printf("\nFATAL: %s %s (%s)\nStack Pointer: %016lx\n", el_str, label,
+        es_str, (uint64_t)frame->stack);
 
-  printf("\n--------Stack--------");
-  for (i = 0; i < 64; ++i)
-  {
-    if ((i & 0x3) == 0)
-      printf("\n ");
-    printf("%016lx ", frame->stack[i]);
-  }
-  printf("\n ");
+    printf("ELR: %016lx\n", frame->ELR);
+    printf("ESR: %016lx\n", frame->ESR);
+    printf("FAR: %016lx\n", frame->FAR);
 
-  printf("- Stack from error handler -\n");
-  printf(" %016lx %016lx %016lx\n", frame->padding[0], frame->padding[1], frame->padding[2]);
+    for (i = 30; i > 0; i = i - 2) {
+        printf("x%02d: 0x%016lx   x%02d: 0x%016lx\n",
+            30 - i, frame->Xn[i],
+            30 - (i - 1), frame->Xn[i-1]);
+    }
+    printf("x%02d: 0x%016lx\n", 30, frame->Xn[0]);
+
+    printf("\n--------Stack--------");
+    for (i = 0; i < 64; ++i) {
+        if ((i & 0x3) == 0) {
+            printf("\n ");
+        }
+        printf("%016lx ", frame->stack[i]);
+    }
+    printf("\n ");
+
+    printf("- Stack from error handler -\n");
+    printf(" %016lx %016lx\n", frame->padding[0], frame->padding[1]);
 }
 
-void SWInterrupt(void);
-void FIQInterrupt(void);
-void IRQInterrupt(void);
-void SError(void);
-
-void
-SError(void)
-{
-  trace_error("SError\n");
-  error_lockdown();
+void SError(int el, int es) {
+    trace_error(el, es, "SError");
+    error_lockdown();
 }
 
-void
-SWInterrupt(void)
-{
-  trace_error("SWI\n");
-  error_lockdown();
+void SWInterrupt(int el, int es) {
+    trace_error(el, es, "SWI");
+    error_lockdown();
 }
 
-void
-IRQInterrupt(void)
-{
-  trace_error("IRQ\n");
-  error_lockdown();
+void IRQInterrupt(int el, int es) {
+    trace_error(el, es, "IRQ");
+    error_lockdown();
 }
 
-void
-FIQInterrupt(void)
-{
-  trace_error("FIQ\n");
-  error_lockdown();
+void FIQInterrupt(int el, int es) {
+    trace_error(el, es, "FIQ");
+    error_lockdown();
 }
-void
-board_hardware_setup(void)
-{
-   psu_init();
+
+void board_hardware_setup(void) {
 }

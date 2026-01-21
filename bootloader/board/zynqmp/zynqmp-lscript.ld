@@ -40,11 +40,10 @@ SECTIONS
 {
 
 .boot : {
-   . = ALIGN(0x800);
-   *(.vectors)
-   . = . + VECTOR_TABLE_LENGTH;
    . = ALIGN(0x1000);
    *(.boot)
+   . = ALIGN(0x800);
+   *(.vectors)
 } > OCM_RAM_0
 
 

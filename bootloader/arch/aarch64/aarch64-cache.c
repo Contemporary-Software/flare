@@ -15,8 +15,10 @@
  */
 
 /**
- * Versal Cache.
+ * AARCH64 Cache.
  */
+
+#include "aarch64-el.h"
 
 #include "mmu/aarch64-cache.h"
 
@@ -40,13 +42,13 @@ void cache_flush_invalidate(void)
 void cache_disable_icache(void)
 {
   cache_flush();
-  rtems_cache_disable_instruction();
+  rtems_cache_disable_instruction(get_current_EL());
 }
 
 void cache_disable_dcache(void)
 {
   cache_flush();
-  rtems_cache_disable_data();
+  rtems_cache_disable_data(get_current_EL());
 }
 
 void cache_disable(void)
@@ -58,13 +60,13 @@ void cache_disable(void)
 
 void cache_enable_icache(void)
 {
-  rtems_cache_enable_instruction();
+  rtems_cache_enable_instruction(get_current_EL());
   rtems_cache_invalidate_entire_instruction();
 }
 
 void cache_enable_dcache(void)
 {
-  rtems_cache_enable_data();
+  rtems_cache_enable_data(get_current_EL());
   rtems_cache_invalidate_entire_data();
 }
 

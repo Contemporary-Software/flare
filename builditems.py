@@ -25,7 +25,7 @@ cflags = {
     'versal': [],
     'zynqmp': [
         '-mcpu=cortex-a53', '-mfix-cortex-a53-835769',
-        '-mfix-cortex-a53-843419', '-mlittle-endian', '-DEL3=1',
+        '-mfix-cortex-a53-843419', '-mlittle-endian', '-DEL2=1',
         '-DEL1_NONSECURE=0'
         '-mabi=lp64'
     ],
