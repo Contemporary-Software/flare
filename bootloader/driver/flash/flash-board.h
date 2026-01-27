@@ -17,6 +17,8 @@
 #ifndef _FLARE_DRIVER_FLASH_FLASH_BOARD_H_
 #define _FLARE_DRIVER_FLASH_FLASH_BOARD_H_
 
+#include <stddef.h>
+
 size_t flash_get_padding(size_t length);
 
 #endif /* _FLARE_DRIVER_FLASH_FLASH_BOARD_H_ */

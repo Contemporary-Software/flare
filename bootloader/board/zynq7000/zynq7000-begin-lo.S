@@ -17,6 +17,13 @@
 .globl _begin_lo
 .globl _begin_hi
 
+/* 
+ * This code relocates the OCM mapped low to being mapped high.
+ * This includes moving flare to the high mapped OCM. _begin_hi is
+ * copied to OCM that starts mapped high (0xFFFF0000). This code then
+ * maps all of the OCM to high and jumps to _boot at the new address.
+ **/
+
 .section .begin_lo
 _begin_lo:
     ldr r7, =0xFFFF0000
@@ -43,5 +50,7 @@ _begin_hi:
     str r8, [r9] /* Set MPCORE Filter start addr to 0x0 */
     ldr r8, =0x0000767B
     str r8, [r7, #0x4] /* Lock SLCR */
-    ldr r7, =_vector_table_addr
+    ldr r7, =_exe_offset
+    ldr r8, =_boot
+    add r7, r7, r8
     bx r7 /* _boot */
