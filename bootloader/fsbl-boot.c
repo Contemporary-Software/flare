@@ -47,7 +47,7 @@
 #include <driver/uart/console.h>
 #include <driver/wdog/wdog.h>
 
-#define JTAG_BOOT_DEFAULT FLARE_DS_BOOTMODE_QSPI
+#define JTAG_BOOT_DEFAULT FLARE_DS_BOOTMODE_SD_CARD
 #if JTAG_BOOT_DEFAULT == FLARE_DS_BOOTMODE_QSPI
   #define JTAG_BOOT_PRIMARY   "QSPI"
   #define JTAG_BOOT_SECONDARY "SD  "
@@ -178,7 +178,8 @@ static void jtag_boot(const char** fb_reason) {
     printf("    \b\b\b\b\b\b\b\b\b\b\b\b\b\b%s                       \n",
         pressed ? JTAG_BOOT_SECONDARY : JTAG_BOOT_PRIMARY);
 
-    if ((pressed && JTAG_BOOT_DEFAULT != FLARE_DS_BOOTMODE_QSPI) || !pressed) {
+    if ((pressed && JTAG_BOOT_DEFAULT != FLARE_DS_BOOTMODE_QSPI) ||
+        (!pressed && JTAG_BOOT_DEFAULT == FLARE_DS_BOOTMODE_QSPI)) {
         flare_datasafe_set_bootmode(FLARE_DS_BOOTMODE_JTAG |
                                 FLARE_DS_BOOTMODE_QSPI);
         qspi_boot(fb_reason);
