@@ -22,6 +22,10 @@
 
 #define SDHCI_BLK_SIZE 512
 
+#define SDHCI_CARD_TYPE_EMMC   0x01
+#define SDHCI_CARD_TYPE_SDSC   0x02
+#define SDHCI_CARD_TYPE_SDHXUC 0x04
+
 typedef enum
 {
     SDHCI_NO_ERROR = 0,
