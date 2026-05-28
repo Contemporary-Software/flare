@@ -19,7 +19,7 @@
 #include "zynqmp-sdhci.h"
 
 uint32_t sdhci_address() {
-    return 0;
+    return SDHCI0_REG_BASE;
 }
 
 void disable_bus_power() {

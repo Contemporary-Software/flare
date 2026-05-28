@@ -34,6 +34,7 @@ static bool initialised = false;
 static uint8_t card_version;
 static uint32_t card_id[4];
 static uint32_t card_csd[4];
+static uint8_t ext_card_csd[512];
 static uint16_t card_rca;
 
 #define SDHCI_DEBUG(...)           \
@@ -208,7 +209,7 @@ static uint32_t flag_generator(uint32_t cmd) {
         /* R2 */
         flags |= SDHCI_CMD_RESP_LONG << 16;
         flags |= SDHCI_CMD_CRC << 16;
-    } else if (cmd == ACMD41) {
+    } else if (cmd == ACMD41 || cmd == CMD1) {
         /* R3 */
         flags |= SDHCI_CMD_RESP_SHORT << 16;
     } else if (cmd == CMD3 || cmd == CMD7) {
@@ -223,7 +224,12 @@ static uint32_t flag_generator(uint32_t cmd) {
         flags |= SDHCI_CMD_INDEX << 16;
     }
 
-    if (cmd == CMD17 || cmd == CMD18) {
+    if (
+        cmd == CMD17 ||
+        cmd == CMD18 ||
+        (cmd == CMD8 && card_version == SDHCI_CARD_TYPE_EMMC)
+    )
+    {
         flags |= SDHCI_CMD_DATA << 16;
     }
 
@@ -275,8 +281,8 @@ static sdhci_error cmd_transfer(
     }
     if (cval & SDHCI_INT_ERROR || (curr_time >= end_time)) {
         /* Write to clear and return error */
+        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_TRANSFER_FAILED: status: 0x%x\n", sdhci_reg_read(SDHCI_INT_STATUS));
         sdhci_reg_write(SDHCI_INT_STATUS, SDHCI_INT_ERROR_MASK);
-        SDHCI_TRACE_DEBUG("sdhci: cmd_transfer: SDHCI_TRANSFER_FAILED\n");
         return SDHCI_TRANSFER_FAILED;
     }
 
@@ -324,77 +330,19 @@ static sdhci_error read_data_transfer(char* buffer) {
     }
     if ((status & SDHCI_INT_ERROR) || (curr_time >= end_time)) {
         /* Write to clear and return error */
+        SDHCI_TRACE_DEBUG("sdhci: read_data_transfer: SDHCI_TRANSFER_FAILED: 0x%x\n",
+            sdhci_reg_read(SDHCI_INT_STATUS));
         sdhci_reg_write(SDHCI_INT_STATUS, SDHCI_INT_ERROR_MASK);
-        SDHCI_TRACE_DEBUG("sdhci: read_data_transfer: SDHCI_TRANSFER_FAILED\n");
         return SDHCI_TRANSFER_FAILED;
     }
     SDHCI_TRACE_DEBUG("sdhci: read_data_transfer: SDHCI_NO_ERROR\n");
     return SDHCI_NO_ERROR;
 }
 
-static sdhci_error initialise() {
-    SDHCI_DEBUG("sdhci: initialise()\n");
+static sdhci_error initialise_sd() {
+    SDHCI_DEBUG("sdhci: initialise_sd()\n");
     sdhci_error err;
-    uint32_t res;
-
-    if (initialised) {
-        return SDHCI_NO_ERROR;
-    }
-
-    err = reset_config();
-    if (err != SDHCI_NO_ERROR) {
-        return err;
-    }
-
-    config_power();
-
-    bool card_present =
-        sdhci_reg_read(SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT;
-    if (!card_present) {
-        return SDHCI_CARD_NOT_PRESENT;
-    }
-
-    /* Set clock to 400Khz */
-    err = set_clock(true);
-    if (err != SDHCI_NO_ERROR) {
-        return err;
-    }
-
-    /* Enable status bits */
-    sdhci_reg_write(SDHCI_INT_ENABLE,
-        SDHCI_INT_NORMAL_MASK | SDHCI_INT_ERROR_MASK);
-
-    /* SW Reset the SD Card */
-    err = cmd_transfer(CMD0, 0, 0, NULL);
-    if (err != SDHCI_NO_ERROR) {
-        return err;
-    }
-
-    /* Get card interface */
-    err = cmd_transfer(CMD8, 0x1AA, 0, &res);
-    if (err != SDHCI_NO_ERROR && err != SDHCI_RESPONSE_TIMEOUT) {
-        return err;
-    }
-    if (res != 0x1AA) {
-        card_version = 1;
-    } else {
-        card_version = 2;
-    }
-
-    /* Start initialisation process. ACMD41 */
-    res = 0;
-    while (!(res & SDHCI_OCR_READY)) {
-        err = cmd_transfer(CMD55, 0, 0, NULL);
-        if (err != SDHCI_NO_ERROR) {
-            return err;
-        }
-
-        uint32_t arg = SDHCI_ACMD41_HCS | SDHCI_ACMD41_3V3 | (0x1FFU << 15U);
-        err = cmd_transfer(ACMD41, arg, 0, &res);
-        if (err != SDHCI_NO_ERROR) {
-            return err;
-        }
-    }
+    uint32_t res = 0;
 
     /* Get card id */
     err = cmd_transfer(CMD2, 0, 0, &card_id[0]);
@@ -440,6 +388,7 @@ static sdhci_error initialise() {
         size_gb = size_gb / (2 * 1024);
         printf("SDHC/SDXC card found (%d GiB)\n", size_gb);
     } else {
+        printf("Card not found\n");
         return SDHCI_CARD_NOT_SUPPORTED;
     }
 
@@ -462,6 +411,217 @@ static sdhci_error initialise() {
     initialised = true;
     SDHCI_TRACE_DEBUG("sdhci: initialise: success\n");
     return SDHCI_NO_ERROR;
+}
+
+static sdhci_error initialise_emmc() {
+    SDHCI_DEBUG("sdhci: initialise_emmc()\n");
+    sdhci_error err;
+    uint32_t res;
+    uint32_t arg;
+
+    err = reset_config();
+    if (err != SDHCI_NO_ERROR) {
+        return err;
+    }
+
+    config_power();
+
+    bool card_present =
+        sdhci_reg_read(SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT;
+    if (!card_present) {
+        return SDHCI_CARD_NOT_PRESENT;
+    }
+
+    /* Set clock to 400Khz */
+    err = set_clock(true);
+    if (err != SDHCI_NO_ERROR) {
+        return err;
+    }
+
+    /* Enable status bits */
+    sdhci_reg_write(SDHCI_INT_ENABLE,
+        SDHCI_INT_NORMAL_MASK | SDHCI_INT_ERROR_MASK);
+
+
+    uint32_t status = 0;
+    status = sdhci_reg_read(SDHCI_INT_STATUS);
+    SDHCI_DEBUG("Status: 0x%x\n", status);
+
+    /* SW Reset the SD Card */
+    err = cmd_transfer(CMD0, 0, 0, NULL);
+    if (err != SDHCI_NO_ERROR) {
+        return err;
+    }
+
+    res = 0;
+    while (!(res & SDHCI_OCR_READY)) {
+        arg = SDHCI_OCR_SECTOR_MODE | SDHCI_OCR_2_7_3_6_V | SDHCI_OCR_1_7_1_95_V;
+        err = cmd_transfer(CMD1, arg, 0, &res);
+        if (err != SDHCI_NO_ERROR) {
+            return err;
+        }
+    }
+
+    /* Get card id */
+    err = cmd_transfer(CMD2, 0, 0, &card_id[0]);
+    if (err != SDHCI_NO_ERROR && err != SDHCI_RESPONSE_TIMEOUT) {
+        return err;
+    }
+    card_id[1] = sdhci_reg_read(SDHCI_RESPONSE1);
+    card_id[2] = sdhci_reg_read(SDHCI_RESPONSE2);
+    card_id[3] = sdhci_reg_read(SDHCI_RESPONSE3);
+
+    /* Set card address */
+    card_rca = 0x1;
+    arg = card_rca << 16;
+    err = cmd_transfer(CMD3, arg, 0, &res);
+    if (err != SDHCI_NO_ERROR && err != SDHCI_RESPONSE_TIMEOUT) {
+        return err;
+    }
+
+    /*
+     * Get card CSD.
+     * CSD is shifted 8 bits to the left because of SD host controller
+     */
+    err = cmd_transfer(CMD9, arg, 0, &card_csd[0]);
+    if (err != SDHCI_NO_ERROR && err != SDHCI_RESPONSE_TIMEOUT) {
+        return err;
+    }
+    card_csd[1] = sdhci_reg_read(SDHCI_RESPONSE1);
+    card_csd[2] = sdhci_reg_read(SDHCI_RESPONSE2);
+    card_csd[3] = sdhci_reg_read(SDHCI_RESPONSE3);
+
+    /* Set clock speed to 25Mhz */
+    set_clock(false);
+
+    /* Moving card to transfer mode */
+    err = cmd_transfer(CMD7, (card_rca << 16), 0, &res);
+    if (err != SDHCI_NO_ERROR && err != SDHCI_RESPONSE_TIMEOUT) {
+        return err;
+    }
+
+    /* Set block size to 512 */
+    sdhci_reg_write_16(SDHCI_BLOCK_SIZE_REG, SDHCI_BLK_SIZE);
+    err = cmd_transfer(CMD16, SDHCI_BLK_SIZE, 0, &res);
+    if (err != SDHCI_NO_ERROR) {
+        return err;
+    }
+
+    uint32_t csd_struct = ((card_csd[3] & CSD_STRUCT_MASK) >> CSD_STRUCT_SHIFT);
+    if (csd_struct == 0) {
+        uint32_t blk_len = (card_csd[2] & READ_BLK_LEN_MASK) >> 8;
+        uint32_t mult_shift = ((card_csd[1] & C_SIZE_MULT_MASK) >> 7) + 2;
+        uint32_t mult = 1 << mult_shift;
+        uint32_t size_mb = (card_csd[1] & C_SIZE_LOWER_MASK) >> 22;
+        size_mb |= (card_csd[2] & C_SIZE_UPPER_MASK) << 10;
+        size_mb = (size_mb + 1) * mult;
+        size_mb = size_mb * blk_len;
+        size_mb = size_mb / (1024 * 1024);
+        printf("EMMC card found (%08x MiB)\n", size_mb);
+    } else if (csd_struct == 1) {
+        uint32_t size_gb = ((card_csd[1] & CSD_V2_C_SIZE_MASK) >> 8) + 1;
+        size_gb = size_gb / (2 * 1024);
+        printf("EMMC card found (%d GiB)\n", size_gb);
+    } else if (csd_struct == 2 || csd_struct == 3) {
+        /* Read Extended CSD for size */
+        err = cmd_transfer(CMD8, 0, 0, &res);
+        if (err != SDHCI_NO_ERROR && err != SDHCI_RESPONSE_TIMEOUT) {
+            return err;
+        }
+        read_data_transfer((char*)ext_card_csd);
+
+        uint32_t sec_count = ext_card_csd[215] << 24 |
+                             ext_card_csd[214] << 16 |
+                             ext_card_csd[213] << 8 |
+                             ext_card_csd[212];
+        uint32_t size_gb = sec_count / 0x200000;
+        uint32_t remainder = sec_count % 0x200000;
+        remainder = remainder * 100;
+        remainder = remainder / 0x200000;
+        printf("EMMC card found (%d.%02d GiB)\n", size_gb, remainder);
+    } else {
+        printf("CSD version not supported: %d: Card not attached\n", csd_struct);
+        return SDHCI_CARD_NOT_SUPPORTED;
+    }
+
+    initialised = true;
+    SDHCI_TRACE_DEBUG("sdhci: initialise: success\n");
+    return SDHCI_NO_ERROR;
+}
+
+static sdhci_error initialise() {
+    SDHCI_DEBUG("sdhci: initialise()\n");
+    sdhci_error err;
+    uint32_t res;
+
+    if (initialised) {
+        return SDHCI_NO_ERROR;
+    }
+
+    err = reset_config();
+    if (err != SDHCI_NO_ERROR) {
+        return err;
+    }
+
+    config_power();
+
+    bool card_present =
+        sdhci_reg_read(SDHCI_PRESENT_STATE) & SDHCI_CARD_PRESENT;
+    if (!card_present) {
+        return SDHCI_CARD_NOT_PRESENT;
+    }
+
+    /* Set clock to 400Khz */
+    err = set_clock(true);
+    if (err != SDHCI_NO_ERROR) {
+        return err;
+    }
+
+    /* Enable status bits */
+    sdhci_reg_write(SDHCI_INT_ENABLE,
+        SDHCI_INT_NORMAL_MASK | SDHCI_INT_ERROR_MASK);
+
+    /* SW Reset the SD Card */
+    err = cmd_transfer(CMD0, 0, 0, NULL);
+    if (err != SDHCI_NO_ERROR) {
+        return err;
+    }
+
+    /* Get card interface */
+    err = cmd_transfer(CMD8, 0x1AA, 0, &res);
+    if (err != SDHCI_NO_ERROR && err != SDHCI_RESPONSE_TIMEOUT) {
+        card_version = SDHCI_CARD_TYPE_SDSC | SDHCI_CARD_TYPE_EMMC;
+    } else if (res != 0x1AA) {
+        card_version = SDHCI_CARD_TYPE_SDSC;
+    } else {
+        card_version = SDHCI_CARD_TYPE_SDHXUC;
+    }
+
+    /* Start initialisation process. ACMD41 */
+    res = 0;
+    while (!(res & SDHCI_OCR_READY)) {
+        err = cmd_transfer(CMD55, 0, 0, NULL);
+        if (err != SDHCI_NO_ERROR) {
+            if (card_version | SDHCI_CARD_TYPE_EMMC) {
+                card_version = SDHCI_CARD_TYPE_EMMC;
+                break;
+            } else {
+                return err;
+            }
+        }
+
+        uint32_t arg = SDHCI_ACMD41_HCS | SDHCI_ACMD41_3V3 | (0x1FFU << 15U);
+        err = cmd_transfer(ACMD41, arg, 0, &res);
+        if (err != SDHCI_NO_ERROR) {
+            return err;
+        }
+    }
+
+    if (card_version == SDHCI_CARD_TYPE_EMMC) {
+        return initialise_emmc();
+    } else {
+        return initialise_sd();
+    }
 }
 
 sdhci_error sdhci_open(void) {
