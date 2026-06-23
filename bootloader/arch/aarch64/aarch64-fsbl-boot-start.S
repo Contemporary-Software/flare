@@ -64,6 +64,9 @@ _boot:
   /* Print bootloader information */
   bl aarch64_print_flare_id
 
+  /* Set PM configuration */
+  bl pm_set_configuration
+
   /* Hand off to ATF */
   b aarch64_atf_handoff
 
