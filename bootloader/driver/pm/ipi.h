@@ -14,13 +14,23 @@
  *     limitations under the License.
  */
 
-#include <stdio.h>
+#ifndef _FLARE_DRIVERS_PM_IPI_H_
+#define _FLARE_DRIVERS_PM_IPI_H_
 
-#include <flare-build-id.h>
+#include <stdint.h>
 
-#include "aarch64-atf.h"
+#if FLARE_VERSAL
+/* Unsupported */
+#elif FLARE_ZYNQ7000
+/* Unsupported */
+#else
+#include "zynqmp-ipi.h"
+#endif /* ARCH */
 
-void aarch64_print_flare_id() {
-    printf("\nFlare FSBL (aarch64) Apache 2.0 Licensed FSBL\n");
-    printf("    Build ID: %s\n", flare_build_id());
-}
+#define IPI_PAYLOAD_ARG_CNT 8
+
+int pm_ipi_send(uint32_t payload[IPI_PAYLOAD_ARG_CNT]);
+
+int pm_ipi_read(uint32_t response[IPI_PAYLOAD_ARG_CNT]);
+
+#endif /* _FLARE_DRIVERS_PM_IPI_H_ */

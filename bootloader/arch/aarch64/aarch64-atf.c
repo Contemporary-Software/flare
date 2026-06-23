@@ -21,6 +21,7 @@
 #include "aarch64-atf.h"
 
 #include <driver/io/board-io.h>
+#include <driver/uart/console.h>
 
 extern void aarch64_handoff(uint32_t address);
 extern void aarch64_atf_return(uint32_t address);
@@ -51,6 +52,11 @@ void aarch64_atf_handoff() {
     atf_params.entries[0].flags = FLARE_ATF_ENTRY_FLAGS;
 
     board_reg_write(PMU_GLOBAL_GLOBAL_GEN_STORAGE6, get_params_address());
+
+    printf("Handoff to ARM Trusted Firmware (BL31) at 0x%x\n\n",
+        ATF_DEFAULT_ENTRY);
+
+    console_flush();
 
     cache_flush();
 

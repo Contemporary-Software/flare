@@ -14,13 +14,18 @@
  *     limitations under the License.
  */
 
-#include <stdio.h>
+#ifndef _FLARE_DRIVERS_PM_ZYNQMP_PM_H_
+#define _FLARE_DRIVERS_PM_ZYNQMP_PM_H_
 
-#include <flare-build-id.h>
+#define PMU_GLOBAL_BASE_ADDR 0xFFD80000U
 
-#include "aarch64-atf.h"
+#define PMU_GLOBAL_GLOBAL_CNTRL (PMU_GLOBAL_BASE_ADDR + 0)
 
-void aarch64_print_flare_id() {
-    printf("\nFlare FSBL (aarch64) Apache 2.0 Licensed FSBL\n");
-    printf("    Build ID: %s\n", flare_build_id());
-}
+#define PMU_GLOBAL_GLOBAL_CNTRL_FW_IS_PRESENT_MASK 0x00000010U
+
+#define PM_VERSION_MAJOR_MASK  0xFFFF0000U
+#define PM_VERSION_MAJOR_SHIFT 16U
+#define PM_VERSION_MINOR_MASK  0x0000FFFFU
+#define PM_VERSION_MINOR_SHIFT 0U
+
+#endif /* _FLARE_DRIVERS_PM_ZYNQMP_PM_H_ */
