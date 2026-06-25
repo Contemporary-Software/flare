@@ -124,7 +124,10 @@ void flare_datasafe_set_bootmode(uint32_t bootmode);
 /*
  * Set the factory settings.
  */
-void flare_datasafe_factory_data_set(const uint8_t* mac,
+void flare_datasafe_factory_data_set(const uint8_t* mac_0,
+                                     const uint8_t* mac_1,
+                                     const uint8_t* mac_2,
+                                     const uint8_t* mac_3,
                                      const char*    serial,
                                      const char*    part,
                                      const char*    revision,

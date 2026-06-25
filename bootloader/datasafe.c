@@ -88,7 +88,10 @@ flare_datasafe_set_bootmode(uint32_t bootmode)
 }
 
 void
-flare_datasafe_factory_data_set(const uint8_t* mac,
+flare_datasafe_factory_data_set(const uint8_t* mac_0,
+                           const uint8_t* mac_1,
+                           const uint8_t* mac_2,
+                           const uint8_t* mac_3,
                            const char*    ass_serial,
                            const char*    part,
                            const char*    revision,
@@ -100,7 +103,13 @@ flare_datasafe_factory_data_set(const uint8_t* mac,
     flare_datasafe *datasafe = (flare_datasafe*) FLARE_DS_BASE;
     size_t o;
     for (o = 0; o < sizeof(datasafe->mac_address_0); ++o)
-        datasafe->mac_address_0[o] = mac[o];
+        datasafe->mac_address_0[o] = mac_0[o];
+    for (o = 0; o < sizeof(datasafe->mac_address_1); ++o)
+        datasafe->mac_address_1[o] = mac_1[o];
+    for (o = 0; o < sizeof(datasafe->mac_address_2); ++o)
+        datasafe->mac_address_2[o] = mac_2[o];
+    for (o = 0; o < sizeof(datasafe->mac_address_3); ++o)
+        datasafe->mac_address_3[o] = mac_3[o];
     memcpy(&datasafe->assembly_serial_number[0], ass_serial,
         FLARE_DS_FACTORY_DATA_LEN - 1);
     memcpy(&datasafe->part_number[0], part, FLARE_DS_FACTORY_DATA_LEN - 1);

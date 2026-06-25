@@ -61,6 +61,9 @@ factory_config_load(void)
     if (data->crc32 == crc) {
         flare_datasafe_factory_data_set(
             &data->mac_address_0[0],
+            &data->mac_address_1[0],
+            &data->mac_address_2[0],
+            &data->mac_address_3[0],
             &data->assembly_serial_number[0],
             &data->part_number[0],
             &data->revision[0],
