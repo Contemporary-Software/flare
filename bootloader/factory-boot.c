@@ -140,7 +140,7 @@ platform_factory_booter(uint8_t* header, size_t header_size)
 }
 
 void
-factory_boot(const char* why)
+factory_boot()
 {
     uint8_t*          header = factory_header;
     size_t            header_size = sizeof(factory_header);
@@ -149,8 +149,6 @@ factory_boot(const char* why)
     CRC32             crc;
     const uint32_t*   header_crc;
     const char*       label;
-
-    printf("Factory Boot: %s\n", why);
 
     fe = flash_open(&label);
     if (fe != FLASH_NO_ERROR)

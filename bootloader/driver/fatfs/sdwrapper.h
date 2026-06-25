@@ -14,24 +14,9 @@
  *     limitations under the License.
  */
 
-#include <stdio.h>
+#ifndef DRIVER_FATFS_SDWRAPPER_H_
+#define DRIVER_FATFS_SDWRAPPER_H_
 
-#include "sdhci.h"
-#include "sdhci_hw.h"
-#include "zynqmp-sdhci.h"
+void fatfs_set_sdhci_ctlr(int ctlr);
 
-uint32_t sdhci_address(int ctlr) {
-    if (ctlr == SDHCI_CTLR_EMMC) {
-        return SDHCI0_REG_BASE;
-    } else if (ctlr == SDHCI_CTLR_SD) {
-        return SDHCI1_REG_BASE;
-    }
-    printf("sdhci (%d): controller not supported\n", ctlr);
-    return 0;
-}
-
-void disable_bus_power(int ) {
-}
-
-void enable_bus_power(int ) {
-}
+#endif /* DRIVER_FATFS_SDWRAPPER_H_ */

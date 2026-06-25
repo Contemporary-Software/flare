@@ -28,7 +28,7 @@
 /*
  * Factory boot.
  */
-void factory_boot(const char* why);
+void factory_boot();
 
 /*
  * Platform specific factory boot

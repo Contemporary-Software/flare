@@ -376,28 +376,28 @@
 /*
  * SDHCI address
  */
-uint32_t sdhci_address();
+uint32_t sdhci_address(int controller);
 
 /*
  * Enable bus power
  */
-void enable_bus_power();
+void enable_bus_power(int controller);
 
 /*
  * Disable bus power
  */
-void disable_bus_power();
+void disable_bus_power(int controller);
 
-uint32_t sdhci_reg_read(uint32_t offset);
+uint32_t sdhci_reg_read(int controller, uint32_t offset);
 
-uint16_t sdhci_reg_read_16(uint32_t offset);
+uint16_t sdhci_reg_read_16(int controller, uint32_t offset);
 
-uint8_t sdhci_reg_read_8(uint32_t offset);
+uint8_t sdhci_reg_read_8(int controller, uint32_t offset);
 
-void sdhci_reg_write(uint32_t offset, uint32_t val);
+void sdhci_reg_write(int controller, uint32_t offset, uint32_t val);
 
-void sdhci_reg_write_16(uint32_t offset, uint16_t val);
+void sdhci_reg_write_16(int controller, uint32_t offset, uint16_t val);
 
-void sdhci_reg_write_8(uint32_t offset, uint8_t val);
+void sdhci_reg_write_8(int controller, uint32_t offset, uint8_t val);
 
 #endif	/* __SDHCI_HW_H__ */

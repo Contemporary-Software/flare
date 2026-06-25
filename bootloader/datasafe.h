@@ -54,6 +54,7 @@
 #define FLARE_DS_BOOTMODE_QSPI        (1 << 1) /* Boot from QSPI */
 #define FLARE_DS_BOOTMODE_SD_CARD     (1 << 2) /* Boot from SD card */
 #define FLARE_DS_BOOTMODE_JTAG        (1 << 3) /* Boot from JTAG */
+#define FLARE_DS_BOOTMODE_EMMC        (1 << 4) /* Boot from EMMC */
 
 /*
  * reset bit masks

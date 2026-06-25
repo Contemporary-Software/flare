@@ -40,9 +40,7 @@ boot_script_checksum_valid(const boot_script* const bs)
     return false;
 }
 
-bool
-boot_script_load(flare_fs fs, const char* name, boot_script* bs)
-{
+int boot_script_load(flare_fs fs, const char* name, boot_script* bs) {
     uint32_t    length = flare_get_read_bufferSize();
     char* const buffer = flare_get_read_buffer();
     const char* error = "\b: error:";
@@ -68,7 +66,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (rc != 0)
     {
         printf("%s read: %d\n", error, rc);
-        return false;
+        return rc;
     }
 
     printf("Length: %" PRIu32 "\n", length);
@@ -83,7 +81,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (length == 0)
     {
         printf("%s cannot find end of line 1\n", error);
-      return false;
+        return 1;
     }
 
     path_end = l1_length;
@@ -97,7 +95,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (length == 0)
     {
         printf("%s cannot find line 2\n", error);
-        return false;
+        return 1;
     }
 
     ++l1_length;
@@ -113,7 +111,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (length == 0)
     {
         printf("%s cannot find end of line 2\n", error);
-      return false;
+        return 1;
     }
 
     executable_end = l2_length;
@@ -127,7 +125,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (length == 0)
     {
         printf("%s cannot find line 3\n", error);
-        return false;
+        return 1;
     }
 
     ++l2_length;
@@ -146,7 +144,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (l3_length != sizeof(checksum))
     {
         printf("%s bad checksum length: %" PRIu32 " (%s)\n", error, l3_length, csum);
-        return false;
+        return 1;
     }
 
     crc32_clear(&crc);
@@ -158,7 +156,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
         if (csum[i] != checksum[i])
         {
             printf("%s checksum failure\n", error);
-            return false;
+            return 1;
         }
     }
 
@@ -168,7 +166,7 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (path_end >= BOOT_SCRIPT_MAX_PATH)
     {
         printf("%s path too long: %" PRIu32 "\n", error, path_end);
-        return false;
+        return 1;
     }
 
     buffer[path_end] = '\0';
@@ -196,12 +194,12 @@ boot_script_load(flare_fs fs, const char* name, boot_script* bs)
     if (executable_end >= BOOT_SCRIPT_MAX_PATH)
     {
         printf("%s executable too long: %" PRIu32 "\n", error, executable_end);
-        return false;
+        return 1;
     }
 
     buffer[l1_length + executable_end] = '\0';
 
     memcpy(&bs->executable[0], &executable[0], executable_end);
 
-    return true;
+    return 0;
 }
