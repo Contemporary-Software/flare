@@ -23,10 +23,25 @@
 
 #include <stdbool.h>
 
+#include <fs/boot-filesystem.h>
+
 #define FLARE_EXECUTABLE_SIZE (128UL * 1024UL * 1024UL)
 
 #define FLARE_IMAGE_STAGE_ADDR 0x30000000
 
-#define FLARE_HANDOFF_ADDRESS FLARE_EXECUTABLE_BASE
+#define FLARE_STAGE_FUNC_MAX 4
+
+typedef int(*plan_item)();
+
+typedef struct flare_boot_plan {
+    plan_item opens[FLARE_STAGE_FUNC_MAX];
+    char* opens_name[FLARE_STAGE_FUNC_MAX];
+    plan_item mounts[FLARE_STAGE_FUNC_MAX];
+    char* mounts_name[FLARE_STAGE_FUNC_MAX];
+    flare_fs boot_fs;
+    char* bs_name;
+} flare_boot_plan;
+
+void flare_get_boot_plan(flare_boot_plan* bp);
 
 #endif

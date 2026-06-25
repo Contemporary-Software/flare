@@ -28,6 +28,7 @@
 typedef enum {
     FILESYSTEM_QSPI_JFFS2,
     FILESYSTEM_SD_FATFS,
+    FILESYSTEM_EMMC_FATFS,
 } flare_fs;
 
 /*

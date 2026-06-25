@@ -11,12 +11,13 @@ sources = {
     'versal': [],
     'zynqmp': [],
     'zynq7000': [
-        'zynq7000-handoff.c',
+        'zynq7000-begin-lo.S',
+        'zynq7000-boot-plan.c',
         'zynq7000-cache.c',
         'zynq7000-datasafe.c',
         'zynq7000-error.c',
+        'zynq7000-handoff.c',
         'zynq7000-mmu.c',
-        'zynq7000-begin-lo.S',
         'zynq7000_vectors.S',
     ]
 }

@@ -26,6 +26,11 @@
 #define SDHCI_CARD_TYPE_SDSC   0x02
 #define SDHCI_CARD_TYPE_SDHXUC 0x04
 
+#define SDHCI_CTLR_MAX 1
+
+#define SDHCI_CTLR_SD   0
+#define SDHCI_CTLR_EMMC 1
+
 typedef enum
 {
     SDHCI_NO_ERROR = 0,
@@ -38,11 +43,11 @@ typedef enum
     SDHCI_RESPONSE_TIMEOUT,
 } sdhci_error;
 
-sdhci_error sdhci_open(void);
-sdhci_error sdhci_close(void);
+sdhci_error sdhci_open(int controller);
+sdhci_error sdhci_close(int controller);
 
-bool sdhci_initialised();
+bool sdhci_initialised(int controller);
 
-sdhci_error sdhci_read(uint32_t sector, uint32_t count, char* buffer);
+sdhci_error sdhci_read(int controller, uint32_t sector, uint32_t count, char* buffer);
 
 #endif /* DRIVERS_SDHCI_SDHCI_H_ */

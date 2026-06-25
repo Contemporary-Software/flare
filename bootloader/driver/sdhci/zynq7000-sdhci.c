@@ -20,32 +20,36 @@
 #include "sdhci_hw.h"
 #include "zynq7000-sdhci.h"
 
-uint32_t sdhci_address() {
-    return SDHCI0_REG_BASE;
+uint32_t sdhci_address(int ctlr) {
+    if (ctlr == SDHCI_CTLR_SD) {
+        return SDHCI0_REG_BASE;
+    }
+    printf("sdhci (%d): controller not supported\n", ctlr);
+    return 0;
 }
 
-void disable_bus_power() {
+void disable_bus_power(int ctlr) {
     uint16_t hc_ver =
-        sdhci_reg_read_16(ZYNQ7000_HOST_CTRL_VER_OFFSET) & ZYNQ7000_HC_SPEC_VER_MASK;
+        sdhci_reg_read_16(ctlr, ZYNQ7000_HOST_CTRL_VER_OFFSET) & ZYNQ7000_HC_SPEC_VER_MASK;
 
     if (hc_ver == ZYNQ7000_HC_SPEC_V3) {
-        sdhci_reg_write_8(ZYNQ7000_POWER_CTRL_OFFSET, ZYNQ7000_PC_EMMC_HW_RST_MASK);
+        sdhci_reg_write_8(ctlr, ZYNQ7000_POWER_CTRL_OFFSET, ZYNQ7000_PC_EMMC_HW_RST_MASK);
     } else {
-        sdhci_reg_write_8(ZYNQ7000_POWER_CTRL_OFFSET, 0x0);
+        sdhci_reg_write_8(ctlr, ZYNQ7000_POWER_CTRL_OFFSET, 0x0);
     }
     usleep(1000);
 }
 
-void enable_bus_power() {
+void enable_bus_power(int ctlr) {
     uint16_t hc_ver =
-        sdhci_reg_read_16(ZYNQ7000_HOST_CTRL_VER_OFFSET) & ZYNQ7000_HC_SPEC_VER_MASK;
+        sdhci_reg_read_16(ctlr, ZYNQ7000_HOST_CTRL_VER_OFFSET) & ZYNQ7000_HC_SPEC_VER_MASK;
 
     if (hc_ver == ZYNQ7000_HC_SPEC_V3) {
-        sdhci_reg_write_8(ZYNQ7000_POWER_CTRL_OFFSET,
+        sdhci_reg_write_8(ctlr, ZYNQ7000_POWER_CTRL_OFFSET,
             (ZYNQ7000_PC_BUS_VSEL_3V3_MASK | ZYNQ7000_PC_BUS_PWR_MASK) &
             ~ZYNQ7000_PC_EMMC_HW_RST_MASK);
     } else {
-        sdhci_reg_write_8(ZYNQ7000_POWER_CTRL_OFFSET,
+        sdhci_reg_write_8(ctlr, ZYNQ7000_POWER_CTRL_OFFSET,
             (ZYNQ7000_PC_BUS_VSEL_3V3_MASK | ZYNQ7000_PC_BUS_PWR_MASK));
     }
     usleep(200);

@@ -10,9 +10,10 @@ sources = {
     'default': [],
     'versal': [],
     'zynqmp': [
+        'zynqmp-boot-plan.c',
         'zynqmp-datasafe.c',
+        'zynqmp-mmu.c',
         'zynqmp-vectors.S',
-        'zynqmp-mmu.c'
     ],
     'zynq7000': []
 }

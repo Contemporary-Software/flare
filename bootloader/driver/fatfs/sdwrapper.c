@@ -14,16 +14,25 @@
  *     limitations under the License.
  */
 
+#include <stdio.h>
+
 #include <driver/sdhci/sdhci.h>
 
+#include "sdwrapper.h"
 #include "ff.h"
 #include "diskio.h"
+
+static int sdhci_ctlr = 0;
+
+void fatfs_set_sdhci_ctlr(int ctlr) {
+    sdhci_ctlr = ctlr;
+}
 
 DSTATUS disk_status (
 	BYTE pdrv		/* Physical drive nmuber to identify the drive */
 )
 {
-    if (!sdhci_initialised()) {
+    if (!sdhci_initialised(sdhci_ctlr)) {
         return STA_NOINIT;
     } else {
         return 0;
@@ -34,7 +43,7 @@ DSTATUS disk_initialize (
 	BYTE pdrv				/* Physical drive nmuber to identify the drive */
 )
 {
-    sdhci_error err = sdhci_open();
+    sdhci_error err = sdhci_open(sdhci_ctlr);
     if (err == SDHCI_NO_ERROR) {
         return 0;
     } else if (err == SDHCI_CARD_NOT_PRESENT) {
@@ -51,7 +60,7 @@ DRESULT disk_read (
 	UINT count		/* Number of sectors to read */
 )
 {
-    sdhci_error err = sdhci_read(sector, count, (char*)buff);
+    sdhci_error err = sdhci_read(sdhci_ctlr, sector, count, (char*)buff);
     if (err != SDHCI_NO_ERROR) {
         return RES_ERROR;
     } else {

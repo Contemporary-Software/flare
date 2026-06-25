@@ -61,7 +61,7 @@ typedef struct boot_script
 /*
  * Load the boot script.
  */
-bool boot_script_load(flare_fs fs, const char* name, boot_script* bs);
+int boot_script_load(flare_fs fs, const char* name, boot_script* bs);
 
 /*
  * Check if the checksum is valid, ie any byte is not zero.
