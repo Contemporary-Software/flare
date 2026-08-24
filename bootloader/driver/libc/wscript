@@ -11,6 +11,10 @@ sources = [
     'printf.c',
 ]
 
+sources_no_lto = [
+    'libc-no-lto.c',
+]
+
 
 def init(ctx):
     pass
@@ -25,8 +29,17 @@ def configure(conf):
 
 
 def build(bld):
-    bld.objects(target='flare_libc_driver', features='c', source=sources)
+    env_no_lto = bld.env.derive()
+    env_no_lto.CFLAGS = bld.env.CFLAGS_NOWARNINGS + bld.env.FLARE_BOARD_CFLAGS + bld.env.FLARE_BOARD_MFLAGS
+    bld.objects(target='flare_libc_driver_lto', features='c', source=sources)
+    bld.objects(target='flare_libc_driver_no_lto',
+                features='c',
+                source=sources_no_lto,
+                env=env_no_lto)
+    bld.objects(target='flare_libc_driver',
+                features='c',
+                use=['flare_libc_driver_lto', 'flare_libc_driver_no_lto'])
 
 
 def format(bld):
-    buildcontrol.format(bld, sources)
+    buildcontrol.format(bld, sources + sources_no_lto)

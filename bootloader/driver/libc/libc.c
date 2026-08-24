@@ -21,6 +21,23 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <reset.h>
+
+void _exit(int rc) {
+  (void)rc;
+  reset();
+}
+
+char* strchr(const char* s, int c) {
+  while (*s != '\0') {
+    if (*s == (char)c) {
+      return (char*)s;
+    }
+    ++s;
+  }
+  return NULL;
+}
+
 size_t strlen(const char* s) {
   size_t c = 0;
   while (*s++)
@@ -88,13 +105,6 @@ void* memmove(void* dst, const void* src, size_t len) {
     while (len--)
       *ud++ = *us++;
   }
-  return dst;
-}
-
-void* memset(void* dst, int c, size_t len) {
-  volatile uint8_t* ud = dst;
-  while (len--)
-    *ud++ = c;
   return dst;
 }
 
