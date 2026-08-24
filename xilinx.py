@@ -85,15 +85,20 @@ def configure(conf):
             conf.msg('Vivado PS Init', conf.env.FLARE_PS_INIT)
         else:
             conf.fatal("Vivado XSA OR ps7_init is required for this board")
+        cflags = config['cflags'][board]
+        mflags = config['mflags'][board]
+        linkflags = config['linkflags'][board]
         conf.env.FLARE_BOARD = board
         conf.env.FLARE_ARCH = config['arch'][board]
+        conf.env.FLARE_BOARD_CFLAGS = cflags
+        conf.env.FLARE_BOARD_MFLAGS = mflags
+        conf.env.FLARE_BOARD_LINKFLAGS = linkflags
         conf.env.DEFINES += config['defines'][board]
         conf.env.INCLUDES += buildcontrol.includes(conf,
                                                    config['includes'][board])
-        conf.env.ASFLAGS += config['mflags'][board]
-        conf.env.CFLAGS += config['cflags'][board] + config['mflags'][board]
-        conf.env.LINKFLAGS += config['linkflags'][board] + config['mflags'][
-            board]
+        conf.env.ASFLAGS += mflags + conf.env.LTOFLAGS
+        conf.env.CFLAGS += cflags + mflags + conf.env.LTOFLAGS
+        conf.env.LINKFLAGS += linkflags + mflags + conf.env.LTOFLAGS
         conf.env.FLARE_USE = ['flare_xilinx']
 
 

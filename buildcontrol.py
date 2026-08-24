@@ -74,6 +74,11 @@ def options(opt):
                      default='clang-format',
                      dest='formatter',
                      help='Clang format command (default: %(default)s)')
+    copts.add_option('--disable-lto',
+                     action='store_false',
+                     default=True,
+                     dest='lto',
+                     help='Disable LTO (default: %(default)s)')
 
 
 def configure(conf):
@@ -106,7 +111,9 @@ def configure(conf):
                       var="LINK_CXX")
     conf.find_program(tools_prefix + 'gcc', path_list=tool_path_list, var="AS")
     conf.find_program(tools_prefix + 'ld', path_list=tool_path_list, var="LD")
-    conf.find_program(tools_prefix + 'ar', path_list=tool_path_list, var="AR")
+    conf.find_program(tools_prefix + 'gcc-ar',
+                      path_list=tool_path_list,
+                      var="AR")
 
     conf.load('gcc')
     conf.load('g++')
@@ -116,11 +123,20 @@ def configure(conf):
 
     conf.env.DEFINES += ['FLARE=1', 'FLARE_DATASAFE_FORMAT=1']
     conf.env.INCLUDES += ['.'] + includes(conf, 'bootloader')
+    conf.env.ASFLAGS = ['-g']
     conf.env.CFLAGS_NOWARNINGS = conf.env.CFLAGS + [
         '-ffreestanding', '-g', '-O2', '-fPIE'
     ]
     conf.env.CFLAGS_WARNINGS = ['-Wall', '-Wextra']
     conf.env.CFLAGS = conf.env.CFLAGS_NOWARNINGS + conf.env.CFLAGS_WARNINGS
+    if conf.options.lto:
+        conf.msg('LTO', 'enabled')
+        conf.env.LTOFLAGS = ['-flto=auto', '-ffat-lto-objects']
+    else:
+        conf.msg('LTO', 'disabled')
+        conf.env.LTOFLAGS = []
+    conf.env.LINKFLAGS = ['-g', '-nostdlib']
+    conf.env.LIB = ['gcc']
 
     conf.find_program(conf.options.formatter,
                       var='C_FORMATTER',
