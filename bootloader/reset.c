@@ -22,13 +22,18 @@
 
 #include <cache.h>
 
+#include <driver/reset/board-reset.h>
 #include <driver/slcr/board-slcr.h>
+#include <driver/uart/console.h>
 #include <driver/wdog/wdog.h>
 
 void reset(void) {
+    console_flush();
     cache_disable();
+    board_reset();
     board_slcr_lock();
-    wdog_control(true);
-    while (true)
+    board_wdog_trigger();
+    while (true) {
         ;
+    }
 }

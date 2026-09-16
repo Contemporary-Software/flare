@@ -93,7 +93,7 @@ int main(void) {
     const char* label;
     boot_script script;
     uint32_t entry_point = 0;
-    bool status = false;
+    int rc;
 
     board_hardware_setup();
     board_timer_reset();
@@ -103,8 +103,8 @@ int main(void) {
 
     cache_enable();
 
-    wdog_init();
-    wdog_control(false);
+    board_wdog_init();
+    board_wdog_control(false);
 
     led_init();
     led_normal();
@@ -126,9 +126,11 @@ int main(void) {
             break;
         }
 
-        status = bp.opens[i]();
-        if (status) {
-            printf("Open failure: %s: %d\n", bp.opens_name[i], status);
+        printf("     Boot plan: %s\n", bp.opens_name[i]);
+
+        rc = bp.opens[i]();
+        if (rc != 0) {
+            printf("Open failure: %s: %d\n", bp.opens_name[i], rc);
             boot_failure();
         }
     }
@@ -138,26 +140,27 @@ int main(void) {
             break;
         }
 
-        status = bp.mounts[i]();
-        if (status) {
-            printf("Mount failure: %s: %d\n", bp.mounts_name[i], status);
+        rc = bp.mounts[i]();
+        if (rc != 0) {
+            printf("Mount failure: %s: %d\n", bp.mounts_name[i], rc);
             boot_failure();
         }
     }
 
-    status = boot_script_load(bp.boot_fs, bp.bs_name, &script);
-    if (status) {
-        printf("Invalid boot script: %d\n", status);
+    rc = boot_script_load(bp.boot_fs, bp.bs_name, &script);
+    if (rc != 0) {
+        printf("Invalid boot script: %d\n", rc);
         boot_failure();
     }
 
-    status = load_exe(&script, &entry_point);
-    if (status) {
-        printf("Invalid executable: %d\n", status);
+    rc = load_exe(&script, &entry_point);
+    if (rc != 0) {
+        printf("Invalid executable: %d\n", rc);
+        boot_failure();
     }
 
     flare_datasafe_set_boot(script.path, script.executable);
-    wdog_control(true);
+    board_wdog_control(true);
     cache_flush_invalidate();
     console_flush();
     board_handoff_exit(entry_point);

@@ -22,21 +22,27 @@
 
 #include <driver/io/board-io.h>
 
-void wdog_init(void) {
-    /*
-     * Disable the SWDT.
-     */
+void board_wdog_init(void) {
+    /* Disable the SWDT to program the clock */
     board_reg_write(0xf8005000, (0xabc << 12) | 0x0);
+    board_reg_write(0xf8005004, (0x248 << 14) | (0xfff << 2) | 0x1);
 }
 
-void wdog_control(bool enable) {
+void board_wdog_control(bool enable) {
     if (enable) {
-        board_reg_write(0xf8005000, (0xabc << 12) | 0x1);
+        board_reg_write(0xf8005000, (0xabc << 12) | 0x3);
     } else {
-        board_reg_write(0xf8005000, (0xabc << 12) | 0x0);
+        board_reg_write(0xf8005000, (0xabc << 12) | 0x2);
     }
 }
 
-void wdog_toggle(void) {
+void board_wdog_toggle(void) {
+    board_reg_write(0xf8005008, 0x1999);
+}
+
+void board_wdog_trigger(void) {
+    board_reg_write(0xf8005000, (0xabc << 12) | 0x0);
+    board_reg_write(0xf8005004, (0x248 << 14) | (0x8 << 2) | 0x0);
+    board_reg_write(0xf8005000, (0xabc << 12) | 0x3);
     board_reg_write(0xf8005008, 0x1999);
 }

@@ -23,11 +23,9 @@
 #if !defined (_BOARD_WDOG_H_)
 #define _BOARD_WDOG_H_
 
-void wdog_init(void);
-void wdog_control(bool enable);
-void wdog_toggle (void);
-
-void board_wdog_toggle (void);
+void board_wdog_init(void);
 void board_wdog_control(bool enable);
+void board_wdog_toggle (void);
+void board_wdog_trigger (void);
 
 #endif

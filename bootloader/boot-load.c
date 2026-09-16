@@ -43,7 +43,7 @@ static inline uintptr_t swap_end_32(uint32_t val) {
         ((0x0000FF00 & val) << 8) | ((0x000000FF & val) << 24));
 }
 
-bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
+int load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
     uint8_t* loadTo;
     uint8_t compression;
     char name[UBOOT_NAME_LEN + 1] = {0};
@@ -61,13 +61,13 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
         printf(
             "Bad magic number\nExpected: %08x\nFound: %08x\n",
             UBOOT_MAGIC_NUMBER, magic_num);
-        return false;
+        return 1;
     }
 
     if (compression != UBOOT_COMPRESSION_NONE &&
         compression != UBOOT_COMPRESSION_GZIP) {
         printf("Invalid compression format (%d)\n", compression);
-        return false;
+        return 2;
     }
 
     printf("       Loading: U-Boot Image: %s\n", name);
@@ -93,7 +93,7 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
 
         if ((image[0] != 0x1f) || (image[1] != 0x8b) || (image[2] != 0x08)) {
             printf("error: invalid %s header\n", name);
-            return false;
+            return 3;
         }
 
         offset = 10;
@@ -106,7 +106,7 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
             while (image[offset] != 0) {
                 if (offset >= size) {
                     printf("error: invalid %s header: fname\n", name);
-                    return false;
+                    return 4;
                 }
                 ++offset;
             }
@@ -117,7 +117,7 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
             while (image[offset] != 0) {
                 if (offset >= size) {
                     printf("error: invalid %s header: fcomment\n", name);
-                    return false;
+                    return 5;
                 }
                 ++offset;
             }
@@ -133,7 +133,7 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
             loadTo + PAD_4(size), &dsize, image + offset, size - offset - 8);
         if (ze != Z_OK) {
             printf("error: %s uncompress failure: %d\n", name, ze);
-            return false;
+            return 0;
         }
 
         memmove(loadTo, loadTo + PAD_4(size), dsize);
@@ -141,17 +141,17 @@ bool load_uboot_image(uint8_t* image, size_t size, uint32_t* entry_point) {
         memmove(loadTo, (const void*)image, size);
     }
 
-    return true;
+    return 0;
 }
 
-bool load_exe(const boot_script* const script, uint32_t* entry_point) {
+int load_exe(const boot_script* const script, uint32_t* entry_point) {
     bool csum_valid = boot_script_checksum_valid(script);
     const char* const error = "\b: error:";
+    uint32_t length = FLARE_EXECUTABLE_SIZE;
+    uint8_t checksum[CRC_CHECKSUM_SIZE];
     size_t i;
     CRC32 crc;
     int rc;
-    uint32_t length = FLARE_EXECUTABLE_SIZE;
-    uint8_t checksum[CRC_CHECKSUM_SIZE];
 
     printf("    Executable: %s", script->path);
     if (script->path[strlen(script->path) - 1] != '/') {
@@ -162,14 +162,14 @@ bool load_exe(const boot_script* const script, uint32_t* entry_point) {
     rc = flare_chdir(script->fs, script->path);
     if (rc != 0) {
         printf("%s chdir: %d\n", error, rc);
-        return false;
+        return rc;
     }
 
     rc = flare_read_file(
         script->fs, script->executable, (char*)FLARE_IMAGE_STAGE_ADDR, &length);
     if (rc != 0) {
         printf("%s read: %d\n", error, rc);
-        return false;
+        return rc;
     }
 
     crc32_clear(&crc);
@@ -185,7 +185,7 @@ bool load_exe(const boot_script* const script, uint32_t* entry_point) {
         for (i = 0; i < CRC_CHECKSUM_SIZE; ++i) {
             if (script->checksum[i] != checksum[i]) {
                 printf("error: invalid checksum\n");
-                return false;
+                return rc;
             }
         }
     }

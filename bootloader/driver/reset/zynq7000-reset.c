@@ -15,18 +15,17 @@
  */
 
 /*
- * User break on the console.
+ * Xilinx Zynq Reset using PSS_RST_CTRL.
  */
 
-#if !defined(USER_BREAK_H)
-#define USER_BREAK_H
+#include <driver/io/board-io.h>
+#include <driver/reset/board-reset.h>
+#include <driver/slcr/board-slcr.h>
 
-#include <stdint.h>
-
-/*
- * Wait the number of seconds for a break. Set second_key to `\x0' to
- * disable. Returns true if the user break has been requested.
- */
-bool user_break(size_t wair_seconds, char second_key);
-
-#endif
+void board_reset() {
+    board_slcr_unlock();
+    board_reg_write(0xf8000200, 1);
+    while (true) {
+        ;
+    }
+}

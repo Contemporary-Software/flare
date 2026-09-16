@@ -22,12 +22,14 @@
 #include "console.h"
 
 void outbyte(char c) {
-    if (c == '\n')
+    if (c == '\n') {
         board_uart_send(STDOUT_BASEADDRESS, '\r');
+    }
     board_uart_send(STDOUT_BASEADDRESS, (uint8_t)c);
 }
 
 void console_flush(void) {
-    while (board_uart_tx_idle(STDOUT_BASEADDRESS) == false)
+    while (board_uart_tx_idle(STDOUT_BASEADDRESS) == false) {
         ;
+    }
 }

@@ -56,38 +56,29 @@ static const gpio_pin_def gpio_wdog_td =
   tristate: false
 };
 
-static bool
-board_wdog_setup(void)
-{
-    if (!gpio_setup)
-    {
+void board_wdog_setup(void) {
+    if (!gpio_setup) {
         gpio_error ge;
         ge = gpio_setup_pin(&gpio_wdog_en);
         if (ge != GPIO_NO_ERROR)
-            return false;
+            return;
         ge = gpio_setup_pin(&gpio_wdog_td);
         if (ge != GPIO_NO_ERROR)
-            return false;
+            return;
         gpio_setup = true;
     }
-    return true;
 }
 
-void
-board_wdog_toggle (void)
-{
-    if (board_wdog_setup())
-    {
-        gpio_output(gpio_wdog_td.pin, WDOG_WDI_HIGH);
-        gpio_output(gpio_wdog_td.pin, WDOG_WDI_LOW);
-    }
+void board_wdog_control(bool enable) {
+    gpio_output(gpio_wdog_en.pin, enable);
 }
 
-void
-board_wdog_control(bool enable)
-{
-    if (board_wdog_setup())
-    {
-        gpio_output(gpio_wdog_en.pin, enable);
-    }
+void board_wdog_toggle (void) {
+    gpio_output(gpio_wdog_td.pin, WDOG_WDI_HIGH);
+    gpio_output(gpio_wdog_td.pin, WDOG_WDI_LOW);
+}
+
+void board_wdog_trigger(void) {
+    /* enable and wait */
+    board_wdog_control(true);
 }

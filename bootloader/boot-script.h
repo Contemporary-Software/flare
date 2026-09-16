@@ -66,6 +66,6 @@ int boot_script_load(flare_fs fs, const char* name, boot_script* bs);
 /*
  * Check if the checksum is valid, ie any byte is not zero.
  */
-bool boot_script_checksum_valid(const boot_script* const bs);
+int boot_script_checksum_valid(const boot_script* const bs);
 
 #endif

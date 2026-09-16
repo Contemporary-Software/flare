@@ -130,7 +130,7 @@ def configure(conf):
     conf.env.CFLAGS_NOWARNINGS = conf.env.CFLAGS + [
         '-ffreestanding', '-g', '-O2', '-fPIE'
     ]
-    conf.env.CFLAGS_WARNINGS = ['-Wall', '-Wextra']
+    conf.env.CFLAGS_WARNINGS = ['-Wall', '-Wextra', '-Wpedantic']
     conf.env.CFLAGS = conf.env.CFLAGS_NOWARNINGS + conf.env.CFLAGS_WARNINGS
     if conf.options.lto:
         conf.msg('LTO', 'enabled')

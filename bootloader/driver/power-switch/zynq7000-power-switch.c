@@ -69,26 +69,23 @@ typedef struct {
 
 static uint32_t gpio_config_defaults[POWER_PINS];
 static const gpio_pin_def gpio_PowerPins[2] = {
-    {
-        pin : 9,
-        output : false,
-        on : false,
-        outen : false,
-        volts : gpio_LVCMOS33,
-        pullup : true,
-        fast : false,
-        tristate : false
-    },
-    {
-        pin : 11,
-        output : false,
-        on : false,
-        outen : false,
-        volts : gpio_LVCMOS33,
-        pullup : true,
-        fast : false,
-        tristate : false
-    }};
+    {.pin = 9,
+     .output = false,
+     .on = false,
+     .outen = false,
+     .volts = gpio_LVCMOS33,
+     .pullup = true,
+     .fast = false,
+     .tristate = false},
+    {.pin = 11,
+     .output = false,
+     .on = false,
+     .outen = false,
+     .volts = gpio_LVCMOS33,
+     .pullup = true,
+     .fast = false,
+     .tristate = false},
+};
 
 #define POWER_PIN_CONFIG                                                       \
     (GPIO_PULLUP_ENABLE | GPIO_LVCMOS33 | GPIO_TRI_DISABLE |                   \
