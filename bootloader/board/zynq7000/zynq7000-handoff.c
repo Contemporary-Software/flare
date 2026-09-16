@@ -81,9 +81,10 @@ void board_handoff_exit(uint32_t address) {
     cache_disable();
     zynq_reset_mmu();
     zynq_dispatch(address);
-    wdog_control(true);
-    while (true)
+    board_wdog_trigger();
+    while (true) {
         ;
+    }
 }
 
 void board_handoff_exit_no_mmu_reset(uint32_t address) {
@@ -93,9 +94,10 @@ void board_handoff_exit_no_mmu_reset(uint32_t address) {
     zynq_clear_caches();
     cache_disable();
     zynq_dispatch(address);
-    wdog_control(true);
-    while (true)
+    board_wdog_trigger();
+    while (true) {
         ;
+    }
 }
 
 void board_handoff_jtag_exit(void) {
@@ -104,6 +106,7 @@ void board_handoff_jtag_exit(void) {
     zynq_clear_caches();
     cache_disable();
     zynq_reset_mmu();
-    while (true)
+    while (true) {
         asm volatile("wfe");
+    }
 }

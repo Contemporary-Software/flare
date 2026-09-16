@@ -73,16 +73,15 @@ factory_load_image_get8(uint8_t* table, uint32_t index, uint32_t offset) {
 }
 
 void platform_factory_booter(uint8_t* header, size_t header_size) {
+    const uint32_t* header_crc =
+        (const uint32_t*)IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_CRC);
+    uint8_t checksum[CRC_CHECKSUM_SIZE];
+    char name[UBOOT_NAME_LEN + 1] = {0};
     uint32_t flash_offset;
     uint32_t entry_point;
     size_t size;
     flash_error fe;
     CRC32 crc;
-    int i;
-    uint8_t checksum[CRC_CHECKSUM_SIZE];
-    char name[UBOOT_NAME_LEN + 1] = {0};
-    const uint32_t* header_crc =
-        (const uint32_t*)IMAGE_HEADER_RECORD(header, 0, IMAGE_HEADER_CRC);
 
     flare_datasafe_set_factory_boot();
 
@@ -111,7 +110,7 @@ void platform_factory_booter(uint8_t* header, size_t header_size) {
     crc32_str(&crc, checksum);
 
     printf("         CRC32: ");
-    for (i = 0; i < CRC_CHECKSUM_SIZE; ++i) {
+    for (int i = 0; i < CRC_CHECKSUM_SIZE; ++i) {
         printf("%c", checksum[i]);
     }
     printf("\n");
@@ -121,8 +120,10 @@ void platform_factory_booter(uint8_t* header, size_t header_size) {
         return;
     }
 
-    if (!load_uboot_image(
-            (uint8_t*)FLARE_IMAGE_STAGE_ADDR, size, &entry_point)) {
+    int rc =
+        load_uboot_image((uint8_t*)FLARE_IMAGE_STAGE_ADDR, size, &entry_point);
+    if (rc != 0) {
+        printf("error: uboot load: %d\n", rc);
         return;
     }
 
@@ -132,7 +133,7 @@ void platform_factory_booter(uint8_t* header, size_t header_size) {
     flare_datasafe_set_boot("", (const char*)name);
 
     flare_datasafe_clear_factory_boot_request();
-    wdog_control(true);
+    board_wdog_control(true);
     cache_disable();
     board_handoff_exit(entry_point);
 }
@@ -145,6 +146,8 @@ void factory_boot() {
     CRC32 crc;
     const uint32_t* header_crc;
     const char* label;
+
+    printf("\n  Factory mode: FLASH\n");
 
     fe = flash_open(&label);
     if (fe != FLASH_NO_ERROR) {
@@ -162,7 +165,7 @@ void factory_boot() {
 
     crc32_clear(&crc);
     crc32_update(
-        &crc, (const void*)header + IMAGE_HEADER_HEADER_REC,
+        &crc, (const void*)(header + IMAGE_HEADER_HEADER_REC),
         header_size - IMAGE_HEADER_HEADER_CRC_SIZE);
 
     header_crc = (const uint32_t*)(&header[IMAGE_HEADER_HEADER_CRC]);
@@ -177,6 +180,6 @@ void factory_boot() {
         platform_factory_booter(header, header_size);
     }
 
-    printf("Reset ... ");
+    printf("Reset ... \ng");
     reset();
 }

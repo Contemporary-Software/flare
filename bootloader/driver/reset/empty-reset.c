@@ -14,19 +14,8 @@
  *     limitations under the License.
  */
 
-/*
- * User break on the console.
- */
+#include <driver/reset/board-reset.h>
 
-#if !defined(USER_BREAK_H)
-#define USER_BREAK_H
-
-#include <stdint.h>
-
-/*
- * Wait the number of seconds for a break. Set second_key to `\x0' to
- * disable. Returns true if the user break has been requested.
- */
-bool user_break(size_t wair_seconds, char second_key);
-
-#endif
+void board_reset() {
+    /* returns and reset can then try for a watchdog */
+}

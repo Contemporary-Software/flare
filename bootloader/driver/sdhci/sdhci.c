@@ -254,7 +254,7 @@ static sdhci_error cmd_transfer(
     int ctlr, uint32_t cmd, uint32_t arg, uint16_t blk_cnt, uint32_t* res) {
     SDHCI_TRACE_DEBUG(
         "sdhci (%d): cmd_transfer(cmd=%c%d, arg=0x%08x, blk_cnt=%d, res=%p)\n",
-        ctlr, cmd & 0x80 ? 'A' : 'C', cmd & 0x3F, arg, blk_cnt, res);
+        ctlr, cmd & 0x80 ? 'A' : 'C', cmd & 0x3F, arg, blk_cnt, (void*)res);
     if (!check_idle(ctlr)) {
         SDHCI_TRACE_DEBUG("sdhci (%d): cmd_transfer: SDHCI_BUSY\n", ctlr);
         return SDHCI_BUSY;

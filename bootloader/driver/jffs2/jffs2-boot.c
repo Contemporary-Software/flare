@@ -35,7 +35,13 @@
 #include <driver/zlib/tzlib.h>
 
 #include "jffs2-boot.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 #include "jffs2.h"
+
+#pragma GCC diagnostic pop
 
 #if !defined(JFFS2_TRACE)
 #define JFFS2_TRACE 1
@@ -103,16 +109,13 @@ static inline uint16_t __bswap_16(uint16_t i) {
 #undef je32_to_cpu
 #undef jemode_to_cpu
 
-#define t16(x)                                                                 \
-    ({                                                                         \
-        uint16_t __b = (x);                                                    \
-        (target_endian == BYTE_ORDER) ? __b : __bswap_16(__b);                 \
-    })
-#define t32(x)                                                                 \
-    ({                                                                         \
-        uint32_t __b = (x);                                                    \
-        (target_endian == BYTE_ORDER) ? __b : __bswap_32(__b);                 \
-    })
+static uint16_t t16(uint16_t x) {
+    return (target_endian == BYTE_ORDER) ? x : __bswap_16(x);
+}
+
+static uint32_t t32(uint32_t x) {
+    return (target_endian == BYTE_ORDER) ? x : __bswap_32(x);
+}
 
 #define cpu_to_je16(x)   ((jint16_t){t16(x)})
 #define cpu_to_je32(x)   ((jint32_t){t32(x)})

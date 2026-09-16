@@ -36,26 +36,23 @@
 static bool Gpio_Setup;
 static bool led_state[2];
 static const gpio_pin_def gpio_Leds[2] = {
-    {
-        pin : 33,
-        output : true,
-        on : false,
-        outen : true,
-        volts : gpio_LVCMOS33,
-        pullup : true,
-        fast : false,
-        tristate : false
-    },
-    {
-        pin : 32,
-        output : true,
-        on : false,
-        outen : true,
-        volts : gpio_LVCMOS33,
-        pullup : true,
-        fast : false,
-        tristate : false
-    }};
+    {.pin = 33,
+     .output = true,
+     .on = false,
+     .outen = true,
+     .volts = gpio_LVCMOS33,
+     .pullup = true,
+     .fast = false,
+     .tristate = false},
+    {.pin = 32,
+     .output = true,
+     .on = false,
+     .outen = true,
+     .volts = gpio_LVCMOS33,
+     .pullup = true,
+     .fast = false,
+     .tristate = false},
+};
 
 void led_init(void) {
     gpio_error ge;

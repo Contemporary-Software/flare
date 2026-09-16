@@ -18,6 +18,7 @@ directories = [
     'md5',
     'pm',
     'power-switch',
+    'reset',
     'sdhci',
     'slcr',
     'timer',
@@ -44,7 +45,6 @@ def build(bld):
     buildcontrol.recurse(bld, directories)
     bld.stlib(target='flare_drivers',
               features='c',
-              source=['drivers.c'],
               use=[
                   'flare_crc_driver',
                   'flare_fatfs_driver',
@@ -57,6 +57,7 @@ def build(bld):
                   'flare_md5_driver',
                   'flare_pm_driver',
                   'flare_power_switch_driver',
+                  'flare_reset_driver',
                   'flare_sdhci_driver',
                   'flare_slcr_driver',
                   'flare_timer_driver',
