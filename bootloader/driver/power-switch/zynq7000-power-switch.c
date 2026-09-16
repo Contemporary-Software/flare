@@ -63,141 +63,144 @@ const uint8_t unlock_keys[] = {'\x3', '\x6'};
  * Power pin configuration.
  */
 typedef struct {
-  uint32_t pin;
-  uint32_t config;
+    uint32_t pin;
+    uint32_t config;
 } power_pin_config;
 
 static uint32_t gpio_config_defaults[POWER_PINS];
-static const gpio_pin_def gpio_PowerPins[2] = {{
-                                                 pin : 9,
-                                                 output : false,
-                                                 on : false,
-                                                 outen : false,
-                                                 volts : gpio_LVCMOS33,
-                                                 pullup : true,
-                                                 fast : false,
-                                                 tristate : false
-                                               },
-                                               {
-                                                 pin : 11,
-                                                 output : false,
-                                                 on : false,
-                                                 outen : false,
-                                                 volts : gpio_LVCMOS33,
-                                                 pullup : true,
-                                                 fast : false,
-                                                 tristate : false
-                                               }};
+static const gpio_pin_def gpio_PowerPins[2] = {
+    {
+        pin : 9,
+        output : false,
+        on : false,
+        outen : false,
+        volts : gpio_LVCMOS33,
+        pullup : true,
+        fast : false,
+        tristate : false
+    },
+    {
+        pin : 11,
+        output : false,
+        on : false,
+        outen : false,
+        volts : gpio_LVCMOS33,
+        pullup : true,
+        fast : false,
+        tristate : false
+    }};
 
 #define POWER_PIN_CONFIG                                                       \
-  (GPIO_PULLUP_ENABLE | GPIO_LVCMOS33 | GPIO_TRI_DISABLE |                     \
-   GPIO_L3_MUX_SEL_GPIO | GPIO_L2_MUX_SEL_L3 | GPIO_L1_MUX_SEL_L2 |            \
-   GPIO_L0_MUX_SEL_L1)
+    (GPIO_PULLUP_ENABLE | GPIO_LVCMOS33 | GPIO_TRI_DISABLE |                   \
+     GPIO_L3_MUX_SEL_GPIO | GPIO_L2_MUX_SEL_L3 | GPIO_L1_MUX_SEL_L2 |          \
+     GPIO_L0_MUX_SEL_L1)
 
 static const power_pin_config power_pin_configs[POWER_PINS] = {
     {.pin = 9, .config = POWER_PIN_CONFIG},
     {.pin = 11, .config = POWER_PIN_CONFIG}};
 
 static inline uint32_t read_gpio_config(const int pin) {
-  uint32_t value = board_reg_read(0xf8000700 + (pin * 4));
-  return value;
+    uint32_t value = board_reg_read(0xf8000700 + (pin * 4));
+    return value;
 }
 
 static inline void write_gpio_config(const int pin, const uint32_t value) {
-  board_reg_write(0xf8000700 + (pin * 4), value);
+    board_reg_write(0xf8000700 + (pin * 4), value);
 }
 
 static void gpio_config_restore(void) {
-  int pin;
-  board_slcr_unlock();
-  for (pin = 0; pin < POWER_PINS; ++pin)
-    write_gpio_config(power_pin_configs[pin].pin, gpio_config_defaults[pin]);
-  board_slcr_lock();
+    int pin;
+    board_slcr_unlock();
+    for (pin = 0; pin < POWER_PINS; ++pin)
+        write_gpio_config(
+            power_pin_configs[pin].pin, gpio_config_defaults[pin]);
+    board_slcr_lock();
 }
 
 static bool gpio_config_setup(void) {
-  gpio_error ge;
-  int pin;
+    gpio_error ge;
+    int pin;
 
-  for (pin = 0; pin < POWER_PINS; ++pin)
-    gpio_config_defaults[pin] = read_gpio_config(power_pin_configs[pin].pin);
+    for (pin = 0; pin < POWER_PINS; ++pin)
+        gpio_config_defaults[pin] =
+            read_gpio_config(power_pin_configs[pin].pin);
 
-  ge = gpio_setup_pins(&gpio_PowerPins[0], 2);
+    ge = gpio_setup_pins(&gpio_PowerPins[0], 2);
 
-  return ge == GPIO_NO_ERROR;
+    return ge == GPIO_NO_ERROR;
 }
 
 static bool gpio_power_pressed(void) {
-  int pin;
-  for (pin = 0; pin < POWER_PINS; ++pin) {
-    bool high = true;
-    gpio_input(gpio_PowerPins[pin].pin, &high);
-    if (!high)
-      return true;
-  }
-  return false;
+    int pin;
+    for (pin = 0; pin < POWER_PINS; ++pin) {
+        bool high = true;
+        gpio_input(gpio_PowerPins[pin].pin, &high);
+        if (!high)
+            return true;
+    }
+    return false;
 }
 
 static inline bool have_char(void) {
-  return inbyte_available();
+    return inbyte_available();
 }
 
 static inline uint8_t get_char(void) {
-  return (uint8_t)inbyte();
+    return (uint8_t)inbyte();
 }
 
 bool flare_power_on_pressed(void) {
-  volatile uint32_t seconds = 0;
-  bool pressed = true;
-  int unlock = 0;
+    volatile uint32_t seconds = 0;
+    bool pressed = true;
+    int unlock = 0;
 
-  if (!gpio_config_setup())
-    return false;
+    if (!gpio_config_setup())
+        return false;
 
-  led_normal();
+    led_normal();
 
-  printf("Factory Mode:     (^c^f)\b\b\b\b\b\b\b\b");
+    printf("Factory Mode:     (^c^f)\b\b\b\b\b\b\b\b");
 
-  while (seconds++ < POWER_ON_SECONDS) {
-    volatile uint32_t msecs = 0;
-    int unlock_last = unlock;
+    while (seconds++ < POWER_ON_SECONDS) {
+        volatile uint32_t msecs = 0;
+        int unlock_last = unlock;
 
-    printf("\b\b%1" PRIu32 " ", seconds);
+        printf("\b\b%1" PRIu32 " ", seconds);
 
-    while (msecs++ < 1000) {
-      pressed = gpio_power_pressed();
+        while (msecs++ < 1000) {
+            pressed = gpio_power_pressed();
 
-      if (have_char()) {
-        uint8_t ch = get_char();
-        if (ch == unlock_keys[unlock]) {
-          ++unlock;
-          if (unlock == UNLOCK_KEYS) {
-            pressed = true;
-            seconds = POWER_ON_SECONDS;
-            break;
-          }
-        } else {
-          unlock = 0;
+            if (have_char()) {
+                uint8_t ch = get_char();
+                if (ch == unlock_keys[unlock]) {
+                    ++unlock;
+                    if (unlock == UNLOCK_KEYS) {
+                        pressed = true;
+                        seconds = POWER_ON_SECONDS;
+                        break;
+                    }
+                } else {
+                    unlock = 0;
+                }
+            }
+
+            if (msecs == 500)
+                led_toggle();
+
+            usleep(1000);
         }
-      }
 
-      if (msecs == 500)
-        led_toggle();
-
-      usleep(1000);
+        if (unlock != unlock_last) {
+            pressed = true;
+            unlock_last = unlock;
+        }
     }
 
-    if (unlock != unlock_last) {
-      pressed = true;
-      unlock_last = unlock;
-    }
-  }
+    printf("        \b\b\b\b\b\b\b\b\b\b%s\n", pressed ? "yes" : "no");
 
-  printf("        \b\b\b\b\b\b\b\b\b\b%s\n", pressed ? "yes" : "no");
+    gpio_config_restore();
 
-  gpio_config_restore();
+    led_normal();
 
-  led_normal();
-
-  return pressed;
+    return pressed;
 }

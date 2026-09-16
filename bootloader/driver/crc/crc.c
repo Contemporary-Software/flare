@@ -78,24 +78,24 @@ static const uint32_t table[256] = {
     0x2d02ef8dUL};
 
 void crc32_clear(CRC32* crc) {
-  *crc = 0;
+    *crc = 0;
 }
 
 void crc32_update(CRC32* crc, const unsigned char* data, int len) {
-  uint32_t value = *crc;
-  value = ~value;
-  while (len-- != 0) {
-    value = table[(value ^ *data++) & 0xff] ^ (value >> 8);
-  }
-  *crc = ~value;
+    uint32_t value = *crc;
+    value = ~value;
+    while (len-- != 0) {
+        value = table[(value ^ *data++) & 0xff] ^ (value >> 8);
+    }
+    *crc = ~value;
 }
 
 void crc32_str(CRC32* crc, unsigned char* data) {
-  const char digits[] = "0123456789abcdef";
-  CRC32 tmp = *crc;
+    const char digits[] = "0123456789abcdef";
+    CRC32 tmp = *crc;
 
-  for (int i = 0; i < 8; i++) {
-    data[7 - i] = digits[tmp & 0xF];
-    tmp = tmp >> 4;
-  }
+    for (int i = 0; i < 8; i++) {
+        data[7 - i] = digits[tmp & 0xF];
+        tmp = tmp >> 4;
+    }
 }

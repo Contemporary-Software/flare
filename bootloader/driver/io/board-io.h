@@ -31,48 +31,48 @@ extern "C" {
  * Write to a device memory location.
  */
 static inline void board_reg_write(uintptr_t address, uint32_t value) {
-  volatile uint32_t* ap = (uint32_t*)address;
-  *ap = value;
+    volatile uint32_t* ap = (uint32_t*)address;
+    *ap = value;
 }
 
 /*
  * Read from a device memory location.
  */
 static inline uint32_t board_reg_read(uintptr_t address) {
-  volatile uint32_t* ap = (uint32_t*)address;
-  return *ap;
+    volatile uint32_t* ap = (uint32_t*)address;
+    return *ap;
 }
 
 /*
  * Write to a device memory location.
  */
 static inline void board_reg_write_16(uintptr_t address, uint16_t value) {
-  volatile uint16_t* ap = (uint16_t*)address;
-  *ap = value;
+    volatile uint16_t* ap = (uint16_t*)address;
+    *ap = value;
 }
 
 /*
  * Read from a device memory location.
  */
 static inline uint16_t board_reg_read_16(uintptr_t address) {
-  volatile uint16_t* ap = (uint16_t*)address;
-  return *ap;
+    volatile uint16_t* ap = (uint16_t*)address;
+    return *ap;
 }
 
 /*
  * Write to a device memory location.
  */
 static inline void board_reg_write_8(uintptr_t address, uint8_t value) {
-  volatile uint8_t* ap = (uint8_t*)address;
-  *ap = value;
+    volatile uint8_t* ap = (uint8_t*)address;
+    *ap = value;
 }
 
 /*
  * Read from a device memory location.
  */
 static inline uint8_t board_reg_read_8(uintptr_t address) {
-  volatile uint8_t* ap = (uint8_t*)address;
-  return *ap;
+    volatile uint8_t* ap = (uint8_t*)address;
+    return *ap;
 }
 
 #ifdef __cplusplus

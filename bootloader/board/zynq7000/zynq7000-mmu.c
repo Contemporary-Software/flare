@@ -23,8 +23,8 @@
 
 #define MMU_LAYOUT_ENTRIES (12)
 struct {
-  uint32_t count;
-  uint32_t attr;
+    uint32_t count;
+    uint32_t attr;
 } mmuLayout[MMU_LAYOUT_ENTRIES] = {
     /* 0x00000000 - 0x3fffffff (DDR Cacheable)
        S=b1 TEX=b101 AP=b11, Domain=b1111, C=b0, B=b1 */
@@ -69,17 +69,17 @@ struct {
     {0x0001, 0x04c0e}};
 
 void _setupMMU(void) {
-  uint32_t* table = (uint32_t*)0xFFFE0000UL;
-  uint32_t e;
-  uint32_t le;
-  uint32_t c;
-  uint32_t sect;
+    uint32_t* table = (uint32_t*)0xFFFE0000UL;
+    uint32_t e;
+    uint32_t le;
+    uint32_t c;
+    uint32_t sect;
 
-  memset(table, 0, 16 * 1024UL);
+    memset(table, 0, 16 * 1024UL);
 
-  for (e = 0, le = 0, sect = 0; le < MMU_LAYOUT_ENTRIES; ++le) {
-    for (c = 0; c < mmuLayout[le].count; ++c, ++e, sect += 0x100000) {
-      table[e] = sect + mmuLayout[le].attr;
+    for (e = 0, le = 0, sect = 0; le < MMU_LAYOUT_ENTRIES; ++le) {
+        for (c = 0; c < mmuLayout[le].count; ++c, ++e, sect += 0x100000) {
+            table[e] = sect + mmuLayout[le].attr;
+        }
     }
-  }
 }

@@ -25,14 +25,14 @@
 #include "board-timer.h"
 
 int usleep(useconds_t useconds) {
-  uint64_t end;
-  uint64_t now;
+    uint64_t end;
+    uint64_t now;
 
-  board_timer_get(&now);
-  end = now + ((uint64_t)useconds);
-  do {
     board_timer_get(&now);
-  } while (now < end);
+    end = now + ((uint64_t)useconds);
+    do {
+        board_timer_get(&now);
+    } while (now < end);
 
-  return 0;
+    return 0;
 }

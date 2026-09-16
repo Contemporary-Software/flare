@@ -19,9 +19,9 @@
 #include "board-uart.h"
 
 char inbyte(void) {
-  return board_uart_receive(STDIN_BASEADDRESS);
+    return board_uart_receive(STDIN_BASEADDRESS);
 }
 
 int inbyte_available(void) {
-  return board_uart_receive_idle(STDIN_BASEADDRESS) ? 0 : 1;
+    return board_uart_receive_idle(STDIN_BASEADDRESS) ? 0 : 1;
 }

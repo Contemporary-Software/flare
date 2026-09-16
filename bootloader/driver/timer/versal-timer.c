@@ -34,24 +34,25 @@
 #define TIMER_CLK_DIV   (TSG_CLK_FREQ_HZ / (1000000ULL))
 
 void board_timer_get(uint64_t* time) {
-  uint32_t u = board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_UPPER_OFFSET);
-  uint32_t l = board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_LOWER_OFFSET);
-  if (board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_UPPER_OFFSET) != u)
-    l = board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_LOWER_OFFSET);
-  *time = ((((uint64_t)u) << 32) | (uint64_t)l) / TIMER_CLK_DIV;
+    uint32_t u = board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_UPPER_OFFSET);
+    uint32_t l = board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_LOWER_OFFSET);
+    if (board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_UPPER_OFFSET) != u)
+        l = board_reg_read(VERSAL_TIMER + VERSAL_TSG_COUNTER_LOWER_OFFSET);
+    *time = ((((uint64_t)u) << 32) | (uint64_t)l) / TIMER_CLK_DIV;
 }
 
 void board_timer_reset(void) {
-  /* Disable counter and debug halting */
-  board_reg_write(VERSAL_TIMER + VERSAL_TSG_CTRL_OFFSET, 0x0);
+    /* Disable counter and debug halting */
+    board_reg_write(VERSAL_TIMER + VERSAL_TSG_CTRL_OFFSET, 0x0);
 
-  /* Set counter to 0 */
-  board_reg_write(VERSAL_TIMER + VERSAL_TSG_COUNTER_LOWER_OFFSET, 0x0);
-  board_reg_write(VERSAL_TIMER + VERSAL_TSG_COUNTER_UPPER_OFFSET, 0x0);
+    /* Set counter to 0 */
+    board_reg_write(VERSAL_TIMER + VERSAL_TSG_COUNTER_LOWER_OFFSET, 0x0);
+    board_reg_write(VERSAL_TIMER + VERSAL_TSG_COUNTER_UPPER_OFFSET, 0x0);
 
-  /* Store the clock freqency */
-  board_reg_write(VERSAL_TIMER + VERSAL_TSG_BASE_FREQ_OFFSET, TSG_CLK_FREQ_HZ);
+    /* Store the clock freqency */
+    board_reg_write(
+        VERSAL_TIMER + VERSAL_TSG_BASE_FREQ_OFFSET, TSG_CLK_FREQ_HZ);
 
-  /* Enable counter */
-  board_reg_write(VERSAL_TIMER + VERSAL_TSG_CTRL_OFFSET, 0x1);
+    /* Enable counter */
+    board_reg_write(VERSAL_TIMER + VERSAL_TSG_CTRL_OFFSET, 0x1);
 }

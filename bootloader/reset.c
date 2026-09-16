@@ -26,9 +26,9 @@
 #include <driver/wdog/wdog.h>
 
 void reset(void) {
-  cache_disable();
-  board_slcr_lock();
-  wdog_control(true);
-  while (true)
-    ;
+    cache_disable();
+    board_slcr_lock();
+    wdog_control(true);
+    while (true)
+        ;
 }

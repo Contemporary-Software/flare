@@ -31,20 +31,22 @@ def format(bld, sources):
     if sources:
 
         def run_c(task):
-            task.color = 'PINK'
             srcs = ' '.join([i.abspath() for i in task.inputs])
             cmd = task.env.C_FORMATTER[0] + ' -i ' + srcs
             return task.exec_command(cmd)
 
         def run_py(task):
-            task.color = 'YELLOW'
             srcs = ' '.join([i.abspath() for i in task.inputs])
             cmd = task.env.PY_FORMATTER[0] + ' -i ' + srcs
             return task.exec_command(cmd)
 
         c_sources = [s for s in sources if str(s).endswith(('.c', '.h'))]
         if c_sources:
-            bld(rule=run_c, source=c_sources, always=True, name='format c')
+            bld(rule=run_c,
+                source=c_sources,
+                always=True,
+                name='format c',
+                color='PINK')
 
         py_sources = [
             s for s in sources if str(s).endswith(('.py', 'wscript'))
@@ -53,7 +55,8 @@ def format(bld, sources):
             bld(rule=run_py,
                 source=py_sources,
                 always=True,
-                name='format python')
+                name='format python',
+                color='YELLOW')
 
 
 def options(opt):

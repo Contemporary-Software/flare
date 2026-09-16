@@ -24,8 +24,8 @@
 #include <stdint.h>
 
 void* memset(void* dst, int c, size_t len) {
-  volatile uint8_t* ud = dst;
-  while (len--)
-    *ud++ = c;
-  return dst;
+    volatile uint8_t* ud = dst;
+    while (len--)
+        *ud++ = c;
+    return dst;
 }
