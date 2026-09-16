@@ -14,28 +14,12 @@
  *     limitations under the License.
  */
 
+void led_init(void) {}
 
-void
-led_init(void)
-{
-}
+void led_normal(void) {}
 
-void
-led_normal(void)
-{
-}
+void led_execute(void) {}
 
-void
-led_execute(void)
-{
-}
+void led_failure(void) {}
 
-void
-led_failure(void)
-{
-}
-
-void
-led_toggle(void)
-{
-}
+void led_toggle(void) {}

@@ -48,36 +48,38 @@
 #define ZYNQMP_BM_SD1_LS  (0xE)
 
 int board_bootmode() {
-  uint32_t bootmode = board_reg_read(ZYNQMP_BOOTMODE_REGISTER) & ZYNQMP_BM_MASK;
+    uint32_t bootmode =
+        board_reg_read(ZYNQMP_BOOTMODE_REGISTER) & ZYNQMP_BM_MASK;
 
-  if (bootmode == ZYNQMP_BM_JTAG) {
-    return FLARE_DS_BOOTMODE_JTAG;
-  } else if (bootmode == ZYNQMP_BM_QSPI_24 || bootmode == ZYNQMP_BM_QSPI_32) {
-    return FLARE_DS_BOOTMODE_QSPI;
-  } else if (bootmode == ZYNQMP_BM_SD0 || bootmode == ZYNQMP_BM_SD1) {
-    return FLARE_DS_BOOTMODE_SD_CARD;
-  } else {
-    return FLARE_DS_BOOTMODE_ERROR;
-  }
+    if (bootmode == ZYNQMP_BM_JTAG) {
+        return FLARE_DS_BOOTMODE_JTAG;
+    } else if (bootmode == ZYNQMP_BM_QSPI_24 || bootmode == ZYNQMP_BM_QSPI_32) {
+        return FLARE_DS_BOOTMODE_QSPI;
+    } else if (bootmode == ZYNQMP_BM_SD0 || bootmode == ZYNQMP_BM_SD1) {
+        return FLARE_DS_BOOTMODE_SD_CARD;
+    } else {
+        return FLARE_DS_BOOTMODE_ERROR;
+    }
 }
 
 void flare_datasafe_hw_init(flare_datasafe* ds) {
-  uint32_t rs = board_reg_read(ZYNQMP_RESET_REASON);
+    uint32_t rs = board_reg_read(ZYNQMP_RESET_REASON);
 
-  ds->bootmode &= ~FLARE_DS_BOOTMODE_HW_MASK;
-  ds->bootmode |= board_bootmode();
+    ds->bootmode &= ~FLARE_DS_BOOTMODE_HW_MASK;
+    ds->bootmode |= board_bootmode();
 
-  ds->reset &= ~FLARE_DS_RESET_MASK;
-  if (rs & ZYNQMP_RR_INT_POR || rs & ZYNQMP_RR_EXT_POR) {
-    ds->reset |= FLARE_DS_RESET_POR;
-  } else if (rs & ZYNQMP_RR_SRST) {
-    ds->reset |= FLARE_DS_RESET_EXT;
-  } else if (rs & ZYNQMP_RR_DEBUG) {
-    ds->reset |= FLARE_DS_RESET_DBG;
-  } else if (rs & ZYNQMP_RR_SOFT || rs & ZYNQMP_RR_PMU_SYS ||
-             rs & ZYNQMP_RR_PS_ONLY) {
-    ds->reset |= FLARE_DS_RESET_SWR;
-  } else {
-    ds->reset |= FLARE_DS_RESET_ERR;
-  }
+    ds->reset &= ~FLARE_DS_RESET_MASK;
+    if (rs & ZYNQMP_RR_INT_POR || rs & ZYNQMP_RR_EXT_POR) {
+        ds->reset |= FLARE_DS_RESET_POR;
+    } else if (rs & ZYNQMP_RR_SRST) {
+        ds->reset |= FLARE_DS_RESET_EXT;
+    } else if (rs & ZYNQMP_RR_DEBUG) {
+        ds->reset |= FLARE_DS_RESET_DBG;
+    } else if (
+        rs & ZYNQMP_RR_SOFT || rs & ZYNQMP_RR_PMU_SYS ||
+        rs & ZYNQMP_RR_PS_ONLY) {
+        ds->reset |= FLARE_DS_RESET_SWR;
+    } else {
+        ds->reset |= FLARE_DS_RESET_ERR;
+    }
 }

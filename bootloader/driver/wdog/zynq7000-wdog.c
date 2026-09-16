@@ -23,20 +23,20 @@
 #include <driver/io/board-io.h>
 
 void wdog_init(void) {
-  /*
-   * Disable the SWDT.
-   */
-  board_reg_write(0xf8005000, (0xabc << 12) | 0x0);
+    /*
+     * Disable the SWDT.
+     */
+    board_reg_write(0xf8005000, (0xabc << 12) | 0x0);
 }
 
 void wdog_control(bool enable) {
-  if (enable) {
-    board_reg_write(0xf8005000, (0xabc << 12) | 0x1);
-  } else {
-    board_reg_write(0xf8005000, (0xabc << 12) | 0x0);
-  }
+    if (enable) {
+        board_reg_write(0xf8005000, (0xabc << 12) | 0x1);
+    } else {
+        board_reg_write(0xf8005000, (0xabc << 12) | 0x0);
+    }
 }
 
 void wdog_toggle(void) {
-  board_reg_write(0xf8005008, 0x1999);
+    board_reg_write(0xf8005008, 0x1999);
 }

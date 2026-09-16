@@ -42,4 +42,4 @@ def build(bld):
 
 def format(bld):
     srcs = sources + buildcontrol.board_source(bld, board_sources, True)
-    buildcontrol.format(bld, sources)
+    buildcontrol.format(bld, srcs)

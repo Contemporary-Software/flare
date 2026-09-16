@@ -17,5 +17,5 @@
 #include <stdbool.h>
 
 bool flare_power_on_pressed(void) {
-  return false;
+    return false;
 }

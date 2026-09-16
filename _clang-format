@@ -4,4 +4,20 @@ BasedOnStyle:    LLVM
 PointerAlignment: Left
 AllowShortFunctionsOnASingleLine: Inline
 AlignConsecutiveMacros: true
+
+# 1. Function alignment: breaks line after '(' without forcing ')' onto a newline
+AlignAfterOpenBracket: AlwaysBreak
+
+# 2. Allow arguments to pack on the same line (fixes printf multi-line wrapping)
+BinPackArguments: true
+BinPackParameters: true
+
+# 3. Struct & Braced list alignment
+Cpp11BracedListStyle: true
+BreakBeforeCloseBracketBracedList: false
+
+# 4. Global Indentation Widths
+IndentWidth: 4
+ContinuationIndentWidth: 4
+ColumnLimit: 80
 ...

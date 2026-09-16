@@ -23,9 +23,9 @@
 #include <driver/io/board-io.h>
 
 void board_slcr_unlock(void) {
-  board_reg_write(0xf8000008, 0xdf0d);
+    board_reg_write(0xf8000008, 0xdf0d);
 }
 
 void board_slcr_lock(void) {
-  board_reg_write(0xf8000004, 0x767b);
+    board_reg_write(0xf8000004, 0x767b);
 }

@@ -32,25 +32,25 @@
 #include "zynq7000.h"
 
 static void error_lockdown(void) {
-  printf("Bootloader failure. Reseting ...  \b \b \b \b");
-  console_flush();
-  board_slcr_lock();
-  wdog_control(true);
-  while (true)
-    ;
+    printf("Bootloader failure. Reseting ...  \b \b \b \b");
+    console_flush();
+    board_slcr_lock();
+    wdog_control(true);
+    while (true)
+        ;
 }
 
 static void trace_error(const char* label) {
-  volatile uint32_t* stack;
-  int i;
-  stack = (volatile uint32_t*)&stack;
-  printf("FATAL: %s: sp:%08" PRIx32, label, (uint32_t)stack);
-  for (i = 0; i < 64; ++i) {
-    if ((i & 0x7) == 0)
-      printf("\n ");
-    printf("%08" PRIx32 " ", stack[i]);
-  }
-  printf("\n ");
+    volatile uint32_t* stack;
+    int i;
+    stack = (volatile uint32_t*)&stack;
+    printf("FATAL: %s: sp:%08" PRIx32, label, (uint32_t)stack);
+    for (i = 0; i < 64; ++i) {
+        if ((i & 0x7) == 0)
+            printf("\n ");
+        printf("%08" PRIx32 " ", stack[i]);
+    }
+    printf("\n ");
 }
 
 void UndefinedException(void);
@@ -61,45 +61,45 @@ void IRQInterrupt(void);
 void DataAbortInterrupt(void);
 
 void UndefinedException(void) {
-  trace_error("UNDEFINED\n");
-  error_lockdown();
+    trace_error("UNDEFINED\n");
+    error_lockdown();
 }
 
 void SWInterrupt(void) {
-  trace_error("SWI\n");
-  error_lockdown();
+    trace_error("SWI\n");
+    error_lockdown();
 }
 
 void PrefetchAbortInterrupt(void) {
-  trace_error("PREFETCH-ABORT\n");
-  error_lockdown();
+    trace_error("PREFETCH-ABORT\n");
+    error_lockdown();
 }
 
 void DataAbortInterrupt(void) {
-  trace_error("DATA-ABORT\n");
-  error_lockdown();
+    trace_error("DATA-ABORT\n");
+    error_lockdown();
 }
 
 void IRQInterrupt(void) {
-  trace_error("IRQ\n");
-  error_lockdown();
+    trace_error("IRQ\n");
+    error_lockdown();
 }
 
 void FIQInterrupt(void) {
-  trace_error("FIQ\n");
-  error_lockdown();
+    trace_error("FIQ\n");
+    error_lockdown();
 }
 void board_hardware_setup(void) {
-  uint32_t status;
+    uint32_t status;
 
-  /*
-   * Initialization for MIO,PLL,CLK and DDR
-   */
-  board_slcr_unlock();
-  status = ps7_init();
-  board_slcr_lock();
-  if (status != PS7_INIT_SUCCESS) {
-    printf("error: PS7 init_fail : %s\n", getPS7MessageInfo(status));
-    error_lockdown();
-  }
+    /*
+     * Initialization for MIO,PLL,CLK and DDR
+     */
+    board_slcr_unlock();
+    status = ps7_init();
+    board_slcr_lock();
+    if (status != PS7_INIT_SUCCESS) {
+        printf("error: PS7 init_fail : %s\n", getPS7MessageInfo(status));
+        error_lockdown();
+    }
 }

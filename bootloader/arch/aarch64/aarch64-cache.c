@@ -23,46 +23,46 @@
 #include "mmu/aarch64-cache.h"
 
 void cache_flush(void) {
-  rtems_cache_flush_entire_data();
+    rtems_cache_flush_entire_data();
 }
 
 void cache_invalidate(void) {
-  rtems_cache_invalidate_entire_data();
-  rtems_cache_invalidate_entire_instruction();
+    rtems_cache_invalidate_entire_data();
+    rtems_cache_invalidate_entire_instruction();
 }
 
 void cache_flush_invalidate(void) {
-  cache_flush();
-  cache_invalidate();
+    cache_flush();
+    cache_invalidate();
 }
 
 void cache_disable_icache(void) {
-  cache_flush();
-  rtems_cache_disable_instruction(get_current_EL());
+    cache_flush();
+    rtems_cache_disable_instruction(get_current_EL());
 }
 
 void cache_disable_dcache(void) {
-  cache_flush();
-  rtems_cache_disable_data(get_current_EL());
+    cache_flush();
+    rtems_cache_disable_data(get_current_EL());
 }
 
 void cache_disable(void) {
-  cache_flush();
-  cache_disable_dcache();
-  cache_disable_icache();
+    cache_flush();
+    cache_disable_dcache();
+    cache_disable_icache();
 }
 
 void cache_enable_icache(void) {
-  rtems_cache_enable_instruction(get_current_EL());
-  rtems_cache_invalidate_entire_instruction();
+    rtems_cache_enable_instruction(get_current_EL());
+    rtems_cache_invalidate_entire_instruction();
 }
 
 void cache_enable_dcache(void) {
-  rtems_cache_enable_data(get_current_EL());
-  rtems_cache_invalidate_entire_data();
+    rtems_cache_enable_data(get_current_EL());
+    rtems_cache_invalidate_entire_data();
 }
 
 void cache_enable(void) {
-  cache_enable_icache();
-  cache_enable_dcache();
+    cache_enable_icache();
+    cache_enable_dcache();
 }
