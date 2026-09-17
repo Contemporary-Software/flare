@@ -185,7 +185,7 @@ int load_exe(const boot_script* const script, uint32_t* entry_point) {
         for (i = 0; i < CRC_CHECKSUM_SIZE; ++i) {
             if (script->checksum[i] != checksum[i]) {
                 printf("error: invalid checksum\n");
-                return rc;
+                return 50;
             }
         }
     }
